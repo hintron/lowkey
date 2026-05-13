@@ -31,21 +31,22 @@ get_next_token :: proc(expr: string, position: int) -> (Token, int) {
 
 	next_position := position + 1
 	if expr[position] == '>' {
-		fmt.println("Found '>' operator")
+		fmt.println("Found operator: >")
 		return Token.GreaterThan, next_position
 	} else if expr[position] == '+' {
-		fmt.println("Found '+' operator")
+		fmt.println("Found operator: +")
 		return Token.Addition, next_position
 	} else if expr[position] == '*' {
-		fmt.println("Found '*' operator")
+		fmt.println("Found operator: *")
 		return Token.Multiplication, next_position
 	} else if expr[position] >= 'a' && expr[position] <= 'z' {
-		fmt.printfln("Found identifier starting with '%c'", expr[position])
+		identifier_start := position
 		// Parse an identifier (variable name)
 		for next_position < len(expr) && expr[next_position] >= 'a' && expr[next_position] <= 'z' {
-			fmt.printfln("Found identifier continuing with '%c'", expr[next_position])
 			next_position += 1
 		}
+		identifier_end := next_position
+		fmt.printfln("Found identifier: %v", expr[identifier_start:identifier_end])
 		return Token.Identifier, next_position
 	} else {
 		fmt.println("Found whitespace or unrecognized character, skipping")
