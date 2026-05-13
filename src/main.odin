@@ -1,10 +1,16 @@
 package main
 
 import "core:fmt"
+import "core:strings"
 
 MAX_TOKENS :: 2 << 20 // 1 MB
 
-Token :: enum {
+Token :: struct {
+	type: TokenType,
+	value: string, // The value of the token. Only needed when TokenType is Identifier
+}
+
+TokenType :: enum {
 	GreaterThan,
 	Addition,
 	Multiplication,
@@ -31,19 +37,27 @@ get_next_token :: proc(expr: string, position: int) -> (Token, int) {
 	fmt.printfln("^		(pos=%v)", position)
 
 	if position >= len(expr) {
-		return Token.EndOfExpression, position
+		return Token {
+			type = .EndOfExpression,
+		}, position
 	}
 
 	next_position := position + 1
 	if expr[position] == '>' {
 		fmt.println("Found operator: >")
-		return Token.GreaterThan, next_position
+		return Token {
+			type = .GreaterThan,
+		}, next_position
 	} else if expr[position] == '+' {
 		fmt.println("Found operator: +")
-		return Token.Addition, next_position
+		return Token {
+			type = .Addition,
+		}, next_position
 	} else if expr[position] == '*' {
 		fmt.println("Found operator: *")
-		return Token.Multiplication, next_position
+		return Token {
+			type = .Multiplication,
+		}, next_position
 	} else if expr[position] >= 'a' && expr[position] <= 'z' {
 		identifier_start := position
 		// Parse an identifier (variable name)
@@ -52,20 +66,31 @@ get_next_token :: proc(expr: string, position: int) -> (Token, int) {
 		}
 		identifier_end := next_position
 		fmt.printfln("Found identifier: %v", expr[identifier_start:identifier_end])
-		return Token.Identifier, next_position
+		return Token {
+			type = .Identifier,
+			value = strings.clone(expr[identifier_start:identifier_end])
+		}, next_position
 	} else if expr[position] == ' ' {
 		fmt.println("Found whitespace: space")
-		return Token.WhitespaceSpace, next_position
+		return Token {
+			type = .WhitespaceSpace,
+		}, next_position
 	} else if expr[position] == '\t' {
 		fmt.println("Found whitespace: tab")
-		return Token.WhitespaceTab, next_position
+		return Token {
+			type = .WhitespaceTab,
+		}, next_position
 	} else if expr[position] == '\n' {
 		fmt.println("Found whitespace: newline")
-		return Token.WhitespaceNewline, next_position
+		return Token {
+			type = .WhitespaceNewline,
+		}, next_position
 	} else {
 		fmt.println("Found unrecognized character:")
 		// Skip whitespace and unrecognized characters
-		return Token.UnrecognizedCharacter, next_position
+		return Token {
+			type = .UnrecognizedCharacter,
+		}, next_position
 	}
 }
 
@@ -87,10 +112,10 @@ main :: proc() {
 
 		// Skip whitespace and unrecognized characters
 		if (
-			token ==.WhitespaceSpace ||
-			token == .WhitespaceTab ||
-			token == .WhitespaceNewline ||
-			token == .UnrecognizedCharacter
+			token.type ==.WhitespaceSpace ||
+			token.type == .WhitespaceTab ||
+			token.type == .WhitespaceNewline ||
+			token.type == .UnrecognizedCharacter
 		) {
 			invalid_token_count += 1
 			continue
@@ -102,7 +127,7 @@ main :: proc() {
 
 	fmt.println("Parsed tokens (valid):")
 	for token in token_list {
-		fmt.println(" ", token)
+		fmt.println("  ", token)
 	}
 	fmt.printfln("(%v invalid or whitespace tokens were ignored)", invalid_token_count)
 }
