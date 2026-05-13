@@ -108,7 +108,7 @@ tokenize :: proc(expr: string) -> [dynamic]Token {
 
 		// Skip whitespace and unrecognized characters
 		if (
-			token.type ==.WhitespaceSpace ||
+			token.type == .WhitespaceSpace ||
 			token.type == .WhitespaceTab ||
 			token.type == .WhitespaceNewline ||
 			token.type == .UnrecognizedCharacter
