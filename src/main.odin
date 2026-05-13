@@ -95,6 +95,8 @@ get_next_token :: proc(expr: string, position: int) -> (Token, int) {
 }
 
 main :: proc() {
+	// TODO: Use an arena allocator for each parsed line, and free it after parsing the line
+
 	expression_to_parse := "a > b + c * d + e"
 	// expression_to_parse := "a > bb + ccc * dddd + eeeee"
 	// expression_to_parse := "aaa > b"
@@ -130,5 +132,9 @@ main :: proc() {
 		fmt.println("  ", token)
 	}
 	fmt.printfln("(%v invalid or whitespace tokens were ignored)", invalid_token_count)
+
+	// TODO: Loop through the token list and create an AST with precedence
 }
+
+// TODO: Create tests for the tokenizer
 
