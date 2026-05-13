@@ -94,22 +94,16 @@ get_next_token :: proc(expr: string, position: int) -> (Token, int) {
 	}
 }
 
-main :: proc() {
-	// TODO: Use an arena allocator for each parsed line, and free it after parsing the line
+tokenize :: proc(expr: string) -> [dynamic]Token {
+	fmt.println("Tokenizing expression:", expr)
 
-	expression_to_parse := "a > b + c * d + e"
-	// expression_to_parse := "a > bb + ccc * dddd + eeeee"
-	// expression_to_parse := "aaa > b"
 	pos := 0
 	new_pos := 0
-
-	fmt.println("Parsing expression:", expression_to_parse)
-
 	invalid_token_count := 0
 	token_list := make([dynamic]Token, 0, MAX_TOKENS)
 
-	for pos < len(expression_to_parse) {
-		token, new_pos := get_next_token(expression_to_parse, pos)
+	for pos < len(expr) {
+		token, new_pos := get_next_token(expr, pos)
 		pos = new_pos
 
 		// Skip whitespace and unrecognized characters
@@ -132,7 +126,19 @@ main :: proc() {
 		fmt.println("  ", token)
 	}
 	fmt.printfln("(%v invalid or whitespace tokens were ignored)", invalid_token_count)
+	return token_list
+}
 
+main :: proc() {
+	// TODO: Use an arena allocator for each parsed line, and free it after parsing the line
+
+	expression_to_parse := "a > b + c * d + e"
+	// expression_to_parse := "a > bb + ccc * dddd + eeeee"
+	// expression_to_parse := "aaa > b"
+
+	fmt.println("Parsing expression:", expression_to_parse)
+
+	token_list := tokenize(expression_to_parse)
 	// TODO: Loop through the token list and create an AST with precedence
 }
 
