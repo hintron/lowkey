@@ -2,6 +2,70 @@ package main
 
 import "core:fmt"
 
-main :: proc() {
-    fmt.println("Hellope, lowkey!")
+Token :: enum {
+	GreaterThan,
+	Addition,
+	Multiplication,
+	Identifier,
+	Whitespace,
+	EndOfExpression,
 }
+
+OperatorBinary :: struct {
+	type: Token,
+	precedence: i8,
+}
+
+// Takes an input string and starting position, and returns a Token type and the start position of the byte after the next token
+get_next_token :: proc(expr: string, position: int) -> (Token, int) {
+	// fmt.println("Getting next token starting at position", position)
+	fmt.printfln("%v", expr)
+	for i in 0..<position {
+		fmt.print("-")
+	}
+	fmt.printfln("^		(pos=%v)", position)
+
+	if position >= len(expr) {
+		return Token.EndOfExpression, position
+	}
+
+	next_position := position + 1
+	if expr[position] == '>' {
+		fmt.println("Found '>' operator")
+		return Token.GreaterThan, next_position
+	} else if expr[position] == '+' {
+		fmt.println("Found '+' operator")
+		return Token.Addition, next_position
+	} else if expr[position] == '*' {
+		fmt.println("Found '*' operator")
+		return Token.Multiplication, next_position
+	} else if expr[position] >= 'a' && expr[position] <= 'z' {
+		fmt.printfln("Found identifier starting with '%c'", expr[position])
+		// Parse an identifier (variable name)
+		for next_position < len(expr) && expr[next_position] >= 'a' && expr[next_position] <= 'z' {
+			fmt.printfln("Found identifier continuing with '%c'", expr[next_position])
+			next_position += 1
+		}
+		return Token.Identifier, next_position
+	} else {
+		fmt.println("Found whitespace or unrecognized character, skipping")
+		// Skip whitespace and unrecognized characters
+		return Token.Whitespace, next_position
+	}
+}
+
+main :: proc() {
+	// expression_to_parse := "a > bb + ccc * dddd + eeeee"
+	expression_to_parse := "aaa > b"
+	pos := 0
+	new_pos := 0
+
+	fmt.println("Parsing expression:", expression_to_parse)
+
+	for pos < len(expression_to_parse) {
+		token, new_pos := get_next_token(expression_to_parse, pos)
+		fmt.printfln("Found token %v at position %d", token, pos)
+		pos = new_pos
+	}
+}
+
