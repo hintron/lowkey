@@ -2,6 +2,8 @@ package main
 
 import "core:fmt"
 
+MAX_TOKENS :: 2 << 20 // 1 MB
+
 Token :: enum {
 	GreaterThan,
 	Addition,
@@ -68,16 +70,40 @@ get_next_token :: proc(expr: string, position: int) -> (Token, int) {
 }
 
 main :: proc() {
+	expression_to_parse := "a > b + c * d + e"
 	// expression_to_parse := "a > bb + ccc * dddd + eeeee"
-	expression_to_parse := "aaa > b"
+	// expression_to_parse := "aaa > b"
 	pos := 0
 	new_pos := 0
 
 	fmt.println("Parsing expression:", expression_to_parse)
 
+	invalid_token_count := 0
+	token_list := make([dynamic]Token, 0, MAX_TOKENS)
+
 	for pos < len(expression_to_parse) {
 		token, new_pos := get_next_token(expression_to_parse, pos)
 		pos = new_pos
+
+		// Skip whitespace and unrecognized characters
+		if (
+			token ==.WhitespaceSpace ||
+			token == .WhitespaceTab ||
+			token == .WhitespaceNewline ||
+			token == .UnrecognizedCharacter
+		) {
+			invalid_token_count += 1
+			continue
+		}
+
+		// Append all valid tokens to the list
+		append(&token_list, token)
 	}
+
+	fmt.println("Parsed tokens (valid):")
+	for token in token_list {
+		fmt.println(" ", token)
+	}
+	fmt.printfln("(%v invalid or whitespace tokens were ignored)", invalid_token_count)
 }
 
