@@ -77,7 +77,6 @@ main :: proc() {
 
 	for pos < len(expression_to_parse) {
 		token, new_pos := get_next_token(expression_to_parse, pos)
-		fmt.printfln("Found token %v at position %d", token, pos)
 		pos = new_pos
 	}
 }
