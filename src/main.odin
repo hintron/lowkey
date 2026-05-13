@@ -7,7 +7,10 @@ Token :: enum {
 	Addition,
 	Multiplication,
 	Identifier,
-	Whitespace,
+	WhitespaceSpace,
+	WhitespaceTab,
+	WhitespaceNewline,
+	UnrecognizedCharacter,
 	EndOfExpression,
 }
 
@@ -48,10 +51,19 @@ get_next_token :: proc(expr: string, position: int) -> (Token, int) {
 		identifier_end := next_position
 		fmt.printfln("Found identifier: %v", expr[identifier_start:identifier_end])
 		return Token.Identifier, next_position
+	} else if expr[position] == ' ' {
+		fmt.println("Found whitespace: space")
+		return Token.WhitespaceSpace, next_position
+	} else if expr[position] == '\t' {
+		fmt.println("Found whitespace: tab")
+		return Token.WhitespaceTab, next_position
+	} else if expr[position] == '\n' {
+		fmt.println("Found whitespace: newline")
+		return Token.WhitespaceNewline, next_position
 	} else {
-		fmt.println("Found whitespace or unrecognized character, skipping")
+		fmt.println("Found unrecognized character:")
 		// Skip whitespace and unrecognized characters
-		return Token.Whitespace, next_position
+		return Token.UnrecognizedCharacter, next_position
 	}
 }
 
