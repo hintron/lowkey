@@ -5,6 +5,9 @@ import "core:strings"
 
 MAX_TOKENS :: 2 << 20 // 1 MB
 
+////////////////////////////////////////////////////////////////////////////////
+// Tokenization/lexing/scanning
+////////////////////////////////////////////////////////////////////////////////
 Token :: struct {
 	type: TokenType,
 	value: string, // The value of the token. Only needed when TokenType is Identifier
@@ -20,11 +23,6 @@ TokenType :: enum {
 	WhitespaceNewline,
 	UnrecognizedCharacter,
 	EndOfExpression,
-}
-
-OperatorBinary :: struct {
-	type: Token,
-	precedence: i8,
 }
 
 // Takes an input string and starting position, and returns a Token type and the start position of the byte after the next token
@@ -128,6 +126,17 @@ tokenize :: proc(expr: string) -> [dynamic]Token {
 	fmt.printfln("(%v invalid or whitespace tokens were ignored)", invalid_token_count)
 	return token_list
 }
+
+
+////////////////////////////////////////////////////////////////////////////////
+// Parsing/Semantic Analysis, Abstract Syntax Tree (AST)
+////////////////////////////////////////////////////////////////////////////////
+
+OperatorBinary :: struct {
+	type: Token,
+	precedence: i8,
+}
+
 
 main :: proc() {
 	// TODO: Use an arena allocator for each parsed line, and free it after parsing the line
