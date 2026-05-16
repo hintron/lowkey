@@ -66,6 +66,7 @@ get_next_token :: proc(expr: string, position: int) -> (Token, int) {
 		fmt.printfln("Found identifier: %v", expr[identifier_start:identifier_end])
 		return Token {
 			type = .Identifier,
+			// MGH TODO: This is a memory allocation! Use arenas? Static arrays? How does Zig not allocate during tokenization?
 			value = strings.clone(expr[identifier_start:identifier_end])
 		}, next_position
 	} else if expr[position] == ' ' {
