@@ -7,14 +7,22 @@ Create a function called `tokenize()` that returns the string `Hello, world, fro
 NOTE: View this on a web browser in GitHub or in a markdown viewer to avoid spoilers!
 
 <details>
-<summary>Show Hint 1</summary>
+<summary>Show Hint - test runner program approach</summary>
 
 There are a few ways to create a test runner program. You can either:
 
 * Use your language's built-in testing framework (if there is one) and call `tokenize()` from that.
 
-* Or, have your main function print out the output of `tokenize()` and then run your program via a script (bash or shell scripts on Linux/macOS, or Batch or PowerShell scripts on Windows). In the script, capture the output, then read the contents of the output file, and compare the two.
+* Or, have your `main()` function print out the output of `tokenize()` and then run your program via a script (bash or shell scripts on Linux/macOS, or Batch or PowerShell scripts on Windows). In the script, capture the output, then read the contents of the output file, and compare the two.
 
-* Both of these methods will be shown in the reference implementation, though I recommend using the built-in testing framework if possible, as that approach will be cross-platform and not involve learning scripts.
+* I recommend using the built-in testing framework if possible, as that approach will be cross-platform and not involve learning scripts. The reference implementation shows how to do that with Odin.
+
+</details>
+
+
+<details>
+<summary>Show Hint - comparing outputs</summary>
+
+The expected output file has a Line Feed (LF - macOS/Linux newline) as the last character, so trim whitespace from the string after reading the file, so that you don't mismatch on whitespace.
 
 </details>
