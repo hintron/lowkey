@@ -16,14 +16,16 @@ while true; do
     [[ -d "$step_dir" ]] || break
     echo "Building $step with \`odin build . -vet\`"
     cd "$step_dir" || exit
-    if ! odin build . -vet; then
+    if ! output=$(odin build . -vet 2>&1); then
         echo "  FAIL: $step: Build failed"
+        echo "$output"
         FAIL=$((FAIL+1))
         break
     fi
 
-    if ! odin test . -vet; then
+    if ! output=$(odin test . -vet 2>&1); then
         echo "  FAIL: $step: Tests failed"
+        echo "$output"
         FAIL=$((FAIL+1))
         break
     fi
@@ -40,15 +42,19 @@ fi
 # Finally, check that the final implementation in src/ builds successfully
 echo "Building final implementation in src/ with \`odin build . -vet\`"
 cd "$REF_IMPL_DIR/src" || exit
-if ! odin build . -vet; then
+if ! output=$(odin build . -vet 2>&1); then
     echo "  FAIL: Final implementation in src/: Build failed"
-    FAIL=$((FAIL+1))
-elif ! odin test . -vet; then
-    echo "  FAIL: Final implementation in src/: Tests failed"
+    echo "$output"
     FAIL=$((FAIL+1))
 else
-    echo "  PASS: Final implementation in src/"
-    PASS=$((PASS+1))
+    if ! output=$(odin test . -vet 2>&1); then
+        echo "  FAIL: Final implementation in src/: Tests failed"
+        echo "$output"
+        FAIL=$((FAIL+1))
+    else
+        echo "  PASS: Final implementation in src/"
+        PASS=$((PASS+1))
+    fi
 fi
 
 echo "------------------------------"
