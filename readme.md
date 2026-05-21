@@ -32,9 +32,16 @@ See [docs/getting-started.md](docs/getting-started.md) to get started.
 
 ## Notable incremental tutorials
 
-* [Handmade Hero](https://guide.handmadehero.org/code/day001/)
+* [Chibicc](https://github.com/rui314/chibicc) by Rui Ueyama - Write a C compiler from scratch, incrementally.
 
-* [Writing an OS in Rust](https://os.phil-opp.com/)
+* [Real-time Operating Systems](https://github.com/hintron/8086-toolchain) by Dr. James Archibald - Through a series of labs, incrementally write your own custom "YAK" RTOS from scratch in C and 8086 assembly and run it on the class 8086 emulator.
+
+* [Computer Enhance](https://www.computerenhance.com/) by Casey Muratori (15$/mo subscription) - Learn 8086 assembly and incrementally implement a complete 8086 emulator from scratch in part 1; learn how the CPU works from the perspective of a programmer in the other parts.
+
+* [Writing an OS in Rust](https://os.phil-opp.com/) by Phil Opperman and [Intermezzos](https://intermezzos.github.io/book/first-edition/) by Steve Klabnik - Write the very beginnings of your own x64 OS in Rust
+
+* [Handmade Hero](https://guide.handmadehero.org/code/day001/) by Casey Murator - Write a computer game from scratch, in 1 hour sessions (the consensus is to follow along for the first 30 days, and then as needed after that).
+
 
 
 [^1]: https://mitchellh.com/writing/building-large-technical-projects
