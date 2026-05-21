@@ -29,9 +29,9 @@ while true; do
         FAIL=$((FAIL+1))
         break
     fi
-    if echo "$output" | grep -q 'WARN'; then
+    if echo "$output" | grep -qE 'WARN|\+\+\+ leak'; then
         echo "  WARN: $step: Warnings in test output"
-        echo "$output" | grep 'WARN'
+        echo "$output" | grep -E 'WARN|\+\+\+ leak'
     fi
 
     echo "  PASS: $step"
@@ -56,9 +56,9 @@ else
         echo "$output"
         FAIL=$((FAIL+1))
     else
-        if echo "$output" | grep -q 'WARN'; then
+        if echo "$output" | grep -qE 'WARN|\+\+\+ leak'; then
             echo "  WARN: Final implementation in src/: Warnings in test output"
-            echo "$output" | grep 'WARN'
+            echo "$output" | grep -E 'WARN|\+\+\+ leak'
         fi
         echo "  PASS: Final implementation in src/"
         PASS=$((PASS+1))
