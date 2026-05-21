@@ -29,7 +29,7 @@ TokenType :: enum {
 get_next_token :: proc(expr: string, position: int) -> (Token, int) {
 	// fmt.println("Getting next token starting at position", position)
 	fmt.printfln("%v", expr)
-	for i in 0..<position {
+	for _ in 0..<position {
 		fmt.print("-")
 	}
 	fmt.printfln("^		(pos=%v)", position)
@@ -97,7 +97,6 @@ tokenize :: proc(expr: string) -> [dynamic]Token {
 	fmt.println("Tokenizing expression:", expr)
 
 	pos := 0
-	new_pos := 0
 	invalid_token_count := 0
 	token_list := make([dynamic]Token, 0, MAX_TOKENS)
 
@@ -148,7 +147,7 @@ main :: proc() {
 
 	fmt.println("Parsing expression:", expression_to_parse)
 
-	token_list := tokenize(expression_to_parse)
+	tokenize(expression_to_parse)
 	// TODO: Loop through the token list and create an AST with precedence
 }
 
