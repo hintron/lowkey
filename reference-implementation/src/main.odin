@@ -13,7 +13,7 @@ MAX_INDENTIFIER_SIZE :: 256
 Token :: struct {
 	type: TokenType,
 	// The value of the token. Only needed when TokenType is Identifier
-	value: [MAX_INDENTIFIER_SIZE]u8,
+	value: [MAX_INDENTIFIER_SIZE]byte,
 }
 
 TokenType :: enum {
