@@ -1,6 +1,6 @@
 # Getting Started
 
-To get started, open [`step-001`](../steps/step-001/step-001.md).
+To get started, open [`step-001`](../steps/step-001.md).
 
 # Schedule
 
@@ -28,7 +28,7 @@ The compiler will be implemented incrementally, step by step, in 1-hour sitdown 
 
 # Reference Implementation
 
-See [reference-implementation](reference-implementation) for a reference implementation of all the steps, in [Odin](https://odin-lang.org). Please don't look at this unless you get stuck and have already looked at the hints in that step's readme.
+See the [reference-implementation](../reference-implementation/readme.md) for example code for all the steps, written in [Odin](https://odin-lang.org). Please don't look at this unless you get stuck and have already looked at the hints in that step's readme.
 
 
 # Recommendations and Suggestions
