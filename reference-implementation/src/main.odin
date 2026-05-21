@@ -32,12 +32,14 @@ TokenType :: enum {
 // If an error occurred, returns is_ok := false. Otherwise, returns is_ok := true.
 // TODO: Perhaps change the error into an enum that has a string error that I can return to the caller
 get_next_token :: proc(expr: string, position: int) -> (Token, int, bool) {
-	// fmt.println("Getting next token starting at position", position)
-	fmt.printfln("%v", expr)
-	for _ in 0..<position {
-		fmt.print("-")
+	when ODIN_DEBUG {
+		// fmt.println("Getting next token starting at position", position)
+		fmt.printfln("%v", expr)
+		for _ in 0..<position {
+			fmt.print("-")
+		}
+		fmt.printfln("^		(pos=%v)", position)
 	}
-	fmt.printfln("^		(pos=%v)", position)
 
 	if position >= len(expr) {
 		return Token {
@@ -47,17 +49,23 @@ get_next_token :: proc(expr: string, position: int) -> (Token, int, bool) {
 
 	next_position := position + 1
 	if expr[position] == '>' {
-		fmt.println("Found operator: >")
+		when ODIN_DEBUG {
+			fmt.println("Found operator: >")
+		}
 		return Token {
 			type = .GreaterThan,
 		}, next_position, true
 	} else if expr[position] == '+' {
-		fmt.println("Found operator: +")
+		when ODIN_DEBUG {
+			fmt.println("Found operator: +")
+		}
 		return Token {
 			type = .Addition,
 		}, next_position, true
 	} else if expr[position] == '*' {
-		fmt.println("Found operator: *")
+		when ODIN_DEBUG {
+			fmt.println("Found operator: *")
+		}
 		return Token {
 			type = .Multiplication,
 		}, next_position, true
@@ -70,7 +78,9 @@ get_next_token :: proc(expr: string, position: int) -> (Token, int, bool) {
 			next_position += 1
 		}
 		identifier_end := next_position
-		fmt.printfln("Found identifier: %v", expr[identifier_start:identifier_end])
+		when ODIN_DEBUG {
+			fmt.printfln("Found identifier: %v", expr[identifier_start:identifier_end])
+		}
 
 		if len(expr[identifier_start:identifier_end]) > MAX_INDENTIFIER_SIZE {
 			fmt.println("Identifier is too long for token value buffer!")
@@ -93,17 +103,23 @@ get_next_token :: proc(expr: string, position: int) -> (Token, int, bool) {
 		// MGH TODO: Is token copied here? Or passed by reference somehow?
 		return token, next_position, true
 	} else if expr[position] == ' ' {
-		fmt.println("Found whitespace: space")
+		when ODIN_DEBUG {
+			fmt.println("Found whitespace: space")
+		}
 		return Token {
 			type = .WhitespaceSpace,
 		}, next_position, true
 	} else if expr[position] == '\t' {
-		fmt.println("Found whitespace: tab")
+		when ODIN_DEBUG {
+			fmt.println("Found whitespace: tab")
+		}
 		return Token {
 			type = .WhitespaceTab,
 		}, next_position, true
 	} else if expr[position] == '\n' {
-		fmt.println("Found whitespace: newline")
+		when ODIN_DEBUG {
+			fmt.println("Found whitespace: newline")
+		}
 		return Token {
 			type = .WhitespaceNewline,
 		}, next_position, true
@@ -117,7 +133,9 @@ get_next_token :: proc(expr: string, position: int) -> (Token, int, bool) {
 }
 
 tokenize :: proc(expr: string) -> [dynamic]Token {
-	fmt.println("Tokenizing expression:", expr)
+	when ODIN_DEBUG {
+		fmt.println("Tokenizing expression:", expr)
+	}
 
 	pos := 0
 	invalid_token_count := 0
@@ -147,11 +165,13 @@ tokenize :: proc(expr: string) -> [dynamic]Token {
 		append(&token_list, token)
 	}
 
-	fmt.println("Parsed tokens (valid):")
-	for token in token_list {
-		fmt.println("  ", token)
+	when ODIN_DEBUG {
+		fmt.println("Parsed tokens (valid):")
+		for token in token_list {
+			fmt.println("  ", token)
+		}
+		fmt.printfln("(%v invalid or whitespace tokens were ignored)", invalid_token_count)
 	}
-	fmt.printfln("(%v invalid or whitespace tokens were ignored)", invalid_token_count)
 	return token_list
 }
 
