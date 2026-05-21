@@ -8,22 +8,50 @@ The compiler will be implemented incrementally, step by step, in 1-hour sitdown 
 
 * [`step-001`](../steps/step-001.md) : `Hello, world!`.
 * [`step-002`](../steps/step-002.md) : Set up the test runner and create the `tokenize()` function stub.
-* [`step-XXX`](../steps/step-XXX.md) : Tokenize `7` and return it from tokenization function.
-* [`step-XXX`](../steps/step-XXX.md) : Emit x64 and arm64 for `7` and save to an assembly file.
-* [`step-XXX`](../steps/step-XXX.md) : Create a simple Lowkey runtime and link assembly into executable to print `7`.
-* [`step-XXX`](../steps/step-XXX.md) : Tokenization visualization.
-* [`step-XXX`](../steps/step-XXX.md) : Tokenize and emit assembly for `1337` (multi-digit parsing state machine).
-* [`step-XXX`](../steps/step-XXX.md) : Tokenize and emit assembly for `-1337`.
-* [`step-XXX`](../steps/step-XXX.md) : Make an abstract syntax tree (AST) for `2 + 2` and use AST to emit assembly.
-* [`step-XXX`](../steps/step-XXX.md) : AST visualization.
-* [`step-XXX`](../steps/step-XXX.md) : Tokenize and emit assembly for `2 + 2`.
-* [`step-XXX`](../steps/step-XXX.md) : Tokenize, parse, and emit assembly for `2 - 2`.
-* [`step-XXX`](../steps/step-XXX.md) : Tokenize, parse, and emit assembly for `7 * 3`.
-* [`step-XXX`](../steps/step-XXX.md) : Tokenize, parse, and emit assembly for `7 / 3`.
+* [`step-003`](../steps/step-003.md) : Have `tokenize()` take in an input string and return that same input as the output string. Run multiple tests.
+* [`step-XXX`](../steps/step-XXX.md) : Tokenize `7` into a `Token` data structure. Change `tokenize()` to return a list of `Token`s instead of a string.
+* [`step-XXX`](../steps/step-XXX.md) : Tokenize `7234` (multi-digit numbers); tokenization visualization.
+* [`step-XXX`](../steps/step-XXX.md) : Create a simple Lowkey runtime executable with an internal function called `lowkey_main_temp()` that returns a single constant number `42`, and print out that value.
+* [`step-XXX`](../steps/step-XXX.md) : Create an assembly file for your given architecture and create a global function called `lowkey_main` that simply returns a constant number `43`. In the Lowkey runtime executable, replace `lowkey_main_temp()` with `lowkey_main()`. Finally, include the assembly file into the build, and verify that the runner prints out `43`.
+* [`step-XXX`](../steps/step-XXX.md) : Take the single token output for `7234` and create an assembly file that returns that value, and see the runner print it out.
+* [`step-XXX`](../steps/step-XXX.md) : Create a `parse()` function that takes in a token list and outputs a list of `SyntaxNode`s.
+* [`step-XXX`](../steps/step-XXX.md) : Tokenize `-7234` (tokenize a unary operation).
+* [`step-XXX`](../steps/step-XXX.md) : Tokenize `-7234 + 3` (tokenize a binary operation; skip whitespace).
+* [`step-XXX`](../steps/step-XXX.md) : Parse `-7234 + 3` and create an actual Abstract Syntax Tree (AST) instead of a list of nodes; AST creation visualization.
+* [`step-XXX`](../steps/step-XXX.md) : Take AST for `-7234 + 3` and generate an add assembly instruction. Then, have that add result be returned instead of a constant number, and make sure it prints.
+* [`step-XXX`](../steps/step-XXX.md) : Tokenize and parse `return -7234 + 3`, so the `return` asm is explicitly generated based on AST instead of implicitly generated.
+* [`step-XXX`](../steps/step-XXX.md) : Tokenize and parse the function `lowkey_main :: proc() -> int { return -7234 + 3 }`, and don't implicitly generate any more asm.
+* [`step-XXX`](../steps/step-XXX.md) : Tokenize, parse, and generate `-` as either a binary operation or unary operation.
+* [`step-XXX`](../steps/step-XXX.md) : Tokenize, parse, and generate more binary operations: `*`, `/`.
+* [`step-XXX`](../steps/step-XXX.md) : Parse `1 + 2 * 3 + 4` with proper precedence, according to Jonathan Blow's technique.
+* [`step-XXX`](../steps/step-XXX.md) : Tokenize and parse `()` for explicit precedence (`(1 + 2) * (3 + 4)`).
+<!-- TODO: From here on out, try to implement the things in Brian Will's video on all programming languages in 15 minutes -->
+* [`step-XXX`](../steps/step-XXX.md) : Tokenize, parse, and generate local variables of type int (s64).
+* [`step-XXX`](../steps/step-XXX.md) : Tokenize, parse, and generate local variables of type uint (u64).
+* [`step-XXX`](../steps/step-XXX.md) : Tokenize, parse, and generate local variables of type float (f64).
+* [`step-XXX`](../steps/step-XXX.md) : Tokenize, parse, and generate local variables of type bool.
+* [`step-XXX`](../steps/step-XXX.md) : Emit parse errors when values of incorrect types are used together.
+* [`step-XXX`](../steps/step-XXX.md) : Tokenize, parse, and generate `==`, `!=`, `<`, `<=`, `>`, `>=`.
+* [`step-XXX`](../steps/step-XXX.md) : Tokenize, parse, and generate `if <condition> {}`.
+* [`step-XXX`](../steps/step-XXX.md) : Tokenize, parse, and generate `for {}`.
+* [`step-XXX`](../steps/step-XXX.md) : Tokenize, parse, and generate `for <condition> {}`.
+* [`step-XXX`](../steps/step-XXX.md) : Tokenize, parse, and generate `continue`.
+* [`step-XXX`](../steps/step-XXX.md) : Tokenize, parse, and generate `break`.
+* [`step-XXX`](../steps/step-XXX.md) : Tokenize, parse, and generate `add_ints :: proc(a: int, b: int) -> int { return a + b }` called by `lowkey_main()`
+* [`step-XXX`](../steps/step-XXX.md) : Write a program to solve some kind of puzzle, to prove that our little language works so far!
+* [`step-XXX`](../steps/step-XXX.md) : Tokenize, parse, and generate `struct`s.
+* [`step-XXX`](../steps/step-XXX.md) : Tokenize, parse, and generate global variables.
+* [`step-XXX`](../steps/step-XXX.md) : Tokenize, parse, and generate casting: `int(<val>)`, `float(<val>)`, `uint(<val>)`
+* [`step-XXX`](../steps/step-XXX.md) : Tokenize, parse, and generate an int pointer type and variable: `^int` and `&`.
+* [`step-XXX`](../steps/step-XXX.md) : Tokenize, parse, and generate dereferencing an int pointer: `int^`.
+* [`step-XXX`](../steps/step-XXX.md) : Tokenize, parse, and generate assigning to a dereferenced int pointer: `int^ = <val>`.
+* [`step-XXX`](../steps/step-XXX.md) : Tokenize, parse, and generate raw unions.
+* [`step-XXX`](../steps/step-XXX.md) : Tokenize, parse, and generate enumerated unions/tagged unions.
 * [`step-XXX`](../steps/step-XXX.md) :
 * [`step-XXX`](../steps/step-XXX.md) :
 * [`step-XXX`](../steps/step-XXX.md) :
 * [`step-XXX`](../steps/step-XXX.md) :
+* [`step-XXX`](../steps/step-XXX.md) : Tokenize, parse, and generate a switch statement. (needed? I might want to skip this, since you can use ifs)
 
 
 # Reference Implementation
