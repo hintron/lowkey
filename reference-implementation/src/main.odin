@@ -1,16 +1,19 @@
 package main
 
 import "core:fmt"
-import "core:strings"
 
 MAX_TOKENS :: 2 << 20 // 1 MB
 
 ////////////////////////////////////////////////////////////////////////////////
 // Tokenization/lexing/scanning
 ////////////////////////////////////////////////////////////////////////////////
+MAX_INDENTIFIER_SIZE :: 256
+
+// Make Token a "Fat Struct"
 Token :: struct {
 	type: TokenType,
-	value: string, // The value of the token. Only needed when TokenType is Identifier
+	// The value of the token. Only needed when TokenType is Identifier
+	value: [MAX_INDENTIFIER_SIZE]u8,
 }
 
 TokenType :: enum {
@@ -26,7 +29,9 @@ TokenType :: enum {
 }
 
 // Takes an input string and starting position, and returns a Token type and the start position of the byte after the next token
-get_next_token :: proc(expr: string, position: int) -> (Token, int) {
+// If an error occurred, returns is_ok := false. Otherwise, returns is_ok := true.
+// TODO: Perhaps change the error into an enum that has a string error that I can return to the caller
+get_next_token :: proc(expr: string, position: int) -> (Token, int, bool) {
 	// fmt.println("Getting next token starting at position", position)
 	fmt.printfln("%v", expr)
 	for _ in 0..<position {
@@ -37,7 +42,7 @@ get_next_token :: proc(expr: string, position: int) -> (Token, int) {
 	if position >= len(expr) {
 		return Token {
 			type = .EndOfExpression,
-		}, position
+		}, position, true
 	}
 
 	next_position := position + 1
@@ -45,17 +50,17 @@ get_next_token :: proc(expr: string, position: int) -> (Token, int) {
 		fmt.println("Found operator: >")
 		return Token {
 			type = .GreaterThan,
-		}, next_position
+		}, next_position, true
 	} else if expr[position] == '+' {
 		fmt.println("Found operator: +")
 		return Token {
 			type = .Addition,
-		}, next_position
+		}, next_position, true
 	} else if expr[position] == '*' {
 		fmt.println("Found operator: *")
 		return Token {
 			type = .Multiplication,
-		}, next_position
+		}, next_position, true
 	} else if expr[position] >= 'a' && expr[position] <= 'z' {
 		identifier_start := position
 		// Parse an identifier (variable name)
@@ -66,32 +71,48 @@ get_next_token :: proc(expr: string, position: int) -> (Token, int) {
 		}
 		identifier_end := next_position
 		fmt.printfln("Found identifier: %v", expr[identifier_start:identifier_end])
-		return Token {
+
+		if len(expr[identifier_start:identifier_end]) > MAX_INDENTIFIER_SIZE {
+			fmt.println("Identifier is too long for token value buffer!")
+			return {}, 0, false
+		}
+
+		token := Token {
 			type = .Identifier,
-			// MGH TODO: This is a memory allocation! Use arenas? Static arrays? How does Zig not allocate during tokenization?
-			value = strings.clone(expr[identifier_start:identifier_end])
-		}, next_position
+		}
+
+		// Copy bytes of identifier value string into fixed value buffer
+		token_value_index := 0
+		identifier_index := identifier_start
+		for identifier_index < identifier_end {
+			token.value[token_value_index] = expr[identifier_index]
+			identifier_index += 1
+			token_value_index += 1
+		}
+
+		// MGH TODO: Is token copied here? Or passed by reference somehow?
+		return token, next_position, true
 	} else if expr[position] == ' ' {
 		fmt.println("Found whitespace: space")
 		return Token {
 			type = .WhitespaceSpace,
-		}, next_position
+		}, next_position, true
 	} else if expr[position] == '\t' {
 		fmt.println("Found whitespace: tab")
 		return Token {
 			type = .WhitespaceTab,
-		}, next_position
+		}, next_position, true
 	} else if expr[position] == '\n' {
 		fmt.println("Found whitespace: newline")
 		return Token {
 			type = .WhitespaceNewline,
-		}, next_position
+		}, next_position, true
 	} else {
 		fmt.println("Found unrecognized character:")
 		// Skip whitespace and unrecognized characters
 		return Token {
 			type = .UnrecognizedCharacter,
-		}, next_position
+		}, next_position, true
 	}
 }
 
@@ -103,7 +124,12 @@ tokenize :: proc(expr: string) -> [dynamic]Token {
 	token_list := make([dynamic]Token, 0, MAX_TOKENS)
 
 	for pos < len(expr) {
-		token, new_pos := get_next_token(expr, pos)
+		token, new_pos, token_ok := get_next_token(expr, pos)
+		if !token_ok {
+			fmt.println("Error tokenizing expression at position", pos)
+			break
+		}
+
 		pos = new_pos
 
 		// Skip whitespace and unrecognized characters
