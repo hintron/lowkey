@@ -59,6 +59,8 @@ get_next_token :: proc(expr: string, position: int) -> (Token, int) {
 	} else if expr[position] >= 'a' && expr[position] <= 'z' {
 		identifier_start := position
 		// Parse an identifier (variable name)
+		// TODO: Don't iterate bytes, but rather iterate runes so utf-8 characters are supported
+		// TODO: Check that the next character is not whitespace instead of in an alphabetical range
 		for next_position < len(expr) && expr[next_position] >= 'a' && expr[next_position] <= 'z' {
 			next_position += 1
 		}
