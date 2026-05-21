@@ -6,7 +6,8 @@ To get started, open [`step-001`](../steps/step-001/step-001.md).
 
 The compiler will be implemented incrementally, step by step, in 1-hour sitdown sessions. Each step will have a suite of test files to pass. Each step will start with a copy of the source code from the previous step (a la [Handmade Hero](https://guide.handmadehero.org/code/day001/)).
 
-* [`step-001`](../steps/step-001.md) : `Hello, world!` and test runner.
+* [`step-001`](../steps/step-001.md) : `Hello, world!`.
+* [`step-002`](../steps/step-002.md) : Set up the test runner and create the `tokenize()` function stub.
 * [`step-XXX`](../steps/step-XXX.md) : Tokenize `7` and return it from tokenization function.
 * [`step-XXX`](../steps/step-XXX.md) : Emit x64 and arm64 for `7` and save to an assembly file.
 * [`step-XXX`](../steps/step-XXX.md) : Create a simple Lowkey runtime and link assembly into executable to print `7`.
