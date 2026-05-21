@@ -1,6 +1,6 @@
 # Task
 
-Create a function called `tokenize()` that returns the string `Hello, world, from the Lowkey compiler!`. Then, create a test runner program that will invoke `tokenize()` and compare the returned string to the contents of the expected output file [`tests/step-001-1.out`](../tests/step-002-1.out).
+Create a function called `tokenize()` that returns the string `Hello, world, from the Lowkey compiler!`. Then, create a test runner program that will invoke `tokenize()` and compare the returned string to the contents of the expected output file [`tests/step-002-1.out`](../tests/step-002-1.out).
 
 # Hints
 
