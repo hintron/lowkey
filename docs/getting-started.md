@@ -4,7 +4,7 @@ To get started, open [`step-001`](../steps/step-001.md).
 
 # Schedule
 
-The compiler will be implemented incrementally, step by step, in 1-hour sitdown sessions. Each step will have a suite of test files to pass. Each step will start with a copy of the source code from the previous step (a la [Handmade Hero](https://guide.handmadehero.org/code/day001/)).
+The compiler will be implemented incrementally, step by step, in 30 minute sitdown sessions. Each step will have a suite of test files to pass. Each step will start with a copy of the source code from the previous step (a la [Handmade Hero](https://guide.handmadehero.org/code/day001/)).
 
 * [`step-001`](../steps/step-001.md) : `Hello, world!`.
 * [`step-002`](../steps/step-002.md) : Set up the test runner and create the `tokenize()` function stub.

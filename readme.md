@@ -2,7 +2,7 @@
 
 Lowkey is an educational language and compiler that novice programmers can incrementally write from scratch, step by step!
 
-The goal is to iteratively go through the process of writing an optimizing compiler targeting amd64 (x86-64 - most laptops with Windows) and arm64 (most laptops with macOS) for a simple language, step by step, with visible progress and feedback [^1] [^2]. Each step should not take more than an hour, and each step has a suite of test input and expected output files that need to be passed in order to proceed to the next step. You may use any programming language you want!
+The goal is to iteratively go through the process of writing an optimizing compiler targeting amd64 (x86-64 - most laptops with Windows) and arm64 (most laptops with macOS) for a simple language, step by step, with visible progress and feedback [^1] [^2]. Each step should not take more than an hour, and each step has a suite of test input and expected output files that need to be passed in order to proceed to the next step. Each step aims to be 30 minutes or less. You may use any programming language you want!
 
 Lowkey is loosely based on the [Odin programming language](https://odin-lang.org/).
 
