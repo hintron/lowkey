@@ -7,10 +7,10 @@ To get started, open [`step-001`](../steps/step-001.md).
 The compiler will be implemented incrementally, step by step, in 30 minute sitdown sessions. Each step will have a suite of test files to pass. Each step will start with a copy of the source code from the previous step (a la [Handmade Hero](https://guide.handmadehero.org/code/day001/)).
 
 * [`step-001`](../steps/step-001.md) : `Hello, world!`.
-* [`step-002`](../steps/step-002.md) : Set up the test runner and create the `tokenize()` function stub.
-* [`step-003`](../steps/step-003.md) : Have `tokenize()` take in an input string and return that same input as the output string. Run multiple tests.
-* [`step-XXX`](../steps/step-XXX.md) : Tokenize `7` into a `Token` data structure. Change `tokenize()` to return a list of `Token`s instead of a string.
-* [`step-XXX`](../steps/step-XXX.md) : Tokenize `7234` (multi-digit numbers); tokenization visualization.
+* [`step-002`](../steps/step-002.md) : Create a `tokenize()` function and have it find the starting byte positions of words in a sentence.
+* [`step-003`](../steps/step-003.md) : Have `tokenize()` return a dynamic array of `Token`s with token type, start byte, and end byte.
+* [`step-XXX`](../steps/step-XXX.md) : Add token visualization when run in debug mode.
+* [`step-XXX`](../steps/step-XXX.md) : Tokenize `7234` (multi-digit number constants).
 * [`step-XXX`](../steps/step-XXX.md) : Create a simple Lowkey runtime executable with an internal function called `lowkey_main_temp()` that returns a single constant number `42`, and print out that value.
 * [`step-XXX`](../steps/step-XXX.md) : Create an assembly file for your given architecture and create a global function called `lowkey_main` that simply returns a constant number `43`. In the Lowkey runtime executable, replace `lowkey_main_temp()` with `lowkey_main()`. Finally, include the assembly file into the build, and verify that the runner prints out `43`.
 * [`step-XXX`](../steps/step-XXX.md) : Take the single token output for `7234` and create an assembly file that returns that value, and see the runner print it out.

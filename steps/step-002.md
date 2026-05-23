@@ -1,28 +1,49 @@
 # Task
 
-Create a function called `tokenize()` that returns the string `Hello, world, from the Lowkey compiler!`. Then, create a test runner program that will invoke `tokenize()` and compare the returned string to the contents of the expected output file [`tests/step-002-1.out`](../tests/step-002-1-expected.txt).
+Create a function called `tokenize()` that accepts an input string, and then returns a dynamic array of integers indicating the starting byte positions of each word in the input. Write a test that satisfies the given input.
+
+# Tests
+
+#### Test 002-1:
+
+  Input:
+  ```
+  This   is my program.
+  ```
+  Expected output (a dynamic array of byte positions for each word):
+  ```
+  0
+  7
+  10
+  13
+  ```
+
 
 # Hints
 
 NOTE: View this on a web browser in GitHub or in a markdown viewer to avoid spoilers!
 
 <details>
-<summary>Show Hint - test runner program approach</summary>
+<summary>Show Hint - Creating a test</summary>
 
-There are a few ways to create a test runner program. You can either:
+Hopefully your language has a built-in test runner that you can use to call `tokenize()`. If not, just modify your `main()` function to call `tokenize()`. In either case, iterate through the output of `tokenize()` and assert that the correct word starting byte positions were found.
 
-* Use your language's built-in testing framework (if there is one) and call `tokenize()` from that.
-
-* Or, have your `main()` function print out the output of `tokenize()` and then run your program via a script (bash or shell scripts on Linux/macOS, or Batch or PowerShell scripts on Windows). In the script, capture the output, then read the contents of the output file, and compare the two.
-
-* I recommend using the built-in testing framework if possible, as that approach will be cross-platform and not involve learning scripts. The reference implementation shows how to do that with Odin.
+I would recommend keeping your test code inside your main file, and hard coding the input and expected output in the test itself. Later on, we'll have test files, but for now, that's too much overhead to deal with.
 
 </details>
 
-
 <details>
-<summary>Show Hint - comparing outputs</summary>
+<summary>Show Hint - Red, Green, Refactor</summary>
 
-The expected output file has a Line Feed (LF - macOS/Linux newline) as the last character, so trim whitespace from the string after reading the file, so that you don't mismatch on whitespace.
+* Get the test set up first so that it runs, but is failing.
+* Then, make the test pass as quickly as possible, cutting corners along the way.
+* Finally, now that the test is passing, go back and clean up the code and do it the "proper way".
+
+This approach is called _Red, Green, Refactor_, and is a useful approach to testing because:
+1) the _Red_ step guarantees that the testing infrastructure works and that tests can actually fail (you'd be surprised how easy it is to accidentally write tests that never fail!),
+2) the _Green_ step helps you focus on reaching the outward behavior as quick as possible, regardless of code quality, and
+3) the _Refactor_ step lets you freely do code cleanup and change the internal implementation without fear that you'll go too far, since you can go back to your initial Green step.
+
+See [TDD, Where Did It All Go Wrong](https://youtu.be/EZ05e7EMOLM?si=7KTMHFLz7jobSd0v) for an excellent talk on this.
 
 </details>
