@@ -6,7 +6,7 @@ Create a function called `tokenize()` that accepts an input string, and then ret
 
   Input:
   ```
-  This   is my program.
+  This   is my program\n
   ```
   Expected output (a dynamic array of byte positions for each word):
   ```

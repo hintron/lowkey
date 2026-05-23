@@ -9,16 +9,16 @@ main :: proc() {
 
 tokenize :: proc(source_text: string) -> [dynamic]u8 {
 	output := make([dynamic]u8, context.temp_allocator)
-	position := 0
+	next_position := 0
 
 	// A simple state machine to indicate if we are tokenizing a word or not as
 	// we loop through characters.
 	tokenizing_word := false
 
 	// Loop through each byte
-	for position < len(source_text) {
-		current_position := position
-		position += 1
+	for next_position < len(source_text) {
+		current_position := next_position
+		next_position += 1
 
 		character := source_text[current_position]
 
@@ -45,7 +45,7 @@ import "core:testing"
 
 @(test)
 test_tokenize :: proc(t: ^testing.T) {
-	source_text := "This   is my program."
+	source_text := "This   is my program\n"
 	output := tokenize(source_text)
 	testing.expect_value(t, output[0], 0)
 	testing.expect_value(t, output[1], 7)
