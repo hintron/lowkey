@@ -8,7 +8,7 @@ The compiler will be implemented incrementally, step by step, in 30 minute sitdo
 
 * [`step-001`](../steps/step-001.md) : `Hello, world!`.
 * [`step-002`](../steps/step-002.md) : Create a `tokenize()` function and have it find the starting byte positions of words in a sentence.
-* [`step-003`](../steps/step-003.md) : Have `tokenize()` return a dynamic array of `Token`s with token type, start byte, and end byte.
+* [`step-003`](../steps/step-003.md) : Have `tokenize()` return a dynamic array of `Token`s with token type, start byte, and length. Check that start byte and length produce the expected values from the source text.
 * [`step-XXX`](../steps/step-XXX.md) : Add token visualization when run in debug mode.
 * [`step-XXX`](../steps/step-XXX.md) : Tokenize `7234` (multi-digit number constants).
 * [`step-XXX`](../steps/step-XXX.md) : Create a simple Lowkey runtime executable with an internal function called `lowkey_main_temp()` that returns a single constant number `42`, and print out that value.
