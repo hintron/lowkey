@@ -1,5 +1,5 @@
---- ../step-002/main.odin	2026-05-24 00:54:46.094193064 -0600
-+++ ../step-003/main.odin	2026-05-24 01:15:58.056817040 -0600
+--- step-002/main.odin
++++ step-003/main.odin
 @@ -6,38 +6,71 @@
  	fmt.println("Hello, world, from the Lowkey compiler!")
  }

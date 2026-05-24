@@ -1,5 +1,5 @@
---- ../step-001/main.odin	2026-05-22 18:30:02.862602229 -0600
-+++ ../step-002/main.odin	2026-05-24 00:54:46.094193064 -0600
+--- step-001/main.odin
++++ step-002/main.odin
 @@ -5,3 +5,50 @@
  main :: proc() {
  	fmt.println("Hello, world, from the Lowkey compiler!")
