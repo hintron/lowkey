@@ -1,10 +1,4 @@
-
-## Background
-
-The approach to this interpreter was inspired by the video "[Discussion with Casey Muratori about how easy precedence is...][1]" by Jonathan Blow. That video emphasized that parsing doesn't need to be complicated. It showed how to properly parse the expression `a > b + c * d + e` with proper precedence without having to "fix it in post" and go back and rewrite the AST with correct precedence after the fact.
-
-
-## Language Specification (WIP)
+# Language Highlights
 
 Lowkey is a statically typed (but types are mostly inferred) language.
 
@@ -19,6 +13,14 @@ Lowkey programs are cross-platform (MacOS, Windows, Linux, WASM).
 Lowkey programs use the Odin calling convention and can call into Odin code. (To call into C code, use Odin as the intermediary.)
 
 Lowkey strives to have a small, embeddable interpreter, like Lua, for games scripting and education.
+
+
+# Language Overview
+
+Here are code snippets that demonstrate the features of Lowkey.
+
+
+
 
 
 ### Progressive Complexity
@@ -106,3 +108,6 @@ Lowkey has some experimental language features that I want to try out, that are 
 * Allocator-aware pointers, using upper bits of a 64-bit pointer.
 
 
+# Background
+
+The approach to this interpreter was inspired by the video "[Discussion with Casey Muratori about how easy precedence is...][1]" by Jonathan Blow. That video emphasized that parsing doesn't need to be complicated. It showed how to properly parse the expression `a > b + c * d + e` with proper precedence without having to "fix it in post" and go back and rewrite the AST with correct precedence after the fact.

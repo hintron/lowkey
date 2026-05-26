@@ -84,9 +84,9 @@ I recommend watching these videos by Brian Will to get a sense for what is commo
 * [Every programming language in (another) 15 minutes: data types](https://youtu.be/QI-ktlf7qFU?si=2hZ-YxGyjBXjM-LQ)
 
 
-# Language Specification
+# Language Overview
 
-See the [Lowkey language specification](docs/lowkey-language-specification.md) (WIP!) for more information about Lowkey.
+See the [Lowkey language overview](docs/lowkey-language-overview.md) (WIP!) for more information about Lowkey.
 
 
 # Recommendations and Suggestions
