@@ -90,3 +90,7 @@ See [Zig Tokenizer -> Finding the Next Token](https://mitchellh.com/zig/tokenize
 if you are still stuck, see my [step 2 reference implementation code](../reference-implementation/step-002/main.odin).
 
 </details>
+
+# Finished?
+
+Congratulations! Copy your code into the next step's directory and read the task description at [`step-003.md`](../step-003/step-003.md). Or, go back to the [Step Schedule](../../readme.md#step-schedule).

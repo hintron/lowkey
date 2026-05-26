@@ -38,3 +38,7 @@ Then, on the next whitespace, you know that the identifier ended, so set the len
 </details>
 
 ---
+
+# Finished?
+
+Congratulations! Copy your code into the next step's directory and read the task description at [`step-XXX.md (The next step is currently under construction.)`](../step-XXX/step-XXX.md). Or, go back to the [Step Schedule](../../readme.md#step-schedule).
