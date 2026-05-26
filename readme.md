@@ -22,10 +22,10 @@ The compiler will be implemented incrementally, step by step, in 30 minute sitdo
 * [`step-001.md`](steps/step-001/step-001.md) : `Hello, world!`.
 * [`step-002.md`](steps/step-002/step-002.md) : Create a `tokenize()` function and have it find the starting byte positions of words in a sentence.
 * [`step-003.md`](steps/step-003/step-003.md) : Have `tokenize()` return a dynamic array of `Token`s with token type, start byte, and length. Check that start byte and length produce the expected values from the source text.
+* [`step-004.md`](steps/step-004/step-004.md) : Add line number, column number, and token index to the `Token` struct, as well as some debugging output.
 
 #### Unimplemented steps and step ideas
 
-* [`step-XXX.md`](steps/step-XXX/step-XXX.md) : Add token visualization when run in debug mode.
 * [`step-XXX.md`](steps/step-XXX/step-XXX.md) : Tokenize `7234` (multi-digit number constants).
 * [`step-XXX.md`](steps/step-XXX/step-XXX.md) : Create a simple Lowkey runtime executable with an internal function called `lowkey_main_temp()` that returns a single constant number `42`, and print out that value.
 * [`step-XXX.md`](steps/step-XXX/step-XXX.md) : Create an assembly file for your given architecture and create a global function called `lowkey_main` that simply returns a constant number `43`. In the Lowkey runtime executable, replace `lowkey_main_temp()` with `lowkey_main()`. Finally, include the assembly file into the build, and verify that the runner prints out `43`.

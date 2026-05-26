@@ -39,6 +39,16 @@ Then, on the next whitespace, you know that the identifier ended, so set the len
 
 ---
 
+### How many bytes is a "newline"?
+<details>
+<summary>Show Hint</summary>
+For Windows, a newline is actually two characters - the `CR` + `LF` characters. For maxOS and Linux, newline is just `LF`. So, once your source text has multiple lines, the start bytes for the tokens can differ slightly depending on which system you are on. This is one reason why we want to use the start byte to index back into the source text and compare the text strings themselves instead of checking for an absolute byte count.
+</details>
+
+---
+
+
+
 # Finished?
 
-Congratulations! Copy your code into the next step's directory and read the task description at [`step-XXX.md (The next step is currently under construction.)`](../step-XXX/step-XXX.md). Or, go back to the [Step Schedule](../../readme.md#step-schedule).
+Congratulations! Copy your code into the next step's directory and read the task description at [`step-004.md`](../step-004/step-004.md). Or, go back to the [Step Schedule](../../readme.md#step-schedule).
