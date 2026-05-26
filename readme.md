@@ -117,11 +117,11 @@ I have a few opinionated suggestions for you, before you get started:
 
   * The thing I dislike about methods on objects is that it's a lie. To the CPU, there is no such thing as a self-contained object that has code and data bundled together. Code actually lives in one spot, while the data lives in another, and the CPU even caches them separately at the lowest level of the memory hierarchy.
 
-  * It's a subtle shift in thinking, but I think it's important, especially coming from higher-level languages that only deal with objects, methods, and closures. (By the way, [Odin does not have methods!](https://odin-lang.org/docs/faq/#why-does-odin-not-have-any-methods))
+  * It's a subtle shift in thinking, but I think it's important, especially coming from higher-level languages that only deal with objects, methods, and closures.
 
   * To remember what functions work on what data objects, you can do a naming convention like `object_action()` and make the first argument a pointer to the data object (this is all that methods do under the hood).
 
-  * For a more in-depth discussion on this, see [How I Program C by Eskil Steinberg](https://youtu.be/443UNeGrFoM?si=ruGUbGQ1RBdhUpD6) from 38:40 - 41:05.
+  * For a more in-depth discussion on this, see [How I Program C by Eskil Steinberg](https://youtu.be/443UNeGrFoM?si=ruGUbGQ1RBdhUpD6) from 38:40 - 41:05 and [Why does Odin not have any methods?](https://odin-lang.org/docs/faq/#why-does-odin-not-have-any-methods).
 
 * ["Code like a 15 year old with 30 years of experience."](https://youtu.be/-m7lhJ_Mzdg?si=Y0BT4VgbpM4egX74&t=118)
 
@@ -132,19 +132,17 @@ I have a few opinionated suggestions for you, before you get started:
 
 # Resources on compilers, tokenization/lexing/scanning, and parsing
 
-* [Discussion with Casey Muratori about how easy precedence is...](https://youtu.be/fIPO4G42wYE?si=MaMlMQjjCxqD0rUE) by Jonathan Blow and Casey Muratori
-
 * [Crafting Interpreters](https://craftinginterpreters.com/contents.html) by Robert Nystrom ([Chapter 2](https://craftinginterpreters.com/a-map-of-the-territory.html) is a great introduction!)
+
+* [Discussion: Making Programming Language Parsers, etc](https://youtu.be/MnctEW1oL-E?si=9zwTX3mWbQGeJ0hx) by Jonathan Blow and Casey Muratori (the first 25 minutes or so is a great introduction to how to go about doing tokenization and parsing)
+
+* [Discussion with Casey Muratori about how easy precedence is...](https://youtu.be/fIPO4G42wYE?si=MaMlMQjjCxqD0rUE) by Jonathan Blow and Casey Muratori
 
 * [Compiler Construction](https://people.inf.ethz.ch/wirth/CompilerConstruction/index.html) by Niklaus Wirth
 
-* [An Incremental Approach to Compiler Construction](http://scheme2006.cs.uchicago.edu/11-ghuloum.pdf)
+* [An Incremental Approach to Compiler Construction](http://scheme2006.cs.uchicago.edu/11-ghuloum.pdf) by Abdulaziz Ghuloum
 
-* [Discussion: Making Programming Language Parsers, etc](https://youtu.be/MnctEW1oL-E?si=9zwTX3mWbQGeJ0hx) by Jonathan Blow and Casey Muratori
-
-* [Zig Tokenizer](https://mitchellh.com/zig/tokenizer) by Mitchell Hashimoto
-
-* [Zig Parser](https://mitchellh.com/zig/parser) by Mitchell Hashimoto
+* [Zig Tokenizer](https://mitchellh.com/zig/tokenizer) and [Zig Parser](https://mitchellh.com/zig/parser) by Mitchell Hashimoto
 
 * [Lexing](https://interpreterbook.com/sample.pdf) by Thorsten Ball
 
