@@ -6,16 +6,21 @@ Then, add a debug mode where each token is printed out after it's parsed, includ
 
 ```
 ---------------------------------------------------------
-> Token 0: This (0:1, byte 1) (IdentifierVariable)
-> Token 1: is (7:1, byte 8) (IdentifierVariable)
-> Token 2: my (10:1, byte 11) (IdentifierVariable)
-> Token 3: program (13:1, byte 14) (IdentifierVariable)
+This   is my program
+Line two
+ Line  three
+
+---------------------------------------------------------
+> Token 0: This (1:1, byte 0) (IdentifierVariable)
+> Token 1: is (1:8, byte 7) (IdentifierVariable)
+> Token 2: my (1:11, byte 10) (IdentifierVariable)
+> Token 3: program (1:14, byte 13) (IdentifierVariable)
 --------------------------(newline)--------------------------
-> Token 4: Line (21:2, byte 1) (IdentifierVariable)
-> Token 5: two (26:2, byte 6) (IdentifierVariable)
+> Token 4: Line (2:1, byte 21) (IdentifierVariable)
+> Token 5: two (2:6, byte 26) (IdentifierVariable)
 --------------------------(newline)--------------------------
-> Token 6: Line (31:3, byte 2) (IdentifierVariable)
-> Token 7: three (37:3, byte 8) (IdentifierVariable)
+> Token 6: Line (3:2, byte 31) (IdentifierVariable)
+> Token 7: three (3:8, byte 37) (IdentifierVariable)
 --------------------------(newline)--------------------------
 ```
 

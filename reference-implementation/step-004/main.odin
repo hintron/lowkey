@@ -54,9 +54,9 @@ tokenize :: proc(source_text: string) -> [dynamic]Token {
 						"> Token %v: %v (%v:%v, byte %v) (%v)",
 						current_token.token_index,
 						source_text[current_token.start_byte:(current_token.start_byte + current_token.length)],
-						current_token.start_byte,
 						current_token.line_number,
 						current_token.column_number,
+						current_token.start_byte,
 						current_token.type
 					)
 				}
