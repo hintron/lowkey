@@ -23,6 +23,13 @@ while true; do
         break
     fi
 
+    if ! output=$(odin build . -vet -debug 2>&1); then
+        echo "  FAIL: $step: Build failed for \`odin build . -vet -debug\`"
+        echo "$output"
+        FAIL=$((FAIL+1))
+        break
+    fi
+
     if ! output=$(odin test . -vet 2>&1); then
         echo "  FAIL: $step: Tests failed for \`odin test . -vet\`"
         echo "$output"
@@ -51,7 +58,11 @@ if ! output=$(odin build . -vet 2>&1); then
     echo "$output"
     FAIL=$((FAIL+1))
 else
-    if ! output=$(odin test . -vet 2>&1); then
+    if ! output=$(odin build . -vet -debug 2>&1); then
+        echo "  FAIL: Final implementation in src/: Build failed for \`odin build . -vet -debug\`"
+        echo "$output"
+        FAIL=$((FAIL+1))
+    elif ! output=$(odin test . -vet 2>&1); then
         echo "  FAIL: Final implementation in src/: Tests failed for \`odin test . -vet\`"
         echo "$output"
         FAIL=$((FAIL+1))
