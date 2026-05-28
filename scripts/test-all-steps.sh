@@ -28,15 +28,23 @@ run_checks() {
         FAIL=$((FAIL+1))
         return 1
     fi
+    if echo "$output" | grep -qE 'WARN|\+\+\+ leak'; then
+        echo "  WARN: $target_name: Warnings in \`odin build . -vet\`"
+        echo "$output" | grep -E 'WARN|\+\+\+ leak'
+    fi
 
     if ! output=$(odin build . -vet -debug -out:"$debug_build_out" 2>&1); then
         rm -f "$debug_build_out"
-        echo "  BUILD FAIL: $target_name: Debug build failed for \`odin build . -vet -debug -out:$debug_build_out\`"
+        echo "  BUILD FAIL: $target_name: Debug build failed for \`odin build . -vet -debug\`"
         echo "$output"
         FAIL=$((FAIL+1))
         return 1
     fi
     rm -f "$debug_build_out"
+    if echo "$output" | grep -qE 'WARN|\+\+\+ leak'; then
+        echo "  WARN: $target_name: Warnings in \`odin build . -vet -debug\`"
+        echo "$output" | grep -E 'WARN|\+\+\+ leak'
+    fi
 
     if ! output=$(odin test . -vet 2>&1); then
         echo "  TEST FAIL: $target_name: Tests failed for \`odin test . -vet\`"
@@ -44,16 +52,19 @@ run_checks() {
         FAIL=$((FAIL+1))
         return 1
     fi
+    if echo "$output" | grep -qE 'WARN|\+\+\+ leak'; then
+        echo "  WARN: $target_name: Warnings in \`odin test . -vet\`"
+        echo "$output" | grep -E 'WARN|\+\+\+ leak'
+    fi
 
     if ! output=$(odin test . -vet -debug -out:"$debug_test_out" 2>&1); then
-        echo "  TEST FAIL: $target_name: Debug tests failed for \`odin test . -vet -debug -out:$debug_test_out\`"
+        echo "  TEST FAIL: $target_name: Debug tests failed for \`odin test . -vet -debug\`"
         echo "$output"
         FAIL=$((FAIL+1))
         return 1
     fi
-
     if echo "$output" | grep -qE 'WARN|\+\+\+ leak'; then
-        echo "  WARN: $target_name: Warnings in test output"
+        echo "  WARN: $target_name: Warnings in \`odin test . -vet -debug\`"
         echo "$output" | grep -E 'WARN|\+\+\+ leak'
     fi
 
