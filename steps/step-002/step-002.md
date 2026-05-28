@@ -87,7 +87,7 @@ So, create a boolean variable that indicates if you are currently tokenizing a w
 
 See [Zig Tokenizer -> Finding the Next Token](https://mitchellh.com/zig/tokenizer#finding-the-next-token) for an excellent explanation of a tokenizer that only looks at a single character at a time.
 
-if you are still stuck, see my [step 2 reference implementation code](../reference-implementation/step-002/main.odin).
+if you are still stuck, see my [step 2 reference implementation code](../../reference-implementation/step-002/main.odin).
 
 </details>
 
