@@ -1,6 +1,6 @@
 # Task
 
-Have `tokenize()` return a dynamic array of `Token`s instead of `u8`s. `Token` should be a Plain Old Data (POD) struct with `type`, `start_byte`, and `length` fields. Check that start byte and length produce the expected values when using them to index into the source text.
+Have `tokenize()` return a dynamic array of `Token`s instead of `u8`s. `Token` should be a Plain Old Data (POD) struct with `type`, `start_byte`, and `length` fields. Check that start byte and length produce the expected values when using them to index into the source text. Make the 'word' token type be called `IdentifierVariable`.
 
 # Tests
 
