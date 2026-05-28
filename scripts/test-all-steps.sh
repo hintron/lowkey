@@ -9,8 +9,15 @@ FAIL=0
 
 echo "Checking that step diffs are up to date"
 if ! bash "$SCRIPT_DIR/generate-diffs.sh" --check; then
-    echo "Stopping because step diffs are outdated"
-    exit 1
+    echo ""
+    read -rp "Step diffs are outdated. Run generate-diffs.sh now? [Y/n] " answer
+    if [[ "$answer" =~ ^[Nn]$ ]]; then
+        echo "Run this to update diffs:"
+        echo "  $(realpath --relative-to="$PWD" "$SCRIPT_DIR/generate-diffs.sh")"
+        exit 1
+    else
+        bash "$SCRIPT_DIR/generate-diffs.sh"
+    fi
 fi
 
 run_checks() {
