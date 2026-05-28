@@ -33,50 +33,18 @@ Then, add a debug mode where each token or whitespace character parsed prints ou
   This   is my program\nLine two\n Line  three \n
   ```
 
-  Expected output:
+  Expected output (`token <token_index>: <text> (<line_number>:<column_number>)`):
 
-```
-  token 0
-    text: This
-    line_number: 1
-    column_number: 1
-    token_index: 0
-  token 1
-    text: is
-    line_number: 1
-    column_number: 8
-    token_index: 1
-  token 2
-    text: my
-    line_number: 1
-    column_number: 11
-    token_index: 2
-  token 3
-    text: program
-    line_number: 1
-    column_number: 14
-    token_index: 3
-  token 4
-    text: Line
-    line_number: 2
-    column_number: 1
-    token_index: 4
-  token 5
-    text: two
-    line_number: 2
-    column_number: 6
-    token_index: 5
-  token 6
-    text: Line
-    line_number: 3
-    column_number: 2
-    token_index: 6
-  token 7
-    text: three
-    line_number: 3
-    column_number: 8
-    token_index: 7
-```
+  ```
+  token 0: This (1:1)
+  token 1: is (1:8)
+  token 2: my (1:11)
+  token 3: program (1:14)
+  token 4: Line (2:1)
+  token 5: two (2:6)
+  token 6: Line (3:2)
+  token 7: three (3:8)
+  ```
 
 
 # Hints
@@ -93,4 +61,4 @@ Don't have the program print out token deubg information by default - have it be
 
 # Finished?
 
-Congratulations! Copy your code into the next step's directory and read the task description at [`step-XXX.md (The next step is currently under construction.)`](../step-XXX/step-XXX.md). Or, go back to the [Step Schedule](../../readme.md#step-schedule).
+Congratulations! Copy your code into the next step's directory and read the task description at [`step-005.md`](../step-005/step-005.md). Or, go back to the [Step Schedule](../../readme.md#step-schedule).
