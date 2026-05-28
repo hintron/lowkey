@@ -1,6 +1,6 @@
 --- step-004/main.odin
 +++ step-005/main.odin
-@@ -9,6 +9,8 @@
+@@ -11,6 +11,8 @@
  
  TokenType :: enum {
  	IdentifierVariable,
@@ -9,17 +9,16 @@
  }
  
  Token :: struct {
-@@ -34,7 +36,8 @@
+@@ -42,7 +44,7 @@
  	next_position := 0
  	// A simple state machine to indicate if we are tokenizing a word or not as
  	// we loop through characters.
 -	tokenizing_word := false
 +	currently_tokenizing := false
-+	currently_tokenizing_type : TokenType
  	current_token : Token
  	// Loop through each byte
  	for next_position < len(source_text) {
-@@ -47,7 +50,7 @@
+@@ -55,7 +57,7 @@
  		// Skip all whitespace
  		if is_whitespace(character) {
  			// If we hit whitespace after an identifier, append token to output!
@@ -28,7 +27,7 @@
  				current_token.length = current_position - current_token.start_byte
  				when ODIN_DEBUG {
  					log.debugf(
-@@ -61,7 +64,8 @@
+@@ -69,7 +71,8 @@
  					)
  				}
  				append(&output, current_token)
@@ -38,7 +37,7 @@
  			}
  
  			// A newline increments line number and resets column number
-@@ -78,19 +82,28 @@
+@@ -86,19 +89,28 @@
  			continue
  		}
  
@@ -71,7 +70,7 @@
  		}
  	}
  
-@@ -108,6 +121,8 @@
+@@ -116,6 +128,8 @@
  
  ////////////////////////////////////////////////////////////////////////////////
  // Tests
@@ -80,7 +79,7 @@
  ////////////////////////////////////////////////////////////////////////////////
  import "core:testing"
  
-@@ -154,3 +169,39 @@
+@@ -156,3 +170,33 @@
  	testing.expect_value(t, output[7].column_number, 8)
  	testing.expect_value(t, output[7].token_index, 7)
  }
@@ -88,12 +87,6 @@
 +@(test)
 +test_tokenize_005 :: proc(t: ^testing.T) {
 +	source_text := "my_var_1 := 1_337\nmy_var_2 := 663\n"
-+	when ODIN_DEBUG {
-+		log.debug("Testing tokenize() with source text:")
-+		log.debug("---------------------------------------------------------")
-+		log.debug(source_text)
-+		log.debug("---------------------------------------------------------")
-+	}
 +	output := tokenize(source_text)
 +	testing.expect_value(t, token_to_string(output[0], source_text), "my_var_1")
 +	testing.expect_value(t, output[0].line_number, 1)

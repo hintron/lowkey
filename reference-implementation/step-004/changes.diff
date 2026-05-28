@@ -1,14 +1,16 @@
 --- step-003/main.odin
 +++ step-004/main.odin
-@@ -1,6 +1,7 @@
+@@ -1,6 +1,9 @@
  package lowkey
  
  import "core:fmt"
 +import "core:log"
++
++when !ODIN_DEBUG { _ :: log } // Avoid unused import error for log
  
  main :: proc() {
  	fmt.println("Hello, world, from the Lowkey compiler!")
-@@ -14,6 +15,9 @@
+@@ -14,14 +17,27 @@
  	type: TokenType,
  	start_byte: int,
  	length: int,
@@ -18,7 +20,14 @@
  }
  
  tokenize :: proc(source_text: string) -> [dynamic]Token {
-@@ -22,6 +26,10 @@
+ 	// TODO: Assert that source file length is < INT_MAX
+ 	// TODO: Assert that source file ends with whitespace
++	when ODIN_DEBUG {
++		log.debug("tokenize() source text:")
++		log.debug("---------------------------------------------------------")
++		log.debug(source_text)
++		log.debug("---------------------------------------------------------")
++	}
  
  	output := make([dynamic]Token, context.temp_allocator)
  
@@ -29,7 +38,7 @@
  	current_position := 0
  	next_position := 0
  	// A simple state machine to indicate if we are tokenizing a word or not as
-@@ -32,6 +40,7 @@
+@@ -32,6 +48,7 @@
  	for next_position < len(source_text) {
  		current_position = next_position
  		next_position += 1
@@ -37,7 +46,7 @@
  
  		character := source_text[current_position]
  
-@@ -40,9 +49,32 @@
+@@ -40,9 +57,32 @@
  			// If we hit whitespace after an identifier, append token to output!
  			if tokenizing_word {
  				current_token.length = current_position - current_token.start_byte
@@ -70,7 +79,7 @@
  			continue
  		}
  
-@@ -53,13 +85,16 @@
+@@ -53,13 +93,16 @@
  				type = .IdentifierVariable,
  				start_byte = current_position,
  				// We will fill in length at end of parsing token
@@ -88,18 +97,12 @@
  	return output
  }
  
-@@ -78,10 +113,44 @@
+@@ -78,10 +121,38 @@
  
  @(test)
  test_tokenize :: proc(t: ^testing.T) {
 -	source_text := "This   is my program\n"
 +	source_text := "This   is my program\nLine two\n Line  three \n"
-+	when ODIN_DEBUG {
-+		log.debug("Testing tokenize() with source text:")
-+		log.debug("---------------------------------------------------------")
-+		log.debug(source_text)
-+		log.debug("---------------------------------------------------------")
-+	}
  	output := tokenize(source_text)
  	testing.expect_value(t, token_to_string(output[0], source_text), "This")
 +	testing.expect_value(t, output[0].line_number, 1)

@@ -3,6 +3,8 @@ package lowkey
 import "core:fmt"
 import "core:log"
 
+when !ODIN_DEBUG { _ :: log } // Avoid unused import error for log
+
 main :: proc() {
 	fmt.println("Hello, world, from the Lowkey compiler!")
 }
@@ -23,6 +25,12 @@ Token :: struct {
 tokenize :: proc(source_text: string) -> [dynamic]Token {
 	// TODO: Assert that source file length is < INT_MAX
 	// TODO: Assert that source file ends with whitespace
+	when ODIN_DEBUG {
+		log.debug("tokenize() source text:")
+		log.debug("---------------------------------------------------------")
+		log.debug(source_text)
+		log.debug("---------------------------------------------------------")
+	}
 
 	output := make([dynamic]Token, context.temp_allocator)
 
@@ -114,12 +122,6 @@ import "core:testing"
 @(test)
 test_tokenize :: proc(t: ^testing.T) {
 	source_text := "This   is my program\nLine two\n Line  three \n"
-	when ODIN_DEBUG {
-		log.debug("Testing tokenize() with source text:")
-		log.debug("---------------------------------------------------------")
-		log.debug(source_text)
-		log.debug("---------------------------------------------------------")
-	}
 	output := tokenize(source_text)
 	testing.expect_value(t, token_to_string(output[0], source_text), "This")
 	testing.expect_value(t, output[0].line_number, 1)
