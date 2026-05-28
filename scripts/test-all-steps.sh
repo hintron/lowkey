@@ -7,6 +7,12 @@ REF_IMPL_DIR=$(realpath "$SCRIPT_DIR/../reference-implementation")
 PASS=0
 FAIL=0
 
+echo "Checking that step diffs are up to date"
+if ! bash "$SCRIPT_DIR/generate-diffs.sh" --check; then
+    echo "Stopping because step diffs are outdated"
+    exit 1
+fi
+
 run_checks() {
     local target_dir="$1"
     local target_name="$2"
