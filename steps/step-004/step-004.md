@@ -1,3 +1,5 @@
+[Previous Step](../step-003/step-003.md) <-- [[Step Schedule](../../readme.md#step-schedule)] --> [Next Step](../step-005/step-005.md)
+
 # Task
 
 Add line number, column number, text length, and token number to `Token`s returned by `tokenize()`. Line number and column number start at 1, token index starts at 0.
@@ -59,6 +61,13 @@ Don't have the program print out token deubg information by default - have it be
 
 ---
 
+### Solution in Odin (Reference Implementation)
+
+If you are still stuck, see my [step 4 reference implementation code](../../reference-implementation/step-004/main.odin).
+
+
 # Finished?
 
-Congratulations! Copy your code into the next step's directory and read the task description at [`step-005.md`](../step-005/step-005.md). Or, go back to the [Step Schedule](../../readme.md#step-schedule).
+Congratulations! Copy your code into the next step's directory and [read the task description at `step-005.md`](../step-005/step-005.md).
+
+[Previous Step](../step-003/step-003.md) <-- [[Step Schedule](../../readme.md#step-schedule)] --> [Next Step](../step-005/step-005.md)

@@ -19,22 +19,29 @@ To get started, open [`step-001.md`](steps/step-001/step-001.md) and complete th
 
 The compiler will be implemented incrementally, step by step, in 30 minute sitdown sessions. Each step will have a suite of test files to pass. Each step will start with a copy of the source code from the previous step (a la [Handmade Hero](https://guide.handmadehero.org/code/day001/)).
 
+#### Hello, world!
+
 * [`step-001.md`](steps/step-001/step-001.md) : `Hello, world!`.
+
+#### Tokenizer (aka Scanner / Lexer / Lexical Analysis)
+
 * [`step-002.md`](steps/step-002/step-002.md) : Create a `tokenize()` function and have it find the starting byte positions of words in a sentence.
 * [`step-003.md`](steps/step-003/step-003.md) : Have `tokenize()` return a dynamic array of `Token`s with token type, start byte, and length. Check that start byte and length produce the expected values from the source text.
 * [`step-004.md`](steps/step-004/step-004.md) : Add line number, column number, and token index to the `Token` struct, as well as some debugging output.
 * [`step-005.md`](steps/step-005/step-005.md) : Tokenize variables (`my_var_1`), multi-digit integer constants (`1_337`), and the assignment operator (`:=`)
+* [`step-006.md`](steps/step-006/step-006.md) : Emit a nice-looking compiler error when something goes wrong during tokenization.
 
 #### Unimplemented steps and step ideas
 
-* [`step-XXX.md`](steps/step-XXX/step-XXX.md) : Emit a nice-looking compiler error when a variable starts with a number.
+* [`step-XXX.md`](steps/step-XXX/step-XXX.md) : Even after something goes wrong, continue tokenization and report on other errors.
+* [`step-XXX.md`](steps/step-XXX/step-XXX.md) : Create a `parse()` function that takes in a token list and outputs a simple AST with naive precedence.
+* [`step-XXX.md`](steps/step-XXX/step-XXX.md) : Build a simple tree-walk interpreter repl mode with main, and use `end` keyword to exit repl.
+* [`step-XXX.md`](steps/step-XXX/step-XXX.md) : Parse `-7234 + 3` and create an actual Abstract Syntax Tree (AST) instead of a list of nodes; AST creation visualization.
 * [`step-XXX.md`](steps/step-XXX/step-XXX.md) : Create a simple Lowkey runtime executable with an internal function called `lowkey_main_temp()` that returns a single constant number `42`, and print out that value.
 * [`step-XXX.md`](steps/step-XXX/step-XXX.md) : Create an assembly file for your given architecture and create a global function called `lowkey_main` that simply returns a constant number `43`. In the Lowkey runtime executable, replace `lowkey_main_temp()` with `lowkey_main()`. Finally, include the assembly file into the build, and verify that the runner prints out `43`.
 * [`step-XXX.md`](steps/step-XXX/step-XXX.md) : Take the single token output for `7234` and create an assembly file that returns that value, and see the runner print it out.
-* [`step-XXX.md`](steps/step-XXX/step-XXX.md) : Create a `parse()` function that takes in a token list and outputs a list of `SyntaxNode`s.
 * [`step-XXX.md`](steps/step-XXX/step-XXX.md) : Tokenize `-7234` (tokenize a unary operation).
 * [`step-XXX.md`](steps/step-XXX/step-XXX.md) : Tokenize `-7234 + 3` (tokenize a binary operation; skip whitespace).
-* [`step-XXX.md`](steps/step-XXX/step-XXX.md) : Parse `-7234 + 3` and create an actual Abstract Syntax Tree (AST) instead of a list of nodes; AST creation visualization.
 * [`step-XXX.md`](steps/step-XXX/step-XXX.md) : Take AST for `-7234 + 3` and generate an add assembly instruction. Then, have that add result be returned instead of a constant number, and make sure it prints.
 * [`step-XXX.md`](steps/step-XXX/step-XXX.md) : Tokenize and parse `return -7234 + 3`, so the `return` asm is explicitly generated based on AST instead of implicitly generated.
 * [`step-XXX.md`](steps/step-XXX/step-XXX.md) : Tokenize and parse the function `lowkey_main :: proc() -> int { return -7234 + 3 }`, and don't implicitly generate any more asm.
@@ -64,11 +71,8 @@ The compiler will be implemented incrementally, step by step, in 30 minute sitdo
 * [`step-XXX.md`](steps/step-XXX/step-XXX.md) : Tokenize, parse, and generate assigning to a dereferenced int pointer: `int^ = <val>`.
 * [`step-XXX.md`](steps/step-XXX/step-XXX.md) : Tokenize, parse, and generate raw unions.
 * [`step-XXX.md`](steps/step-XXX/step-XXX.md) : Tokenize, parse, and generate enumerated unions/tagged unions.
-* [`step-XXX.md`](steps/step-XXX/step-XXX.md) :
-* [`step-XXX.md`](steps/step-XXX/step-XXX.md) :
-* [`step-XXX.md`](steps/step-XXX/step-XXX.md) :
-* [`step-XXX.md`](steps/step-XXX/step-XXX.md) :
 * [`step-XXX.md`](steps/step-XXX/step-XXX.md) : Tokenize, parse, and generate a switch statement. (needed? I might want to skip this, since you can use ifs)
+* [`step-XXX.md`](steps/step-XXX/step-XXX.md) :
 
 
 # Reference Implementation

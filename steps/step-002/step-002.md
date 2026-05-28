@@ -1,3 +1,5 @@
+[Previous Step](../step-001/step-001.md) <-- [[Step Schedule](../../readme.md#step-schedule)] --> [Next Step](../step-003/step-003.md)
+
 # Task
 
 Create a function called `tokenize()` that accepts an input string, and then returns a dynamic array of integers indicating the starting byte positions of each word in the input. Write a test that satisfies the given input.
@@ -81,16 +83,21 @@ So, create a boolean variable that indicates if you are currently tokenizing a w
 
 ---
 
-### Solution (Reference Implementation)
+### Single Character Tokenizer Explanation (Zig language tokenizer)
 <details>
 <summary>Show Hint</summary>
 
 See [Zig Tokenizer -> Finding the Next Token](https://mitchellh.com/zig/tokenizer#finding-the-next-token) for an excellent explanation of a tokenizer that only looks at a single character at a time.
 
-if you are still stuck, see my [step 2 reference implementation code](../../reference-implementation/step-002/main.odin).
-
 </details>
+
+### Solution in Odin (Reference Implementation)
+
+If you are still stuck, see my [step 2 reference implementation code](../../reference-implementation/step-002/main.odin).
+
 
 # Finished?
 
-Congratulations! Copy your code into the next step's directory and read the task description at [`step-003.md`](../step-003/step-003.md). Or, go back to the [Step Schedule](../../readme.md#step-schedule).
+Congratulations! Copy your code into the next step's directory and [read the next step's task description at `step-003.md`](../step-003/step-003.md).
+
+[Previous Step](../step-001/step-001.md) <-- [[Step Schedule](../../readme.md#step-schedule)] --> [Next Step](../step-003/step-003.md)

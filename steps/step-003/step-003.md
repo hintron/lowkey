@@ -1,3 +1,5 @@
+[Previous Step](../step-002/step-002.md) <-- [[Step Schedule](../../readme.md#step-schedule)] --> [Next Step](../step-004/step-004.md)
+
 # Task
 
 Have `tokenize()` return a dynamic array of `Token`s instead of `u8`s. `Token` should be a Plain Old Data (POD) struct with `type`, `start_byte`, and `length` fields. Check that start byte and length produce the expected values when using them to index into the source text. Make the 'word' token type be called `IdentifierVariable`.
@@ -47,8 +49,13 @@ For Windows, a newline is actually two characters - the `CR` + `LF` characters. 
 
 ---
 
+### Solution in Odin (Reference Implementation)
+
+If you are still stuck, see my [step 3 reference implementation code](../../reference-implementation/step-003/main.odin).
 
 
 # Finished?
 
-Congratulations! Copy your code into the next step's directory and read the task description at [`step-004.md`](../step-004/step-004.md). Or, go back to the [Step Schedule](../../readme.md#step-schedule).
+Congratulations! Copy your code into the next step's directory and [read the task description at `step-004.md`](../step-004/step-004.md).
+
+[Previous Step](../step-002/step-002.md) <-- [[Step Schedule](../../readme.md#step-schedule)] --> [Next Step](../step-004/step-004.md)

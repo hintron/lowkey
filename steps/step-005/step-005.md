@@ -1,3 +1,5 @@
+[Previous Step](../step-004/step-004.md) <-- [[Step Schedule](../../readme.md#step-schedule)] --> [Next Step](../step-006/step-006.md)
+
 # Task
 
 Tokenize variables (`my_var_1`), multi-digit integer constants (`1_337`), and the assignment operator (`:=`). In addition to the `IdentifierVariable` type, add the `OperatorBinaryAssignment` and `ConstantInteger` types
@@ -43,6 +45,13 @@ Try to keep your old tests around, as they help catch new bugs you introduce in 
 
 ---
 
+### Solution in Odin (Reference Implementation)
+
+If you are still stuck, see my [step 5 reference implementation code](../../reference-implementation/step-005/main.odin).
+
+
 # Finished?
 
-Congratulations! Copy your code into the next step's directory and read the task description at [`step-XXX.md (The next step is currently under construction.)`](../step-XXX/step-XXX.md). Or, go back to the [Step Schedule](../../readme.md#step-schedule).
+Congratulations! Copy your code into the next step's directory and [read the task description at `step-006.md`](../step-006/step-006.md).
+
+[Previous Step](../step-004/step-004.md) <-- [[Step Schedule](../../readme.md#step-schedule)] --> [Next Step](../step-006/step-006.md)
