@@ -1,6 +1,7 @@
 package lowkey
 
 import "core:fmt"
+import "core:log"
 
 main :: proc() {
 	fmt.println("Hello, world, from the Lowkey compiler!")
@@ -45,13 +46,20 @@ tokenize :: proc(source_text: string) -> [dynamic]Token {
 
 		// Skip all whitespace
 		if is_whitespace(character) {
-			when ODIN_DEBUG {
-				fmt.printf(">>>>>>>> Found whitespace                  ( byte: % 4v | line: % 3v | col: % 3v | token idx: % 3v )\n", current_position, line_number, column_number, token_index)
-			}
-
 			// If we hit whitespace after an identifier, append token to output!
 			if tokenizing_word {
 				current_token.length = current_position - current_token.start_byte
+				when ODIN_DEBUG {
+					log.debugf(
+						"> Token %v: %v (%v:%v, byte %v) (%v)",
+						current_token.token_index,
+						source_text[current_token.start_byte:(current_token.start_byte + current_token.length)],
+						current_token.start_byte,
+						current_token.line_number,
+						current_token.column_number,
+						current_token.type
+					)
+				}
 				append(&output, current_token)
 				tokenizing_word = false
 			}
@@ -60,6 +68,12 @@ tokenize :: proc(source_text: string) -> [dynamic]Token {
 			if character == '\n' {
 				line_number += 1
 				column_number = 0
+			}
+
+			when ODIN_DEBUG {
+				if character == '\n' {
+					log.debugf("--------------------------(newline)--------------------------")
+				}
 			}
 			continue
 		}
@@ -77,10 +91,6 @@ tokenize :: proc(source_text: string) -> [dynamic]Token {
 			}
 			token_index += 1
 			tokenizing_word = true
-
-			when ODIN_DEBUG {
-				fmt.printf(">>>>>>>> Found Token (%v)  ( byte: % 4v | line: % 3v | col: % 3v | token idx: % 3v )\n", current_token.type, current_position, line_number, column_number, token_index)
-			}
 		}
 	}
 
@@ -105,10 +115,10 @@ import "core:testing"
 test_tokenize :: proc(t: ^testing.T) {
 	source_text := "This   is my program\nLine two\n Line  three \n"
 	when ODIN_DEBUG {
-		fmt.println("Testing tokenize() with source text:")
-		fmt.println("---------------------------------------------------------")
-		fmt.println(source_text)
-		fmt.println("---------------------------------------------------------")
+		log.debug("Testing tokenize() with source text:")
+		log.debug("---------------------------------------------------------")
+		log.debug(source_text)
+		log.debug("---------------------------------------------------------")
 	}
 	output := tokenize(source_text)
 	testing.expect_value(t, token_to_string(output[0], source_text), "This")

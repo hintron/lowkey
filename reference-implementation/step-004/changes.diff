@@ -1,6 +1,14 @@
 --- step-003/main.odin
 +++ step-004/main.odin
-@@ -14,6 +14,9 @@
+@@ -1,6 +1,7 @@
+ package lowkey
+ 
+ import "core:fmt"
++import "core:log"
+ 
+ main :: proc() {
+ 	fmt.println("Hello, world, from the Lowkey compiler!")
+@@ -14,6 +15,9 @@
  	type: TokenType,
  	start_byte: int,
  	length: int,
@@ -10,7 +18,7 @@
  }
  
  tokenize :: proc(source_text: string) -> [dynamic]Token {
-@@ -22,6 +25,10 @@
+@@ -22,6 +26,10 @@
  
  	output := make([dynamic]Token, context.temp_allocator)
  
@@ -21,7 +29,7 @@
  	current_position := 0
  	next_position := 0
  	// A simple state machine to indicate if we are tokenizing a word or not as
-@@ -32,17 +39,28 @@
+@@ -32,6 +40,7 @@
  	for next_position < len(source_text) {
  		current_position = next_position
  		next_position += 1
@@ -29,15 +37,21 @@
  
  		character := source_text[current_position]
  
- 		// Skip all whitespace
- 		if is_whitespace(character) {
-+			when ODIN_DEBUG {
-+				fmt.printf(">>>>>>>> Found whitespace                  ( byte: % 4v | line: % 3v | col: % 3v | token idx: % 3v )\n", current_position, line_number, column_number, token_index)
-+			}
-+
+@@ -40,9 +49,32 @@
  			// If we hit whitespace after an identifier, append token to output!
  			if tokenizing_word {
  				current_token.length = current_position - current_token.start_byte
++				when ODIN_DEBUG {
++					log.debugf(
++						"> Token %v: %v (%v:%v, byte %v) (%v)",
++						current_token.token_index,
++						source_text[current_token.start_byte:(current_token.start_byte + current_token.length)],
++						current_token.start_byte,
++						current_token.line_number,
++						current_token.column_number,
++						current_token.type
++					)
++				}
  				append(&output, current_token)
  				tokenizing_word = false
  			}
@@ -47,10 +61,16 @@
 +				line_number += 1
 +				column_number = 0
 +			}
++
++			when ODIN_DEBUG {
++				if character == '\n' {
++					log.debugf("--------------------------(newline)--------------------------")
++				}
++			}
  			continue
  		}
  
-@@ -53,13 +71,20 @@
+@@ -53,13 +85,16 @@
  				type = .IdentifierVariable,
  				start_byte = current_position,
  				// We will fill in length at end of parsing token
@@ -60,10 +80,6 @@
  			}
 +			token_index += 1
  			tokenizing_word = true
-+
-+			when ODIN_DEBUG {
-+				fmt.printf(">>>>>>>> Found Token (%v)  ( byte: % 4v | line: % 3v | col: % 3v | token idx: % 3v )\n", current_token.type, current_position, line_number, column_number, token_index)
-+			}
  		}
  	}
  
@@ -72,17 +88,17 @@
  	return output
  }
  
-@@ -78,10 +103,44 @@
+@@ -78,10 +113,44 @@
  
  @(test)
  test_tokenize :: proc(t: ^testing.T) {
 -	source_text := "This   is my program\n"
 +	source_text := "This   is my program\nLine two\n Line  three \n"
 +	when ODIN_DEBUG {
-+		fmt.println("Testing tokenize() with source text:")
-+		fmt.println("---------------------------------------------------------")
-+		fmt.println(source_text)
-+		fmt.println("---------------------------------------------------------")
++		log.debug("Testing tokenize() with source text:")
++		log.debug("---------------------------------------------------------")
++		log.debug(source_text)
++		log.debug("---------------------------------------------------------")
 +	}
  	output := tokenize(source_text)
  	testing.expect_value(t, token_to_string(output[0], source_text), "This")

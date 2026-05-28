@@ -1,30 +1,25 @@
 # Task
 
-Add line number, column number, and token number to `Token`s returned by `tokenize()`. Line number and column number start at 1, token index starts at 0.
+Add line number, column number, text length, and token number to `Token`s returned by `tokenize()`. Line number and column number start at 1, token index starts at 0.
 
-Then, add a debug mode where each token or whitespace character parsed prints out the token type, starting byte, line number, column number, and token index. For example:
+Then, add a debug mode where each token is printed out after it's parsed, including its token index, text value, line number, column number, starting byte, and token type. For example:
 
 ```
->>>>>>>> Found whitespace                  ( byte:    5 | line:   1 | col:   6 | token idx:   1 )
->>>>>>>> Found whitespace                  ( byte:    6 | line:   1 | col:   7 | token idx:   1 )
->>>>>>>> Found Token (IdentifierVariable)  ( byte:    7 | line:   1 | col:   8 | token idx:   2 )
->>>>>>>> Found whitespace                  ( byte:    9 | line:   1 | col:  10 | token idx:   2 )
->>>>>>>> Found Token (IdentifierVariable)  ( byte:   10 | line:   1 | col:  11 | token idx:   3 )
->>>>>>>> Found whitespace                  ( byte:   12 | line:   1 | col:  13 | token idx:   3 )
->>>>>>>> Found Token (IdentifierVariable)  ( byte:   13 | line:   1 | col:  14 | token idx:   4 )
->>>>>>>> Found whitespace                  ( byte:   20 | line:   1 | col:  21 | token idx:   4 )
->>>>>>>> Found Token (IdentifierVariable)  ( byte:   21 | line:   2 | col:   1 | token idx:   5 )
->>>>>>>> Found whitespace                  ( byte:   25 | line:   2 | col:   5 | token idx:   5 )
->>>>>>>> Found Token (IdentifierVariable)  ( byte:   26 | line:   2 | col:   6 | token idx:   6 )
->>>>>>>> Found whitespace                  ( byte:   29 | line:   2 | col:   9 | token idx:   6 )
->>>>>>>> Found whitespace                  ( byte:   30 | line:   3 | col:   1 | token idx:   6 )
->>>>>>>> Found Token (IdentifierVariable)  ( byte:   31 | line:   3 | col:   2 | token idx:   7 )
->>>>>>>> Found whitespace                  ( byte:   35 | line:   3 | col:   6 | token idx:   7 )
->>>>>>>> Found whitespace                  ( byte:   36 | line:   3 | col:   7 | token idx:   7 )
->>>>>>>> Found Token (IdentifierVariable)  ( byte:   37 | line:   3 | col:   8 | token idx:   8 )
+---------------------------------------------------------
+> Token 0: This (0:1, byte 1) (IdentifierVariable)
+> Token 1: is (7:1, byte 8) (IdentifierVariable)
+> Token 2: my (10:1, byte 11) (IdentifierVariable)
+> Token 3: program (13:1, byte 14) (IdentifierVariable)
+--------------------------(newline)--------------------------
+> Token 4: Line (21:2, byte 1) (IdentifierVariable)
+> Token 5: two (26:2, byte 6) (IdentifierVariable)
+--------------------------(newline)--------------------------
+> Token 6: Line (31:3, byte 2) (IdentifierVariable)
+> Token 7: three (37:3, byte 8) (IdentifierVariable)
+--------------------------(newline)--------------------------
 ```
 
-(Note: The byte numbers will probably be slightly different if you are on Windows, since Windows newlines are CR + LF instead of LF.)
+(Note: The byte numbers above are from running on Linux and will probably be slightly different if you are on Windows, since Windows newlines are CR + LF instead of just LF.)
 
 # Tests
 
@@ -33,7 +28,7 @@ Then, add a debug mode where each token or whitespace character parsed prints ou
   This   is my program\nLine two\n Line  three \n
   ```
 
-  Expected output (`token <token_index>: <text> (<line_number>:<column_number>)`):
+  Expected result (`token <token_index>: <text> (<line_number>:<column_number>)`):
 
   ```
   token 0: This (1:1)
