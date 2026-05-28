@@ -1,0 +1,122 @@
+--- step-004/main.odin
++++ step-005/main.odin
+@@ -9,6 +9,8 @@
+ 
+ TokenType :: enum {
+ 	IdentifierVariable,
++	OperatorBinaryAssignment,
++	ConstantInteger,
+ }
+ 
+ Token :: struct {
+@@ -34,7 +36,8 @@
+ 	next_position := 0
+ 	// A simple state machine to indicate if we are tokenizing a word or not as
+ 	// we loop through characters.
+-	tokenizing_word := false
++	currently_tokenizing := false
++	currently_tokenizing_type : TokenType
+ 	current_token : Token
+ 	// Loop through each byte
+ 	for next_position < len(source_text) {
+@@ -47,7 +50,7 @@
+ 		// Skip all whitespace
+ 		if is_whitespace(character) {
+ 			// If we hit whitespace after an identifier, append token to output!
+-			if tokenizing_word {
++			if currently_tokenizing {
+ 				current_token.length = current_position - current_token.start_byte
+ 				when ODIN_DEBUG {
+ 					log.debugf(
+@@ -61,7 +64,8 @@
+ 					)
+ 				}
+ 				append(&output, current_token)
+-				tokenizing_word = false
++				current_token = {}
++				currently_tokenizing = false
+ 			}
+ 
+ 			// A newline increments line number and resets column number
+@@ -78,19 +82,28 @@
+ 			continue
+ 		}
+ 
+-		// Anything other than whitespace is an identifier! (for now)
+-		if !tokenizing_word {
++		// Something other than whitespace! Let's figure out what it is
++		if !currently_tokenizing {
+ 			// Append byte position of new word to output
+ 			current_token = Token {
+-				type = .IdentifierVariable,
+ 				start_byte = current_position,
+ 				// We will fill in length at end of parsing token
+ 				line_number = line_number,
+ 				column_number = column_number,
+ 				token_index = token_index,
+ 			}
++
++			// Figure out what the type is based on the first character
++			if character == ':' {
++				current_token.type = .OperatorBinaryAssignment
++			} else if character >= '0' && character <= '9' {
++				current_token.type = .ConstantInteger
++			} else {
++				current_token.type = .IdentifierVariable
++			}
++
+ 			token_index += 1
+-			tokenizing_word = true
++			currently_tokenizing = true
+ 		}
+ 	}
+ 
+@@ -108,6 +121,8 @@
+ 
+ ////////////////////////////////////////////////////////////////////////////////
+ // Tests
++//
++// odin test . -debug -define:ODIN_TEST_SHORT_LOGS=true -define:ODIN_TEST_THREADS=1
+ ////////////////////////////////////////////////////////////////////////////////
+ import "core:testing"
+ 
+@@ -154,3 +169,39 @@
+ 	testing.expect_value(t, output[7].column_number, 8)
+ 	testing.expect_value(t, output[7].token_index, 7)
+ }
++
++@(test)
++test_tokenize_005 :: proc(t: ^testing.T) {
++	source_text := "my_var_1 := 1_337\nmy_var_2 := 663\n"
++	when ODIN_DEBUG {
++		log.debug("Testing tokenize() with source text:")
++		log.debug("---------------------------------------------------------")
++		log.debug(source_text)
++		log.debug("---------------------------------------------------------")
++	}
++	output := tokenize(source_text)
++	testing.expect_value(t, token_to_string(output[0], source_text), "my_var_1")
++	testing.expect_value(t, output[0].line_number, 1)
++	testing.expect_value(t, output[0].column_number, 1)
++	testing.expect_value(t, output[0].token_index, 0)
++	testing.expect_value(t, token_to_string(output[1], source_text), ":=")
++	testing.expect_value(t, output[1].line_number, 1)
++	testing.expect_value(t, output[1].column_number, 10)
++	testing.expect_value(t, output[1].token_index, 1)
++	testing.expect_value(t, token_to_string(output[2], source_text), "1_337")
++	testing.expect_value(t, output[2].line_number, 1)
++	testing.expect_value(t, output[2].column_number, 13)
++	testing.expect_value(t, output[2].token_index, 2)
++	testing.expect_value(t, token_to_string(output[3], source_text), "my_var_2")
++	testing.expect_value(t, output[3].line_number, 2)
++	testing.expect_value(t, output[3].column_number, 1)
++	testing.expect_value(t, output[3].token_index, 3)
++	testing.expect_value(t, token_to_string(output[4], source_text), ":=")
++	testing.expect_value(t, output[4].line_number, 2)
++	testing.expect_value(t, output[4].column_number, 10)
++	testing.expect_value(t, output[4].token_index, 4)
++	testing.expect_value(t, token_to_string(output[5], source_text), "663")
++	testing.expect_value(t, output[5].line_number, 2)
++	testing.expect_value(t, output[5].column_number, 13)
++	testing.expect_value(t, output[5].token_index, 5)
++}
