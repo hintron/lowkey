@@ -1,13 +1,12 @@
 --- step-005/main.odin
 +++ step-006/main.odin
-@@ -24,7 +24,20 @@
+@@ -24,7 +24,19 @@
  	token_index: int,
  }
  
 -tokenize :: proc(source_text: string) -> [dynamic]Token {
 +TokenizationErrorType :: enum {
 +	InvalidNumber,
-+	InvalidAssignmentOperator,
 +}
 +
 +TokenizationError :: struct {
@@ -22,7 +21,7 @@
  	// TODO: Assert that source file length is < INT_MAX
  	// TODO: Assert that source file ends with whitespace
  	when ODIN_DEBUG {
-@@ -35,8 +48,10 @@
+@@ -35,8 +47,10 @@
  	}
  
  	output := make([dynamic]Token, context.temp_allocator)
@@ -33,7 +32,7 @@
  	column_number := 0
  	token_index := 0
  
-@@ -46,6 +61,7 @@
+@@ -46,6 +60,7 @@
  	// we loop through characters.
  	currently_tokenizing := false
  	current_token : Token
@@ -41,7 +40,7 @@
  	// Loop through each byte
  	for next_position < len(source_text) {
  		current_position = next_position
-@@ -73,12 +89,16 @@
+@@ -73,12 +88,16 @@
  				append(&output, current_token)
  				current_token = {}
  				currently_tokenizing = false
@@ -58,7 +57,7 @@
  			}
  
  			when ODIN_DEBUG {
-@@ -87,6 +107,8 @@
+@@ -87,6 +106,8 @@
  				}
  			}
  			continue
@@ -67,43 +66,44 @@
  		}
  
  		// Something other than whitespace! Let's figure out what it is
-@@ -111,11 +133,45 @@
+@@ -111,11 +132,46 @@
  
  			token_index += 1
  			currently_tokenizing = true
-+		} else {
-+			// Check that the next character isn't obviously syntactically incorrect
-+			if
-+				current_token.type == .ConstantInteger &&
-+				((character < '0' || character > '9') && character != '_')
-+			{
-+				error := TokenizationError {
-+					type = .InvalidNumber,
-+					start_byte = current_position,
-+					line_start_byte = line_start_byte,
-+					line_number = line_number,
-+					column_number = column_number,
-+				}
-+				append(&errors, error)
-+				skip_to_next_token_on_error = true
-+				currently_tokenizing = false
-+				current_token = {}
-+				token_index -= 1
++			continue
++		}
 +
-+				when ODIN_DEBUG {
-+					end := line_start_byte;
-+					for end < len(source_text) && source_text[end] != '\n'{
-+						end += 1
-+					}
-+					log.debugf(
-+						"> Token Error: %v (%v:%v, byte %v) (%v)",
-+						source_text[error.line_start_byte:end],
-+						error.line_number,
-+						error.column_number,
-+						error.start_byte,
-+						error.type
-+					)
++		// Check that the next character isn't obviously syntactically incorrect
++		if
++			current_token.type == .ConstantInteger &&
++			((character < '0' || character > '9') && character != '_')
++		{
++			error := TokenizationError {
++				type = .InvalidNumber,
++				start_byte = current_position,
++				line_start_byte = line_start_byte,
++				line_number = line_number,
++				column_number = column_number,
++			}
++			append(&errors, error)
++			skip_to_next_token_on_error = true
++			currently_tokenizing = false
++			current_token = {}
++			token_index -= 1
++
++			when ODIN_DEBUG {
++				end := line_start_byte;
++				for end < len(source_text) && source_text[end] != '\n'{
++					end += 1
 +				}
++				log.debugf(
++					"> Token Error: %v (%v:%v, byte %v) (%v)",
++					source_text[error.line_start_byte:end],
++					error.line_number,
++					error.column_number,
++					error.start_byte,
++					error.type
++				)
 +			}
  		}
  	}
@@ -143,26 +143,19 @@
  	testing.expect_value(t, token_to_string(output[0], source_text), "my_var_1")
  	testing.expect_value(t, output[0].line_number, 1)
  	testing.expect_value(t, output[0].column_number, 1)
-@@ -200,3 +260,22 @@
+@@ -200,3 +260,15 @@
  	testing.expect_value(t, output[5].column_number, 13)
  	testing.expect_value(t, output[5].token_index, 5)
  }
 +
 +@(test)
 +test_tokenize_006 :: proc(t: ^testing.T) {
-+	source_text := "1_my_var_ := 1_337\nmy_var_2 := 6^3\nmy_var_3 = 3\nmy_var_4 :- 4"
++	source_text := "1_my_var_ := 1_337\nmy_var_2 := 6^3\n"
 +	_, errors := tokenize(source_text)
-+	// testing.expect_value(t, len(errors), 4)
 +	testing.expect_value(t, errors[0].type, TokenizationErrorType.InvalidNumber)
 +	testing.expect_value(t, errors[0].line_number, 1)
 +	testing.expect_value(t, errors[0].column_number, 3)
-+	// testing.expect_value(t, errors[1].type, TokenizationErrorType.InvalidNumber)
-+	// testing.expect_value(t, errors[1].line_number, 2)
-+	// testing.expect_value(t, errors[1].column_number, 14)
-+	// testing.expect_value(t, errors[2].type, TokenizationErrorType.InvalidAssignmentOperator)
-+	// testing.expect_value(t, errors[2].line_number, 3)
-+	// testing.expect_value(t, errors[2].column_number, 10)
-+	// testing.expect_value(t, errors[3].type, TokenizationErrorType.InvalidAssignmentOperator)
-+	// testing.expect_value(t, errors[3].line_number, 4)
-+	// testing.expect_value(t, errors[3].column_number, 11)
++	testing.expect_value(t, errors[1].type, TokenizationErrorType.InvalidNumber)
++	testing.expect_value(t, errors[1].line_number, 2)
++	testing.expect_value(t, errors[1].column_number, 14)
 +}

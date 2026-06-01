@@ -1,25 +1,20 @@
 [Previous Step](../step-005/step-005.md) <-- [[Step Schedule](../../readme.md#step-schedule)] --> [Next Step](../step-XXX/step-XXX.md)
 
 # Task
-Return a list of `TokenizationError` structs from `tokenize()` whenever a known syntax error occurs during tokenization. The struct should have `type`, `start_byte`, `line_start_byte`, `line_length`, `line_number`, and `column_number`.
-
-
-Also, create a function called `print_tokenization_errors()` that will take that list of `TokenizationError`s and generate a pleasant user-facing compiler error message.
+Return a list of `TokenizationError` structs from `tokenize()` whenever an invalid integer is encountered during tokenization. The struct should have `type`, `start_byte`, `line_start_byte`, `line_length`, `line_number`, and `column_number`. For `type`, there only needs to be an `InvalidNumber` variant for now.
 
 
 # Tests
 
   Input (source text):
   ```
-  1_my_var_ := 1_337\nmy_var_2 := 6^3\nmy_var_3 = 3\nmy_var_4 :- 4
+  1_my_var_ := 1_337\nmy_var_2 := 6^3\n
   ```
 
   Expected result (format: error <error_index>: <line_text> (<line_number>:<column_number>) (<error_type>)):
   ```
   error 0: 1_my_var_ := 1_337 (1:3) (InvalidNumber)
   error 1: my_var_2 := 6^3 (2:14) (InvalidNumber)
-  error 2: my_var_3 = 3 (3:10) (InvalidAssignmentOperator)
-  error 3: my_var_4 :- 4 (4:11) (InvalidAssignmentOperator)
   ```
 
 # Hints
@@ -48,32 +43,6 @@ If a token starts with a number but then has non-number characters, and there is
 
 ---
 
-### What should the error message text look like?
-<details>
-<summary>Show Hint</summary>
-
-Here is one suggestion:
-
-```
-<file>(<line>:<column>; <byte>) Error: <message>
-      <expression>
-----------^
-```
-
-You can make the error message look however you want it to look, but remember that these error messages are the user interface of your compiler and language! So they should be really good and pleasant to look at.
-
-If you want to emulate error messages in existing languages, then look at how Rust or Odin do it. They have pleasant error messages. C++ does not.
-
-</details>
-
----
-
-###
-<details>
-<summary>Show Hint</summary>
-</details>
-
----
 
 ### Solution in Odin (Reference Implementation)
 

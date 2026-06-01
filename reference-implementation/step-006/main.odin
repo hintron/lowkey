@@ -26,7 +26,6 @@ Token :: struct {
 
 TokenizationErrorType :: enum {
 	InvalidNumber,
-	InvalidAssignmentOperator,
 }
 
 TokenizationError :: struct {
@@ -133,39 +132,40 @@ tokenize :: proc(source_text: string) -> ([dynamic]Token, [dynamic]TokenizationE
 
 			token_index += 1
 			currently_tokenizing = true
-		} else {
-			// Check that the next character isn't obviously syntactically incorrect
-			if
-				current_token.type == .ConstantInteger &&
-				((character < '0' || character > '9') && character != '_')
-			{
-				error := TokenizationError {
-					type = .InvalidNumber,
-					start_byte = current_position,
-					line_start_byte = line_start_byte,
-					line_number = line_number,
-					column_number = column_number,
-				}
-				append(&errors, error)
-				skip_to_next_token_on_error = true
-				currently_tokenizing = false
-				current_token = {}
-				token_index -= 1
+			continue
+		}
 
-				when ODIN_DEBUG {
-					end := line_start_byte;
-					for end < len(source_text) && source_text[end] != '\n'{
-						end += 1
-					}
-					log.debugf(
-						"> Token Error: %v (%v:%v, byte %v) (%v)",
-						source_text[error.line_start_byte:end],
-						error.line_number,
-						error.column_number,
-						error.start_byte,
-						error.type
-					)
+		// Check that the next character isn't obviously syntactically incorrect
+		if
+			current_token.type == .ConstantInteger &&
+			((character < '0' || character > '9') && character != '_')
+		{
+			error := TokenizationError {
+				type = .InvalidNumber,
+				start_byte = current_position,
+				line_start_byte = line_start_byte,
+				line_number = line_number,
+				column_number = column_number,
+			}
+			append(&errors, error)
+			skip_to_next_token_on_error = true
+			currently_tokenizing = false
+			current_token = {}
+			token_index -= 1
+
+			when ODIN_DEBUG {
+				end := line_start_byte;
+				for end < len(source_text) && source_text[end] != '\n'{
+					end += 1
 				}
+				log.debugf(
+					"> Token Error: %v (%v:%v, byte %v) (%v)",
+					source_text[error.line_start_byte:end],
+					error.line_number,
+					error.column_number,
+					error.start_byte,
+					error.type
+				)
 			}
 		}
 	}
@@ -263,19 +263,12 @@ test_tokenize_005 :: proc(t: ^testing.T) {
 
 @(test)
 test_tokenize_006 :: proc(t: ^testing.T) {
-	source_text := "1_my_var_ := 1_337\nmy_var_2 := 6^3\nmy_var_3 = 3\nmy_var_4 :- 4"
+	source_text := "1_my_var_ := 1_337\nmy_var_2 := 6^3\n"
 	_, errors := tokenize(source_text)
-	// testing.expect_value(t, len(errors), 4)
 	testing.expect_value(t, errors[0].type, TokenizationErrorType.InvalidNumber)
 	testing.expect_value(t, errors[0].line_number, 1)
 	testing.expect_value(t, errors[0].column_number, 3)
-	// testing.expect_value(t, errors[1].type, TokenizationErrorType.InvalidNumber)
-	// testing.expect_value(t, errors[1].line_number, 2)
-	// testing.expect_value(t, errors[1].column_number, 14)
-	// testing.expect_value(t, errors[2].type, TokenizationErrorType.InvalidAssignmentOperator)
-	// testing.expect_value(t, errors[2].line_number, 3)
-	// testing.expect_value(t, errors[2].column_number, 10)
-	// testing.expect_value(t, errors[3].type, TokenizationErrorType.InvalidAssignmentOperator)
-	// testing.expect_value(t, errors[3].line_number, 4)
-	// testing.expect_value(t, errors[3].column_number, 11)
+	testing.expect_value(t, errors[1].type, TokenizationErrorType.InvalidNumber)
+	testing.expect_value(t, errors[1].line_number, 2)
+	testing.expect_value(t, errors[1].column_number, 14)
 }
