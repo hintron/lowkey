@@ -51,7 +51,7 @@ For Windows, a newline is actually two characters - the `CR` + `LF` characters. 
 
 ### Solution in Odin (Reference Implementation)
 
-If you are still stuck, see my [step 3 reference implementation code](../../reference-implementation/step-003/main.odin).
+If you are still stuck, see my [step 3 reference implementation code](../../reference-implementation/step-003/main.odin) ([diff from step 002](../../reference-implementation/step-003/changes.diff)).
 
 
 # Finished?

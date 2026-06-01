@@ -17,7 +17,7 @@ A hint.
 
 ### Solution in Odin (Reference Implementation)
 
-If you are still stuck, see my [step XXX reference implementation code](../../reference-implementation/step-XXX/main.odin).
+If you are still stuck, see my [step XXX reference implementation code](../../reference-implementation/step-XXX/main.odin) ([diff from step XXX-1](../../reference-implementation/step-XXX/changes.diff)).
 
 
 # Finished?

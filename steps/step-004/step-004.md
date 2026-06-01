@@ -63,7 +63,7 @@ Don't have the program print out token deubg information by default - have it be
 
 ### Solution in Odin (Reference Implementation)
 
-If you are still stuck, see my [step 4 reference implementation code](../../reference-implementation/step-004/main.odin).
+If you are still stuck, see my [step 4 reference implementation code](../../reference-implementation/step-004/main.odin) ([diff from step 003](../../reference-implementation/step-004/changes.diff)).
 
 
 # Finished?

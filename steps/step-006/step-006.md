@@ -46,7 +46,7 @@ If a token starts with a number but then has non-number characters, and there is
 
 ### Solution in Odin (Reference Implementation)
 
-If you are still stuck, see my [step 6 reference implementation code](../../reference-implementation/step-006/main.odin).
+If you are still stuck, see my [step 6 reference implementation code](../../reference-implementation/step-006/main.odin) ([diff from step 005](../../reference-implementation/step-006/changes.diff)).
 
 
 # Finished?

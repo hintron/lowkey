@@ -93,7 +93,7 @@ See [Zig Tokenizer -> Finding the Next Token](https://mitchellh.com/zig/tokenize
 
 ### Solution in Odin (Reference Implementation)
 
-If you are still stuck, see my [step 2 reference implementation code](../../reference-implementation/step-002/main.odin).
+If you are still stuck, see my [step 2 reference implementation code](../../reference-implementation/step-002/main.odin) ([diff from step 001](../../reference-implementation/step-002/changes.diff)).
 
 
 # Finished?

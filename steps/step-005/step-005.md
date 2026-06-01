@@ -47,7 +47,7 @@ Try to keep your old tests around, as they help catch new bugs you introduce in 
 
 ### Solution in Odin (Reference Implementation)
 
-If you are still stuck, see my [step 5 reference implementation code](../../reference-implementation/step-005/main.odin).
+If you are still stuck, see my [step 5 reference implementation code](../../reference-implementation/step-005/main.odin) ([diff from step 004](../../reference-implementation/step-005/changes.diff)).
 
 
 # Finished?
