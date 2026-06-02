@@ -15,7 +15,12 @@ generate_diffs() {
         local CURR
         PREV="$(printf 'step-%03d' "$step_prev")"
         CURR="$(printf 'step-%03d' "$step")"
-        diff -u --label "$PREV/main.odin" --label "$CURR/main.odin" "$PREV/main.odin" "$CURR/main.odin" > "$CURR/changes.diff" || true
+        diff \
+        -u \
+        --label "$PREV/main.odin" \
+        --label "$CURR/main.odin" \
+        "$PREV/main.odin" \
+        "$CURR/main.odin" > "$CURR/changes.diff" || true
         echo "Generated $CURR/changes.diff"
         ((step+=1))
         ((step_prev+=1))
