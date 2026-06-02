@@ -1,7 +1,7 @@
 [Previous Step](../step-005/step-005.md) <-- [[Step Schedule](../../readme.md#step-schedule)] --> [Next Step](../step-XXX/step-XXX.md)
 
 # Task
-Return a list of `TokenizationError` structs from `tokenize()` whenever an invalid integer is encountered during tokenization. The struct should have `type`, `start_byte`, `line_start_byte`, `line_length`, `line_number`, and `column_number`. For `type`, there only needs to be an `InvalidNumber` variant for now.
+Return a list of `TokenizationError` structs from `tokenize()` whenever an invalid integer is encountered during tokenization. The struct should have `type`, `start_byte`, `line_start_byte`, `line_number`, and `column_number`. For `type`, there only needs to be an `InvalidNumber` variant for now.
 
 
 # Tests
@@ -32,16 +32,6 @@ Since we are just tokenizing at this stage, the tokenizer doesn't need to unders
 
 </details>
 
-
-### How do I know if it's an invalid identifier or invalid number?
-<details>
-<summary>Show Hint</summary>
-
-If a token starts with a number but then has non-number characters, and there is an assignment token right after it, then it means the user was likely trying to create an identifier. Otherwise, mark it as an invalid number.
-
-</details>
-
----
 
 
 ### Solution in Odin (Reference Implementation)

@@ -182,10 +182,6 @@ is_whitespace :: proc(character: u8) -> bool {
 	return character == ' ' || character == '\t' || character == '\n'
 }
 
-print_tokenization_errors :: proc() {
-
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 // Tests
 //

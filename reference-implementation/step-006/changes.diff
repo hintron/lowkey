@@ -114,18 +114,7 @@
  }
  
  token_to_string :: proc(token: Token, source_text: string) -> string {
-@@ -126,6 +182,10 @@
- 	return character == ' ' || character == '\t' || character == '\n'
- }
- 
-+print_tokenization_errors :: proc() {
-+
-+}
-+
- ////////////////////////////////////////////////////////////////////////////////
- // Tests
- //
-@@ -136,7 +196,7 @@
+@@ -136,7 +192,7 @@
  @(test)
  test_tokenize :: proc(t: ^testing.T) {
  	source_text := "This   is my program\nLine two\n Line  three \n"
@@ -134,7 +123,7 @@
  	testing.expect_value(t, token_to_string(output[0], source_text), "This")
  	testing.expect_value(t, output[0].line_number, 1)
  	testing.expect_value(t, output[0].column_number, 1)
-@@ -174,7 +234,7 @@
+@@ -174,7 +230,7 @@
  @(test)
  test_tokenize_005 :: proc(t: ^testing.T) {
  	source_text := "my_var_1 := 1_337\nmy_var_2 := 663\n"
@@ -143,7 +132,7 @@
  	testing.expect_value(t, token_to_string(output[0], source_text), "my_var_1")
  	testing.expect_value(t, output[0].line_number, 1)
  	testing.expect_value(t, output[0].column_number, 1)
-@@ -200,3 +260,15 @@
+@@ -200,3 +256,15 @@
  	testing.expect_value(t, output[5].column_number, 13)
  	testing.expect_value(t, output[5].token_index, 5)
  }
