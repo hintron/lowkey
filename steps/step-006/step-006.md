@@ -1,4 +1,4 @@
-[Previous Step](../step-005/step-005.md) <-- [[Step Schedule](../../readme.md#step-schedule)] --> [Next Step](../step-XXX/step-XXX.md)
+[Previous Step](../step-005/step-005.md) <-- [[Step Schedule](../../readme.md#step-schedule)] --> [Next Step](../step-007/step-007.md)
 
 # Task
 Return a list of `TokenizationError` structs from `tokenize()` whenever an invalid integer is encountered during tokenization. The struct should have `type`, `start_byte`, `line_start_byte`, `line_number`, and `column_number`. For `type`, there only needs to be an `InvalidNumber` variant for now.
@@ -41,6 +41,6 @@ If you are still stuck, see my [step 6 reference implementation code](../../refe
 
 # Finished?
 
-Congratulations! Copy your code into the next step's directory and [read the task description at `step-XXX.md (The next step is currently under construction.)`](../step-XXX/step-XXX.md).
+Congratulations! Copy your code into the next step's directory and [read the task description at `step-007.md (The next step is currently under construction.)`](../step-007/step-007.md).
 
-[Previous Step](../step-005/step-005.md) <-- [[Step Schedule](../../readme.md#step-schedule)] --> [Next Step](../step-XXX/step-XXX.md)
+[Previous Step](../step-005/step-005.md) <-- [[Step Schedule](../../readme.md#step-schedule)] --> [Next Step](../step-007/step-007.md)

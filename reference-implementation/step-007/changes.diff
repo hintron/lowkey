@@ -1,0 +1,42 @@
+--- step-006/main.odin
++++ step-007/main.odin
+@@ -2,11 +2,38 @@
+ 
+ import "core:fmt"
+ import "core:log"
++import "core:os"
+ 
+ when !ODIN_DEBUG { _ :: log } // Avoid unused import error for log
+ 
+ main :: proc() {
+-	fmt.println("Hello, world, from the Lowkey compiler!")
++	fmt.println("Welcome to the Lowkey compiler! Starting REPL mode:")
++
++	input_buffer: [1024]byte
++	for {
++		fmt.print("> ")
++		n, err := os.read(os.stdin, input_buffer[:])
++		if err != nil {
++			fmt.eprintln("Error reading:", err)
++			return
++		}
++
++		// Tokenize input
++		output, errors := tokenize(string(input_buffer[:n]))
++
++		// Print out any errors
++		if len(errors) > 0 {
++			for myerr in errors {
++				fmt.eprintln("Tokenization error: ", myerr)
++			}
++			continue
++		}
++
++		// Print out output
++		for token in output {
++			fmt.println(token)
++		}
++	}
+ }
+ 
+ TokenType :: enum {
