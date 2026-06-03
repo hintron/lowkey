@@ -23,8 +23,8 @@ main :: proc() {
 
 		// Print out any errors
 		if len(errors) > 0 {
-			for myerr in errors {
-				fmt.eprintln("Tokenization error: ", myerr)
+			for error in errors {
+				fmt.eprintln("Tokenization error: ", error)
 			}
 			continue
 		}

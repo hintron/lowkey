@@ -12,7 +12,7 @@ Simply accept a single line of input from the user at a time, pass that string t
 
   Example Input (interactive input):
   ```
-  a := 234234h
+  a := 23423_D
   ```
 
   Example output:
