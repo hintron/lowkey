@@ -1,4 +1,4 @@
-[Previous Step](../step-006/step-006.md) <-- [[Step Schedule](../../readme.md#step-schedule)] --> [Next Step](../step-XXX/step-XXX.md)
+[Previous Step](../step-006/step-006.md) <-- [[Step Schedule](../../readme.md#step-schedule)] --> [Next Step](../step-008/step-008.md)
 
 # Task
 Create a executable (i.e. fill out `main()`) that will act as a [REPL (read execute print loop)](https://en.wikipedia.org/wiki/Read%E2%80%93eval%E2%80%93print_loop) - i.e. an interactive prompt to the compiler.
@@ -71,6 +71,6 @@ If you are still stuck, see my [step 7 reference implementation code](../../refe
 
 # Finished?
 
-Congratulations! Copy your code into the next step's directory and [read the task description at `step-XXX.md (The next step is currently under construction.)`](../step-XXX/step-XXX.md).
+Congratulations! Copy your code into the next step's directory and [read the task description at `step-008.md`](../step-008/step-008.md).
 
-[Previous Step](../step-006/step-006.md) <-- [[Step Schedule](../../readme.md#step-schedule)] --> [Next Step](../step-XXX/step-XXX.md)
+[Previous Step](../step-006/step-006.md) <-- [[Step Schedule](../../readme.md#step-schedule)] --> [Next Step](../step-008/step-008.md)

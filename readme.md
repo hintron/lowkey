@@ -31,10 +31,13 @@ The compiler will be implemented incrementally, step by step, in 30 minute sitdo
 * [`step-005.md`](steps/step-005/step-005.md) : Tokenize variables (`my_var_1`), multi-digit integer constants (`1_337`), and the assignment operator (`:=`)
 * [`step-006.md`](steps/step-006/step-006.md) : Return a list of TokenizationError structs from `tokenize()` whenever an invalid integer is encountered during tokenization.
 * [`step-007.md`](steps/step-007/step-007.md) : Create a executable that will act as a REPL (read execute print loop) - i.e. an interactive prompt.
-* [`step-XXX.md`](steps/step-XXX/step-XXX.md) : In the REPL output, print nice-looking error messages from the error list returned by `tokenize()`.
+* [`step-008.md`](steps/step-008/step-008.md) : In the REPL, print nice-looking error messages from the error list returned by `tokenize()`.
 
 #### Unimplemented steps and step ideas
 
+* [`step-009.md`](steps/step-009/step-009.md) : In the REPL, record command history and make up arrow cycle through entries.
+* [`step-010.md`](steps/step-010/step-010.md) : In the REPL, make ctrl-r search through the command history.
+* [`step-011.md`](steps/step-011/step-011.md) : Create an `execute()` function to "execute" tokens, and print out the result in the REPL.
 * [`step-XXX.md`](steps/step-XXX/step-XXX.md) : Even after something goes wrong, continue tokenization and report on other errors.
 * [`step-XXX.md`](steps/step-XXX/step-XXX.md) : Create a `parse()` function that takes in a token list and outputs a simple AST with naive precedence.
 * [`step-XXX.md`](steps/step-XXX/step-XXX.md) : Build a simple tree-walk interpreter repl mode with main, and use `end` keyword to exit repl.
