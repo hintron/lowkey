@@ -34,7 +34,7 @@ tokenize :: proc(source_text: string) -> [dynamic]Token {
 		log.debug("---------------------------------------------------------")
 	}
 
-	output := make([dynamic]Token, context.temp_allocator)
+	tokens := make([dynamic]Token, context.temp_allocator)
 
 	line_number := 1
 	column_number := 0
@@ -70,7 +70,7 @@ tokenize :: proc(source_text: string) -> [dynamic]Token {
 						current_token.type
 					)
 				}
-				append(&output, current_token)
+				append(&tokens, current_token)
 				current_token = {}
 				currently_tokenizing = false
 			}
@@ -115,7 +115,7 @@ tokenize :: proc(source_text: string) -> [dynamic]Token {
 	}
 
 	// Assume source text ends in whitespace, so final token gets appended
-	return output
+	return tokens
 }
 
 token_to_string :: proc(token: Token, source_text: string) -> string {

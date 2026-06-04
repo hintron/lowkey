@@ -18,24 +18,16 @@
  	for {
  		defer free_all(context.temp_allocator)
  
-@@ -23,9 +27,10 @@
+@@ -23,6 +27,7 @@
  		}
  
  		source_text := string(input_buffer[:n])
 +		history_buffer[count] = strings.clone_from(source_text)
  
  		// Tokenize input
--		output, errors := tokenize(source_text)
-+		tokens, errors := tokenize(source_text)
- 
- 		// Print out any errors
- 		if len(errors) > 0 {
-@@ -36,13 +41,16 @@
- 		}
- 
- 		// Print out output
--		for token in output {
-+		for token in tokens {
+ 		tokens, errors := tokenize(source_text)
+@@ -39,10 +44,13 @@
+ 		for token in tokens {
  			fmt.println(token)
  		}
 +

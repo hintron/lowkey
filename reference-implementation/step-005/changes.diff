@@ -9,6 +9,15 @@
  }
  
  Token :: struct {
+@@ -32,7 +34,7 @@
+ 		log.debug("---------------------------------------------------------")
+ 	}
+ 
+-	output := make([dynamic]Token, context.temp_allocator)
++	tokens := make([dynamic]Token, context.temp_allocator)
+ 
+ 	line_number := 1
+ 	column_number := 0
 @@ -42,7 +44,7 @@
  	next_position := 0
  	// A simple state machine to indicate if we are tokenizing a word or not as
@@ -27,17 +36,19 @@
  				current_token.length = current_position - current_token.start_byte
  				when ODIN_DEBUG {
  					log.debugf(
-@@ -69,7 +71,8 @@
+@@ -68,8 +70,9 @@
+ 						current_token.type
  					)
  				}
- 				append(&output, current_token)
+-				append(&output, current_token)
 -				tokenizing_word = false
++				append(&tokens, current_token)
 +				current_token = {}
 +				currently_tokenizing = false
  			}
  
  			// A newline increments line number and resets column number
-@@ -86,19 +89,28 @@
+@@ -86,24 +89,33 @@
  			continue
  		}
  
@@ -70,6 +81,12 @@
  		}
  	}
  
+ 	// Assume source text ends in whitespace, so final token gets appended
+-	return output
++	return tokens
+ }
+ 
+ token_to_string :: proc(token: Token, source_text: string) -> string {
 @@ -116,6 +128,8 @@
  
  ////////////////////////////////////////////////////////////////////////////////

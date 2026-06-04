@@ -22,7 +22,7 @@
 +		}
 +
 +		// Tokenize input
-+		output, errors := tokenize(string(input_buffer[:n]))
++		tokens, errors := tokenize(string(input_buffer[:n]))
 +
 +		// Print out any errors
 +		if len(errors) > 0 {
@@ -33,7 +33,7 @@
 +		}
 +
 +		// Print out output
-+		for token in output {
++		for token in tokens {
 +			fmt.println(token)
 +		}
 +	}

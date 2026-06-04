@@ -19,7 +19,7 @@ main :: proc() {
 		}
 
 		// Tokenize input
-		output, errors := tokenize(string(input_buffer[:n]))
+		tokens, errors := tokenize(string(input_buffer[:n]))
 
 		// Print out any errors
 		if len(errors) > 0 {
@@ -30,7 +30,7 @@ main :: proc() {
 		}
 
 		// Print out output
-		for token in output {
+		for token in tokens {
 			fmt.println(token)
 		}
 	}
@@ -73,7 +73,7 @@ tokenize :: proc(source_text: string) -> ([dynamic]Token, [dynamic]TokenizationE
 		log.debug("---------------------------------------------------------")
 	}
 
-	output := make([dynamic]Token, context.temp_allocator)
+	tokens := make([dynamic]Token, context.temp_allocator)
 	errors := make([dynamic]TokenizationError, context.temp_allocator)
 
 	line_number := 1
@@ -112,7 +112,7 @@ tokenize :: proc(source_text: string) -> ([dynamic]Token, [dynamic]TokenizationE
 						current_token.type
 					)
 				}
-				append(&output, current_token)
+				append(&tokens, current_token)
 				current_token = {}
 				currently_tokenizing = false
 			} else if skip_to_next_token_on_error {
@@ -198,7 +198,7 @@ tokenize :: proc(source_text: string) -> ([dynamic]Token, [dynamic]TokenizationE
 	}
 
 	// Assume source text ends in whitespace, so final token gets appended
-	return output, errors
+	return tokens, errors
 }
 
 token_to_string :: proc(token: Token, source_text: string) -> string {
