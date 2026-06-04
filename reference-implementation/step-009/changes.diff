@@ -1,0 +1,172 @@
+--- step-008/main.odin
++++ step-009/main.odin
+@@ -4,6 +4,7 @@
+ import "core:log"
+ import "core:os"
+ import "core:strings"
++import "core:strconv"
+ import "core:unicode/utf8"
+ 
+ when !ODIN_DEBUG { _ :: log } // Avoid unused import error for log
+@@ -12,6 +13,9 @@
+ 	fmt.println("Welcome to the Lowkey compiler! Starting REPL mode:")
+ 
+ 	input_buffer: [1024]byte
++	history_buffer: [1024]string
++	count: int
++
+ 	for {
+ 		defer free_all(context.temp_allocator)
+ 
+@@ -23,9 +27,10 @@
+ 		}
+ 
+ 		source_text := string(input_buffer[:n])
++		history_buffer[count] = strings.clone_from(source_text)
+ 
+ 		// Tokenize input
+-		output, errors := tokenize(source_text)
++		tokens, errors := tokenize(source_text)
+ 
+ 		// Print out any errors
+ 		if len(errors) > 0 {
+@@ -36,13 +41,16 @@
+ 		}
+ 
+ 		// Print out output
+-		for token in output {
++		for token in tokens {
+ 			fmt.println(token)
+ 		}
++
++		// print_program_state(execute(tokens, source_text))
+ 	}
+ }
+ 
+ TokenType :: enum {
++	Nil,
+ 	IdentifierVariable,
+ 	OperatorBinaryAssignment,
+ 	ConstantInteger,
+@@ -268,6 +276,101 @@
+ 	return strings.to_string(builder)
+ }
+ 
++ProgramState :: struct {
++	// Keep track of variable names, in order of creation
++	var_names: [dynamic]string,
++	// Keep track of variable values
++	var_values: map[string]int,
++}
++
++// Execute the tokens directly and return a ProgramState struct.
++execute :: proc(tokens: [dynamic]Token, source_text: string) -> ProgramState {
++	// Program state
++	program_state := ProgramState {
++		var_names = make([dynamic]string, context.temp_allocator),
++		var_values = make(map[string]int, context.temp_allocator),
++	}
++
++	// Execution state
++	is_doing_assignment : bool
++	lefthand_identifier : Token
++	righthand_token : Token
++
++	for token in tokens {
++		switch token.type {
++		case .Nil:
++			continue
++		case .IdentifierVariable:
++			if is_doing_assignment {
++				righthand_token = token
++			} else {
++				lefthand_identifier = token
++			}
++		case .OperatorBinaryAssignment:
++			is_doing_assignment = true
++			// clear any righthand tokens
++			righthand_token = {}
++		case .ConstantInteger:
++			if is_doing_assignment {
++				righthand_token = token
++			}
++		}
++
++		// We have enough context to do an assignment operation!:
++		//     lefthand := righthand
++		if lefthand_identifier.type != .Nil && is_doing_assignment && righthand_token.type != .Nil {
++			lefthand_var_name := source_text[lefthand_identifier.start_byte:][:lefthand_identifier.length]
++			if !(lefthand_var_name in program_state.var_values) {
++				// First time we've seen this variable! Create it
++				append_elem(&program_state.var_names, lefthand_var_name)
++			}
++			righthand_value : int
++			ok : bool
++			switch righthand_token.type {
++			case .IdentifierVariable:
++				righthand_var_name := source_text[righthand_token.start_byte:][:righthand_token.length]
++				if righthand_value, ok = program_state.var_values[righthand_var_name]; !ok {
++					unimplemented("Tried to read from variable before it had a value!")
++				}
++			case .ConstantInteger:
++				righthand_value_string := source_text[righthand_token.start_byte:][:righthand_token.length]
++				if righthand_value, ok = strconv.parse_int(righthand_value_string); !ok {
++					unimplemented(fmt.tprintfln("Can't parse constant integer %v", righthand_value_string))
++				}
++			case .Nil:
++				fallthrough
++			case .OperatorBinaryAssignment:
++				unimplemented(fmt.tprintfln("Can't assign a right hand value for token type %v", righthand_token.type))
++			}
++
++			// Do the actual assignment, overwriting anything already there
++			program_state.var_values[lefthand_var_name] = righthand_value
++
++			// Reset for next assignment operation
++			is_doing_assignment = false
++			lefthand_identifier = {}
++			righthand_token = {}
++		}
++	}
++
++	return program_state
++}
++
++// print_program_state :: proc (state: ProgramState) {
++// 	builder := strings.builder_make(context.temp_allocator)
++// 	strings.write_string(&builder, "Final Program State:\n")
++
++// 	for variable in state.var_names {
++// 		strings.write_string(&builder, variable)
++// 		strings.write_string(&builder, " = ")
++// 		strings.write_int(&builder, state.var_values[variable])
++// 		strings.write_rune(&builder, '\n')
++// 	}
++
++// 	fmt.print(strings.to_string(builder))
++// }
++
++
+ ////////////////////////////////////////////////////////////////////////////////
+ // Tests
+ //
+@@ -354,3 +457,19 @@
+ 	testing.expect_value(t, errors[1].line_number, 2)
+ 	testing.expect_value(t, errors[1].column_number, 14)
+ }
++
++@(test)
++test_tokenize_009 :: proc(t: ^testing.T) {
++	source_text := "a := 1\nb := 3\nc := b\nd := c\n"
++	tokens, errors := tokenize(source_text)
++	testing.expect_value(t, len(errors), 0)
++	state := execute(tokens, source_text)
++	testing.expect_value(t, state.var_names[0], "a")
++	testing.expect_value(t, state.var_values[state.var_names[0]], 1)
++	testing.expect_value(t, state.var_names[1], "b")
++	testing.expect_value(t, state.var_values[state.var_names[1]], 3)
++	testing.expect_value(t, state.var_names[2], "c")
++	testing.expect_value(t, state.var_values[state.var_names[2]], 3)
++	testing.expect_value(t, state.var_names[3], "d")
++	testing.expect_value(t, state.var_values[state.var_names[3]], 3)
++}

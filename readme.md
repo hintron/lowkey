@@ -32,13 +32,11 @@ The compiler will be implemented incrementally, step by step, in 30 minute sitdo
 * [`step-006.md`](steps/step-006/step-006.md) : Return a list of TokenizationError structs from `tokenize()` whenever an invalid integer is encountered during tokenization.
 * [`step-007.md`](steps/step-007/step-007.md) : Create a executable that will act as a REPL (read execute print loop) - i.e. an interactive prompt.
 * [`step-008.md`](steps/step-008/step-008.md) : In the REPL, print nice-looking error messages from the error list returned by `tokenize()`.
+* [`step-009.md`](steps/step-009/step-009.md) : Create an `execute()` function to "execute" tokens and return the final state of the program.
+
 
 #### Unimplemented steps and step ideas
 
-* [`step-009.md`](steps/step-009/step-009.md) : In the REPL, record command history and make up arrow cycle through entries.
-* [`step-010.md`](steps/step-010/step-010.md) : In the REPL, make ctrl-r search through the command history.
-* [`step-011.md`](steps/step-011/step-011.md) : Create an `execute()` function to "execute" tokens, and print out the result in the REPL.
-* [`step-XXX.md`](steps/step-XXX/step-XXX.md) : Even after something goes wrong, continue tokenization and report on other errors.
 * [`step-XXX.md`](steps/step-XXX/step-XXX.md) : Create a `parse()` function that takes in a token list and outputs a simple AST with naive precedence.
 * [`step-XXX.md`](steps/step-XXX/step-XXX.md) : Build a simple tree-walk interpreter repl mode with main, and use `end` keyword to exit repl.
 * [`step-XXX.md`](steps/step-XXX/step-XXX.md) : Parse `-7234 + 3` and create an actual Abstract Syntax Tree (AST) instead of a list of nodes; AST creation visualization.
@@ -77,7 +75,8 @@ The compiler will be implemented incrementally, step by step, in 30 minute sitdo
 * [`step-XXX.md`](steps/step-XXX/step-XXX.md) : Tokenize, parse, and generate raw unions.
 * [`step-XXX.md`](steps/step-XXX/step-XXX.md) : Tokenize, parse, and generate enumerated unions/tagged unions.
 * [`step-XXX.md`](steps/step-XXX/step-XXX.md) : Tokenize, parse, and generate a switch statement. (needed? I might want to skip this, since you can use ifs)
-* [`step-XXX.md`](steps/step-XXX/step-XXX.md) :
+* [`step-XXX.md`](steps/step-XXX/step-XXX.md) : In the REPL, record command history and make up arrow cycle through entries.
+* [`step-XXX.md`](steps/step-XXX/step-XXX.md) : In the REPL, make ctrl-r search through the command history.
 
 
 # Reference Implementation
