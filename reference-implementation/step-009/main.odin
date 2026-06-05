@@ -44,8 +44,6 @@ main :: proc() {
 		for token in tokens {
 			fmt.println(token)
 		}
-
-		// print_program_state(execute(tokens, source_text))
 	}
 }
 
@@ -355,21 +353,6 @@ execute :: proc(tokens: [dynamic]Token, source_text: string) -> ProgramState {
 
 	return program_state
 }
-
-// print_program_state :: proc (state: ProgramState) {
-// 	builder := strings.builder_make(context.temp_allocator)
-// 	strings.write_string(&builder, "Final Program State:\n")
-
-// 	for variable in state.var_names {
-// 		strings.write_string(&builder, variable)
-// 		strings.write_string(&builder, " = ")
-// 		strings.write_int(&builder, state.var_values[variable])
-// 		strings.write_rune(&builder, '\n')
-// 	}
-
-// 	fmt.print(strings.to_string(builder))
-// }
-
 
 ////////////////////////////////////////////////////////////////////////////////
 // Tests
