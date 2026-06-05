@@ -271,20 +271,10 @@ generate_error_message :: proc(error: TokenizationError, source_text: string) ->
 	return strings.to_string(builder)
 }
 
-ProgramState :: struct {
-	// Keep track of variable names, in order of creation
-	var_names: [dynamic]string,
-	// Keep track of variable values
-	var_values: map[string]int,
-}
-
-// Execute the tokens directly and return a ProgramState struct.
-execute :: proc(tokens: [dynamic]Token, source_text: string) -> ProgramState {
+// Execute the tokens directly and return a map with variable name -> value.
+execute :: proc(tokens: [dynamic]Token, source_text: string) -> map[string]int {
 	// Program state
-	program_state := ProgramState {
-		var_names = make([dynamic]string, context.temp_allocator),
-		var_values = make(map[string]int, context.temp_allocator),
-	}
+	var_values := make(map[string]int, context.temp_allocator)
 
 	// Execution state
 	is_doing_assignment : bool
@@ -315,16 +305,12 @@ execute :: proc(tokens: [dynamic]Token, source_text: string) -> ProgramState {
 		//     lefthand := righthand
 		if lefthand_identifier.type != .Nil && is_doing_assignment && righthand_token.type != .Nil {
 			lefthand_var_name := source_text[lefthand_identifier.start_byte:][:lefthand_identifier.length]
-			if !(lefthand_var_name in program_state.var_values) {
-				// First time we've seen this variable! Create it
-				append_elem(&program_state.var_names, lefthand_var_name)
-			}
 			righthand_value : int
 			ok : bool
 			switch righthand_token.type {
 			case .IdentifierVariable:
 				righthand_var_name := source_text[righthand_token.start_byte:][:righthand_token.length]
-				if righthand_value, ok = program_state.var_values[righthand_var_name]; !ok {
+				if righthand_value, ok = var_values[righthand_var_name]; !ok {
 					unimplemented("Tried to read from variable before it had a value!")
 				}
 			case .ConstantInteger:
@@ -339,7 +325,7 @@ execute :: proc(tokens: [dynamic]Token, source_text: string) -> ProgramState {
 			}
 
 			// Do the actual assignment, overwriting anything already there
-			program_state.var_values[lefthand_var_name] = righthand_value
+			var_values[lefthand_var_name] = righthand_value
 
 			// Reset for next assignment operation
 			is_doing_assignment = false
@@ -348,7 +334,7 @@ execute :: proc(tokens: [dynamic]Token, source_text: string) -> ProgramState {
 		}
 	}
 
-	return program_state
+	return var_values
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -443,13 +429,9 @@ test_tokenize_009 :: proc(t: ^testing.T) {
 	source_text := "a := 1\nb := 3\nc := b\nd := c\n"
 	tokens, errors := tokenize(source_text)
 	testing.expect_value(t, len(errors), 0)
-	state := execute(tokens, source_text)
-	testing.expect_value(t, state.var_names[0], "a")
-	testing.expect_value(t, state.var_values[state.var_names[0]], 1)
-	testing.expect_value(t, state.var_names[1], "b")
-	testing.expect_value(t, state.var_values[state.var_names[1]], 3)
-	testing.expect_value(t, state.var_names[2], "c")
-	testing.expect_value(t, state.var_values[state.var_names[2]], 3)
-	testing.expect_value(t, state.var_names[3], "d")
-	testing.expect_value(t, state.var_values[state.var_names[3]], 3)
+	var_values := execute(tokens, source_text)
+	testing.expect_value(t, var_values["a"], 1)
+	testing.expect_value(t, var_values["b"], 3)
+	testing.expect_value(t, var_values["c"], 3)
+	testing.expect_value(t, var_values["d"], 3)
 }
