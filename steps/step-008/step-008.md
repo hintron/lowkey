@@ -78,6 +78,6 @@ If you are still stuck, see my [step 8 reference implementation code](../../refe
 
 # Finished?
 
-Congratulations! Copy your code into the next step's directory and [read the task description at `step-009.md (The next step is currently under construction.)`](../step-009/step-009.md).
+Congratulations! Copy your code into the next step's directory and [read the task description at `step-009.md`](../step-009/step-009.md).
 
 [Previous Step](../step-007/step-007.md) <-- [[Step Schedule](../../readme.md#step-schedule)] --> [Next Step](../step-009/step-009.md)

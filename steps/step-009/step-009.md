@@ -4,11 +4,11 @@
 
 Create an `execute()` function to "execute" tokens and return the final state of the program.
 
-There are only two operations that can be performed:
+Currently, there are only two operations that can be performed:
 1) assigning a constant to a variable, and
-2) copying a variable to variable.
+2) copying a variable to a variable.
 
-Variables are only of one implicit integer type.
+Variables are only of one implicit type - integer.
 
 # Tests
 
