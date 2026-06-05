@@ -1,5 +1,6 @@
 package lowkey
 
+import "base:runtime"
 import "core:fmt"
 
 main :: proc() {
@@ -16,11 +17,11 @@ Token :: struct {
 	length: int,
 }
 
-tokenize :: proc(source_text: string) -> [dynamic]Token {
+tokenize :: proc(source_text: string, allocator: runtime.Allocator) -> [dynamic]Token {
 	// TODO: Assert that source file length is < INT_MAX
 	// TODO: Assert that source file ends with whitespace
 
-	tokens := make([dynamic]Token)
+	tokens := make([dynamic]Token, allocator)
 
 	current_position := 0
 	next_position := 0
@@ -79,10 +80,9 @@ import "core:testing"
 @(test)
 test_tokenize :: proc(t: ^testing.T) {
 	source_text := "This   is my program\n"
-	tokens := tokenize(source_text)
+	tokens := tokenize(source_text, context.temp_allocator)
 	testing.expect_value(t, token_to_string(tokens[0], source_text), "This")
 	testing.expect_value(t, token_to_string(tokens[1], source_text), "is")
 	testing.expect_value(t, token_to_string(tokens[2], source_text), "my")
 	testing.expect_value(t, token_to_string(tokens[3], source_text), "program")
-	delete(tokens)
 }

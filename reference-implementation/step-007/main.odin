@@ -1,13 +1,18 @@
 package lowkey
 
+import "base:runtime"
 import "core:fmt"
 import "core:log"
+import vmem "core:mem/virtual"
 import "core:os"
 
 when !ODIN_DEBUG { _ :: log } // Avoid unused import error for log
 
 main :: proc() {
 	fmt.println("Welcome to the Lowkey compiler! Starting REPL mode:")
+
+	arena: vmem.Arena
+	arena_allocator := vmem.arena_allocator(&arena)
 
 	input_buffer: [1024]byte
 	for {
@@ -19,7 +24,7 @@ main :: proc() {
 		}
 
 		// Tokenize input
-		tokens, errors := tokenize(string(input_buffer[:n]))
+		tokens, errors := tokenize(string(input_buffer[:n]), arena_allocator)
 
 		// Print out any errors
 		if len(errors) > 0 {
@@ -63,7 +68,7 @@ TokenizationError :: struct {
 	column_number: int,
 }
 
-tokenize :: proc(source_text: string) -> ([dynamic]Token, [dynamic]TokenizationError) {
+tokenize :: proc(source_text: string, allocator: runtime.Allocator) -> ([dynamic]Token, [dynamic]TokenizationError) {
 	// TODO: Assert that source file length is < INT_MAX
 	// TODO: Assert that source file ends with whitespace
 	when ODIN_DEBUG {
@@ -73,8 +78,8 @@ tokenize :: proc(source_text: string) -> ([dynamic]Token, [dynamic]TokenizationE
 		log.debug("---------------------------------------------------------")
 	}
 
-	tokens := make([dynamic]Token)
-	errors := make([dynamic]TokenizationError)
+	tokens := make([dynamic]Token, allocator)
+	errors := make([dynamic]TokenizationError, allocator)
 
 	line_number := 1
 	line_start_byte := 0
@@ -219,7 +224,7 @@ import "core:testing"
 @(test)
 test_tokenize :: proc(t: ^testing.T) {
 	source_text := "This   is my program\nLine two\n Line  three \n"
-	tokens, errors := tokenize(source_text)
+	tokens, _ := tokenize(source_text, context.temp_allocator)
 	testing.expect_value(t, token_to_string(tokens[0], source_text), "This")
 	testing.expect_value(t, tokens[0].line_number, 1)
 	testing.expect_value(t, tokens[0].column_number, 1)
@@ -252,14 +257,12 @@ test_tokenize :: proc(t: ^testing.T) {
 	testing.expect_value(t, tokens[7].line_number, 3)
 	testing.expect_value(t, tokens[7].column_number, 8)
 	testing.expect_value(t, tokens[7].token_index, 7)
-	delete(tokens)
-	delete(errors)
 }
 
 @(test)
 test_tokenize_005 :: proc(t: ^testing.T) {
 	source_text := "my_var_1 := 1_337\nmy_var_2 := 663\n"
-	tokens, errors := tokenize(source_text)
+	tokens, _ := tokenize(source_text, context.temp_allocator)
 	testing.expect_value(t, token_to_string(tokens[0], source_text), "my_var_1")
 	testing.expect_value(t, tokens[0].line_number, 1)
 	testing.expect_value(t, tokens[0].column_number, 1)
@@ -284,20 +287,16 @@ test_tokenize_005 :: proc(t: ^testing.T) {
 	testing.expect_value(t, tokens[5].line_number, 2)
 	testing.expect_value(t, tokens[5].column_number, 13)
 	testing.expect_value(t, tokens[5].token_index, 5)
-	delete(tokens)
-	delete(errors)
 }
 
 @(test)
 test_tokenize_006 :: proc(t: ^testing.T) {
 	source_text := "1_my_var_ := 1_337\nmy_var_2 := 6^3\n"
-	tokens, errors := tokenize(source_text)
+	_, errors := tokenize(source_text, context.temp_allocator)
 	testing.expect_value(t, errors[0].type, TokenizationErrorType.InvalidNumber)
 	testing.expect_value(t, errors[0].line_number, 1)
 	testing.expect_value(t, errors[0].column_number, 3)
 	testing.expect_value(t, errors[1].type, TokenizationErrorType.InvalidNumber)
 	testing.expect_value(t, errors[1].line_number, 2)
 	testing.expect_value(t, errors[1].column_number, 14)
-	delete(tokens)
-	delete(errors)
 }

@@ -1,5 +1,6 @@
 package lowkey
 
+import "base:runtime"
 import "core:fmt"
 
 main :: proc() {
@@ -7,8 +8,8 @@ main :: proc() {
 }
 
 
-tokenize :: proc(source_text: string) -> [dynamic]u8 {
-	output := make([dynamic]u8)
+tokenize :: proc(source_text: string, allocator: runtime.Allocator) -> [dynamic]u8 {
+	output := make([dynamic]u8, allocator)
 	next_position := 0
 
 	// A simple state machine to indicate if we are tokenizing a word or not as
@@ -46,10 +47,9 @@ import "core:testing"
 @(test)
 test_tokenize :: proc(t: ^testing.T) {
 	source_text := "This   is my program\n"
-	output := tokenize(source_text)
+	output := tokenize(source_text, context.temp_allocator)
 	testing.expect_value(t, output[0], 0)
 	testing.expect_value(t, output[1], 7)
 	testing.expect_value(t, output[2], 10)
 	testing.expect_value(t, output[3], 13)
-	delete(output)
 }

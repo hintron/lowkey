@@ -1,6 +1,6 @@
 --- step-004/main.odin
 +++ step-005/main.odin
-@@ -11,6 +11,8 @@
+@@ -12,6 +12,8 @@
  
  TokenType :: enum {
  	IdentifierVariable,
@@ -9,7 +9,7 @@
  }
  
  Token :: struct {
-@@ -42,7 +44,7 @@
+@@ -43,7 +45,7 @@
  	next_position := 0
  	// A simple state machine to indicate if we are tokenizing a word or not as
  	// we loop through characters.
@@ -18,7 +18,7 @@
  	current_token : Token
  	// Loop through each byte
  	for next_position < len(source_text) {
-@@ -55,7 +57,7 @@
+@@ -56,7 +58,7 @@
  		// Skip all whitespace
  		if is_whitespace(character) {
  			// If we hit whitespace after an identifier, append token to output!
@@ -27,7 +27,7 @@
  				current_token.length = current_position - current_token.start_byte
  				when ODIN_DEBUG {
  					log.debugf(
-@@ -69,7 +71,8 @@
+@@ -70,7 +72,8 @@
  					)
  				}
  				append(&tokens, current_token)
@@ -37,7 +37,7 @@
  			}
  
  			// A newline increments line number and resets column number
-@@ -86,19 +89,28 @@
+@@ -87,19 +90,28 @@
  			continue
  		}
  
@@ -70,7 +70,7 @@
  		}
  	}
  
-@@ -116,6 +128,8 @@
+@@ -117,6 +129,8 @@
  
  ////////////////////////////////////////////////////////////////////////////////
  // Tests
@@ -79,15 +79,15 @@
  ////////////////////////////////////////////////////////////////////////////////
  import "core:testing"
  
-@@ -157,3 +171,34 @@
+@@ -157,3 +171,33 @@
+ 	testing.expect_value(t, tokens[7].column_number, 8)
  	testing.expect_value(t, tokens[7].token_index, 7)
- 	delete(tokens)
  }
 +
 +@(test)
 +test_tokenize_005 :: proc(t: ^testing.T) {
 +	source_text := "my_var_1 := 1_337\nmy_var_2 := 663\n"
-+	tokens := tokenize(source_text)
++	tokens := tokenize(source_text, context.temp_allocator)
 +	testing.expect_value(t, token_to_string(tokens[0], source_text), "my_var_1")
 +	testing.expect_value(t, tokens[0].line_number, 1)
 +	testing.expect_value(t, tokens[0].column_number, 1)
@@ -112,5 +112,4 @@
 +	testing.expect_value(t, tokens[5].line_number, 2)
 +	testing.expect_value(t, tokens[5].column_number, 13)
 +	testing.expect_value(t, tokens[5].token_index, 5)
-+	delete(tokens)
 +}

@@ -1,15 +1,15 @@
 --- step-007/main.odin
 +++ step-008/main.odin
-@@ -3,6 +3,8 @@
- import "core:fmt"
+@@ -5,6 +5,8 @@
  import "core:log"
+ import vmem "core:mem/virtual"
  import "core:os"
 +import "core:strings"
 +import "core:unicode/utf8"
  
  when !ODIN_DEBUG { _ :: log } // Avoid unused import error for log
  
-@@ -11,6 +13,8 @@
+@@ -16,6 +18,8 @@
  
  	input_buffer: [1024]byte
  	for {
@@ -18,15 +18,15 @@
  		fmt.print("> ")
  		n, err := os.read(os.stdin, input_buffer[:])
  		if err != nil {
-@@ -18,13 +22,15 @@
+@@ -23,13 +27,15 @@
  			return
  		}
  
 +		source_text := string(input_buffer[:n])
 +
  		// Tokenize input
--		tokens, errors := tokenize(string(input_buffer[:n]))
-+		tokens, errors := tokenize(source_text)
+-		tokens, errors := tokenize(string(input_buffer[:n]), arena_allocator)
++		tokens, errors := tokenize(source_text, arena_allocator)
  
  		// Print out any errors
  		if len(errors) > 0 {
@@ -36,7 +36,7 @@
  			}
  			continue
  		}
-@@ -209,6 +215,59 @@
+@@ -214,6 +220,59 @@
  	return character == ' ' || character == '\t' || character == '\n'
  }
  

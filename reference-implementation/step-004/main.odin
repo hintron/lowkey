@@ -1,5 +1,6 @@
 package lowkey
 
+import "base:runtime"
 import "core:fmt"
 import "core:log"
 
@@ -22,7 +23,7 @@ Token :: struct {
 	token_index: int,
 }
 
-tokenize :: proc(source_text: string) -> [dynamic]Token {
+tokenize :: proc(source_text: string, allocator: runtime.Allocator) -> [dynamic]Token {
 	// TODO: Assert that source file length is < INT_MAX
 	// TODO: Assert that source file ends with whitespace
 	when ODIN_DEBUG {
@@ -32,7 +33,7 @@ tokenize :: proc(source_text: string) -> [dynamic]Token {
 		log.debug("---------------------------------------------------------")
 	}
 
-	tokens := make([dynamic]Token)
+	tokens := make([dynamic]Token, allocator)
 
 	line_number := 1
 	column_number := 0
@@ -122,7 +123,7 @@ import "core:testing"
 @(test)
 test_tokenize :: proc(t: ^testing.T) {
 	source_text := "This   is my program\nLine two\n Line  three \n"
-	tokens := tokenize(source_text)
+	tokens := tokenize(source_text, context.temp_allocator)
 	testing.expect_value(t, token_to_string(tokens[0], source_text), "This")
 	testing.expect_value(t, tokens[0].line_number, 1)
 	testing.expect_value(t, tokens[0].column_number, 1)
@@ -155,5 +156,4 @@ test_tokenize :: proc(t: ^testing.T) {
 	testing.expect_value(t, tokens[7].line_number, 3)
 	testing.expect_value(t, tokens[7].column_number, 8)
 	testing.expect_value(t, tokens[7].token_index, 7)
-	delete(tokens)
 }

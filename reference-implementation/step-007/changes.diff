@@ -1,9 +1,10 @@
 --- step-006/main.odin
 +++ step-007/main.odin
-@@ -2,11 +2,38 @@
- 
+@@ -3,11 +3,42 @@
+ import "base:runtime"
  import "core:fmt"
  import "core:log"
++import vmem "core:mem/virtual"
 +import "core:os"
  
  when !ODIN_DEBUG { _ :: log } // Avoid unused import error for log
@@ -11,6 +12,9 @@
  main :: proc() {
 -	fmt.println("Hello, world, from the Lowkey compiler!")
 +	fmt.println("Welcome to the Lowkey compiler! Starting REPL mode:")
++
++	arena: vmem.Arena
++	arena_allocator := vmem.arena_allocator(&arena)
 +
 +	input_buffer: [1024]byte
 +	for {
@@ -22,7 +26,7 @@
 +		}
 +
 +		// Tokenize input
-+		tokens, errors := tokenize(string(input_buffer[:n]))
++		tokens, errors := tokenize(string(input_buffer[:n]), arena_allocator)
 +
 +		// Print out any errors
 +		if len(errors) > 0 {
