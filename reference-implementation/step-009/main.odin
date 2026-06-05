@@ -13,8 +13,6 @@ main :: proc() {
 	fmt.println("Welcome to the Lowkey compiler! Starting REPL mode:")
 
 	input_buffer: [1024]byte
-	history_buffer: [1024]string
-	count: int
 
 	for {
 		defer free_all(context.temp_allocator)
@@ -27,7 +25,6 @@ main :: proc() {
 		}
 
 		source_text := string(input_buffer[:n])
-		history_buffer[count] = strings.clone_from(source_text)
 
 		// Tokenize input
 		tokens, errors := tokenize(source_text)

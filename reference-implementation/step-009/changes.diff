@@ -8,25 +8,15 @@
  import "core:unicode/utf8"
  
  when !ODIN_DEBUG { _ :: log } // Avoid unused import error for log
-@@ -12,6 +13,9 @@
+@@ -12,6 +13,7 @@
  	fmt.println("Welcome to the Lowkey compiler! Starting REPL mode:")
  
  	input_buffer: [1024]byte
-+	history_buffer: [1024]string
-+	count: int
 +
  	for {
  		defer free_all(context.temp_allocator)
  
-@@ -23,6 +27,7 @@
- 		}
- 
- 		source_text := string(input_buffer[:n])
-+		history_buffer[count] = strings.clone_from(source_text)
- 
- 		// Tokenize input
- 		tokens, errors := tokenize(source_text)
-@@ -43,6 +48,7 @@
+@@ -43,6 +45,7 @@
  }
  
  TokenType :: enum {
@@ -34,7 +24,7 @@
  	IdentifierVariable,
  	OperatorBinaryAssignment,
  	ConstantInteger,
-@@ -268,6 +274,86 @@
+@@ -268,6 +271,86 @@
  	return strings.to_string(builder)
  }
  
@@ -121,7 +111,7 @@
  ////////////////////////////////////////////////////////////////////////////////
  // Tests
  //
-@@ -354,3 +440,19 @@
+@@ -354,3 +437,19 @@
  	testing.expect_value(t, errors[1].line_number, 2)
  	testing.expect_value(t, errors[1].column_number, 14)
  }
