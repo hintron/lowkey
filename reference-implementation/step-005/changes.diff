@@ -9,15 +9,6 @@
  }
  
  Token :: struct {
-@@ -32,7 +34,7 @@
- 		log.debug("---------------------------------------------------------")
- 	}
- 
--	output := make([dynamic]Token, context.temp_allocator)
-+	tokens := make([dynamic]Token, context.temp_allocator)
- 
- 	line_number := 1
- 	column_number := 0
 @@ -42,7 +44,7 @@
  	next_position := 0
  	// A simple state machine to indicate if we are tokenizing a word or not as
@@ -36,19 +27,17 @@
  				current_token.length = current_position - current_token.start_byte
  				when ODIN_DEBUG {
  					log.debugf(
-@@ -68,8 +70,9 @@
- 						current_token.type
+@@ -69,7 +71,8 @@
  					)
  				}
--				append(&output, current_token)
+ 				append(&tokens, current_token)
 -				tokenizing_word = false
-+				append(&tokens, current_token)
 +				current_token = {}
 +				currently_tokenizing = false
  			}
  
  			// A newline increments line number and resets column number
-@@ -86,24 +89,33 @@
+@@ -86,19 +89,28 @@
  			continue
  		}
  
@@ -81,12 +70,6 @@
  		}
  	}
  
- 	// Assume source text ends in whitespace, so final token gets appended
--	return output
-+	return tokens
- }
- 
- token_to_string :: proc(token: Token, source_text: string) -> string {
 @@ -116,6 +128,8 @@
  
  ////////////////////////////////////////////////////////////////////////////////
@@ -96,37 +79,38 @@
  ////////////////////////////////////////////////////////////////////////////////
  import "core:testing"
  
-@@ -156,3 +170,33 @@
- 	testing.expect_value(t, output[7].column_number, 8)
- 	testing.expect_value(t, output[7].token_index, 7)
+@@ -157,3 +171,34 @@
+ 	testing.expect_value(t, tokens[7].token_index, 7)
+ 	delete(tokens)
  }
 +
 +@(test)
 +test_tokenize_005 :: proc(t: ^testing.T) {
 +	source_text := "my_var_1 := 1_337\nmy_var_2 := 663\n"
-+	output := tokenize(source_text)
-+	testing.expect_value(t, token_to_string(output[0], source_text), "my_var_1")
-+	testing.expect_value(t, output[0].line_number, 1)
-+	testing.expect_value(t, output[0].column_number, 1)
-+	testing.expect_value(t, output[0].token_index, 0)
-+	testing.expect_value(t, token_to_string(output[1], source_text), ":=")
-+	testing.expect_value(t, output[1].line_number, 1)
-+	testing.expect_value(t, output[1].column_number, 10)
-+	testing.expect_value(t, output[1].token_index, 1)
-+	testing.expect_value(t, token_to_string(output[2], source_text), "1_337")
-+	testing.expect_value(t, output[2].line_number, 1)
-+	testing.expect_value(t, output[2].column_number, 13)
-+	testing.expect_value(t, output[2].token_index, 2)
-+	testing.expect_value(t, token_to_string(output[3], source_text), "my_var_2")
-+	testing.expect_value(t, output[3].line_number, 2)
-+	testing.expect_value(t, output[3].column_number, 1)
-+	testing.expect_value(t, output[3].token_index, 3)
-+	testing.expect_value(t, token_to_string(output[4], source_text), ":=")
-+	testing.expect_value(t, output[4].line_number, 2)
-+	testing.expect_value(t, output[4].column_number, 10)
-+	testing.expect_value(t, output[4].token_index, 4)
-+	testing.expect_value(t, token_to_string(output[5], source_text), "663")
-+	testing.expect_value(t, output[5].line_number, 2)
-+	testing.expect_value(t, output[5].column_number, 13)
-+	testing.expect_value(t, output[5].token_index, 5)
++	tokens := tokenize(source_text)
++	testing.expect_value(t, token_to_string(tokens[0], source_text), "my_var_1")
++	testing.expect_value(t, tokens[0].line_number, 1)
++	testing.expect_value(t, tokens[0].column_number, 1)
++	testing.expect_value(t, tokens[0].token_index, 0)
++	testing.expect_value(t, token_to_string(tokens[1], source_text), ":=")
++	testing.expect_value(t, tokens[1].line_number, 1)
++	testing.expect_value(t, tokens[1].column_number, 10)
++	testing.expect_value(t, tokens[1].token_index, 1)
++	testing.expect_value(t, token_to_string(tokens[2], source_text), "1_337")
++	testing.expect_value(t, tokens[2].line_number, 1)
++	testing.expect_value(t, tokens[2].column_number, 13)
++	testing.expect_value(t, tokens[2].token_index, 2)
++	testing.expect_value(t, token_to_string(tokens[3], source_text), "my_var_2")
++	testing.expect_value(t, tokens[3].line_number, 2)
++	testing.expect_value(t, tokens[3].column_number, 1)
++	testing.expect_value(t, tokens[3].token_index, 3)
++	testing.expect_value(t, token_to_string(tokens[4], source_text), ":=")
++	testing.expect_value(t, tokens[4].line_number, 2)
++	testing.expect_value(t, tokens[4].column_number, 10)
++	testing.expect_value(t, tokens[4].token_index, 4)
++	testing.expect_value(t, token_to_string(tokens[5], source_text), "663")
++	testing.expect_value(t, tokens[5].line_number, 2)
++	testing.expect_value(t, tokens[5].column_number, 13)
++	testing.expect_value(t, tokens[5].token_index, 5)
++	delete(tokens)
 +}

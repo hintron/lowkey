@@ -32,7 +32,7 @@ tokenize :: proc(source_text: string) -> [dynamic]Token {
 		log.debug("---------------------------------------------------------")
 	}
 
-	output := make([dynamic]Token, context.temp_allocator)
+	tokens := make([dynamic]Token)
 
 	line_number := 1
 	column_number := 0
@@ -68,7 +68,7 @@ tokenize :: proc(source_text: string) -> [dynamic]Token {
 						current_token.type
 					)
 				}
-				append(&output, current_token)
+				append(&tokens, current_token)
 				tokenizing_word = false
 			}
 
@@ -103,7 +103,7 @@ tokenize :: proc(source_text: string) -> [dynamic]Token {
 	}
 
 	// Assume source text ends in whitespace, so final token gets appended
-	return output
+	return tokens
 }
 
 token_to_string :: proc(token: Token, source_text: string) -> string {
@@ -122,37 +122,38 @@ import "core:testing"
 @(test)
 test_tokenize :: proc(t: ^testing.T) {
 	source_text := "This   is my program\nLine two\n Line  three \n"
-	output := tokenize(source_text)
-	testing.expect_value(t, token_to_string(output[0], source_text), "This")
-	testing.expect_value(t, output[0].line_number, 1)
-	testing.expect_value(t, output[0].column_number, 1)
-	testing.expect_value(t, output[0].token_index, 0)
-	testing.expect_value(t, token_to_string(output[1], source_text), "is")
-	testing.expect_value(t, output[1].line_number, 1)
-	testing.expect_value(t, output[1].column_number, 8)
-	testing.expect_value(t, output[1].token_index, 1)
-	testing.expect_value(t, token_to_string(output[2], source_text), "my")
-	testing.expect_value(t, output[2].line_number, 1)
-	testing.expect_value(t, output[2].column_number, 11)
-	testing.expect_value(t, output[2].token_index, 2)
-	testing.expect_value(t, token_to_string(output[3], source_text), "program")
-	testing.expect_value(t, output[3].line_number, 1)
-	testing.expect_value(t, output[3].column_number, 14)
-	testing.expect_value(t, output[3].token_index, 3)
-	testing.expect_value(t, token_to_string(output[4], source_text), "Line")
-	testing.expect_value(t, output[4].line_number, 2)
-	testing.expect_value(t, output[4].column_number, 1)
-	testing.expect_value(t, output[4].token_index, 4)
-	testing.expect_value(t, token_to_string(output[5], source_text), "two")
-	testing.expect_value(t, output[5].line_number, 2)
-	testing.expect_value(t, output[5].column_number, 6)
-	testing.expect_value(t, output[5].token_index, 5)
-	testing.expect_value(t, token_to_string(output[6], source_text), "Line")
-	testing.expect_value(t, output[6].line_number, 3)
-	testing.expect_value(t, output[6].column_number, 2)
-	testing.expect_value(t, output[6].token_index, 6)
-	testing.expect_value(t, token_to_string(output[7], source_text), "three")
-	testing.expect_value(t, output[7].line_number, 3)
-	testing.expect_value(t, output[7].column_number, 8)
-	testing.expect_value(t, output[7].token_index, 7)
+	tokens := tokenize(source_text)
+	testing.expect_value(t, token_to_string(tokens[0], source_text), "This")
+	testing.expect_value(t, tokens[0].line_number, 1)
+	testing.expect_value(t, tokens[0].column_number, 1)
+	testing.expect_value(t, tokens[0].token_index, 0)
+	testing.expect_value(t, token_to_string(tokens[1], source_text), "is")
+	testing.expect_value(t, tokens[1].line_number, 1)
+	testing.expect_value(t, tokens[1].column_number, 8)
+	testing.expect_value(t, tokens[1].token_index, 1)
+	testing.expect_value(t, token_to_string(tokens[2], source_text), "my")
+	testing.expect_value(t, tokens[2].line_number, 1)
+	testing.expect_value(t, tokens[2].column_number, 11)
+	testing.expect_value(t, tokens[2].token_index, 2)
+	testing.expect_value(t, token_to_string(tokens[3], source_text), "program")
+	testing.expect_value(t, tokens[3].line_number, 1)
+	testing.expect_value(t, tokens[3].column_number, 14)
+	testing.expect_value(t, tokens[3].token_index, 3)
+	testing.expect_value(t, token_to_string(tokens[4], source_text), "Line")
+	testing.expect_value(t, tokens[4].line_number, 2)
+	testing.expect_value(t, tokens[4].column_number, 1)
+	testing.expect_value(t, tokens[4].token_index, 4)
+	testing.expect_value(t, token_to_string(tokens[5], source_text), "two")
+	testing.expect_value(t, tokens[5].line_number, 2)
+	testing.expect_value(t, tokens[5].column_number, 6)
+	testing.expect_value(t, tokens[5].token_index, 5)
+	testing.expect_value(t, token_to_string(tokens[6], source_text), "Line")
+	testing.expect_value(t, tokens[6].line_number, 3)
+	testing.expect_value(t, tokens[6].column_number, 2)
+	testing.expect_value(t, tokens[6].token_index, 6)
+	testing.expect_value(t, token_to_string(tokens[7], source_text), "three")
+	testing.expect_value(t, tokens[7].line_number, 3)
+	testing.expect_value(t, tokens[7].column_number, 8)
+	testing.expect_value(t, tokens[7].token_index, 7)
+	delete(tokens)
 }

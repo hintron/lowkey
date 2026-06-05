@@ -31,7 +31,7 @@
 +// Execute the tokens directly and return a map with variable name -> value.
 +execute :: proc(tokens: [dynamic]Token, source_text: string) -> map[string]int {
 +	// Program state
-+	var_values := make(map[string]int, context.temp_allocator)
++	var_values := make(map[string]int)
 +
 +	// Execution state
 +	is_doing_assignment : bool
@@ -97,9 +97,9 @@
  ////////////////////////////////////////////////////////////////////////////////
  // Tests
  //
-@@ -354,3 +423,15 @@
- 	testing.expect_value(t, errors[1].line_number, 2)
- 	testing.expect_value(t, errors[1].column_number, 14)
+@@ -360,3 +429,18 @@
+ 	delete(tokens)
+ 	delete(errors)
  }
 +
 +@(test)
@@ -112,4 +112,7 @@
 +	testing.expect_value(t, var_values["b"], 3)
 +	testing.expect_value(t, var_values["c"], 3)
 +	testing.expect_value(t, var_values["d"], 3)
++	delete(tokens)
++	delete(errors)
++	delete(var_values)
 +}

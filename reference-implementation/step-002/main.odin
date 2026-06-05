@@ -8,7 +8,7 @@ main :: proc() {
 
 
 tokenize :: proc(source_text: string) -> [dynamic]u8 {
-	output := make([dynamic]u8, context.temp_allocator)
+	output := make([dynamic]u8)
 	next_position := 0
 
 	// A simple state machine to indicate if we are tokenizing a word or not as
@@ -51,4 +51,5 @@ test_tokenize :: proc(t: ^testing.T) {
 	testing.expect_value(t, output[1], 7)
 	testing.expect_value(t, output[2], 10)
 	testing.expect_value(t, output[3], 13)
+	delete(output)
 }
