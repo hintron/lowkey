@@ -33,6 +33,7 @@ The compiler will be implemented incrementally, step by step, in 30 minute sitdo
 * [`step-007.md`](steps/step-007/step-007.md) : Create a executable that will act as a REPL (read execute print loop) - i.e. an interactive prompt.
 * [`step-008.md`](steps/step-008/step-008.md) : In the REPL, print nice-looking error messages from the error list returned by `tokenize()`.
 * [`step-009.md`](steps/step-009/step-009.md) : Create an `execute()` function to "execute" tokens and return the final state of the program.
+* [`step-010.md`](steps/step-010/step-010.md) : In the REPL, add a `state` command to print out the program state.
 
 
 #### Unimplemented steps and step ideas
