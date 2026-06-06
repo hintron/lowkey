@@ -2,8 +2,8 @@
 
 Written in Odin, without AI assistance.
 
-The final version of the reference implementation will be in src/.
+The latest version of the reference implementation will exist in the largest step folder.
 
-To see what the reference implementation looked like at each step, look inside the corresponding `step-XXX` folders for a snapshot of the compiler that satisfies the tests for that step.
+To see what the reference implementation looked like at each step, look inside the corresponding folder for a snapshot of the compiler that satisfies the tests for that step.
 
 To figure out which tests a step should satisfy, see the readme for that step.

@@ -1,10 +1,10 @@
 # Lowkey - A Step by Step Compiler and Language
 
-Lowkey is an educational language and compiler that novice programmers can incrementally write from scratch, step by step!
+Lowkey is an educational language, interpreter, and compiler that novice programmers can incrementally write from scratch, step by step!
 
-The goal is to iteratively write a compiler from scratch for a simple statically typed language, with visible progress and feedback [^1] [^2]. Each step aims to be 30 minutes or less. You may use any programming language you want!
+The goal is to iteratively write a compiler from scratch for a simple statically typed language, with visible progress and feedback [^1] [^2]. Each step aims to be 30 minutes or less. You may use any systems programming language you want, as long as it allows you to low-level access to memory and empowers you to build arbitrary data structures [^3].
 
-Lowkey is loosely based on the [Odin programming language](https://odin-lang.org/) and is meant to only implement those language features that are common to all programming languages.
+Lowkey is loosely based on the [Odin programming language](https://odin-lang.org/) and is meant to only implement those language features that are common to most programming languages.
 
 > [!IMPORTANT]
 > This project is currently under construction. See [todo.md](docs/todo.md) for the future roadmap.
@@ -19,12 +19,7 @@ To get started, open [`step-001.md`](steps/step-001/step-001.md) and complete th
 
 The compiler will be implemented incrementally, step by step, in 30 minute sitdown sessions. Each step will have a suite of test files to pass. Each step will start with a copy of the source code from the previous step (a la [Handmade Hero](https://guide.handmadehero.org/code/day001/)).
 
-#### Hello, world!
-
-* [`step-001.md`](steps/step-001/step-001.md) : `Hello, world!`.
-
-#### Tokenizer (aka Scanner / Lexer / Lexical Analysis)
-
+* [`step-001.md`](steps/step-001/step-001.md) : Create a `Hello, world!` program in your chosen language.
 * [`step-002.md`](steps/step-002/step-002.md) : Create a `tokenize()` function and have it find the starting byte positions of words in a sentence.
 * [`step-003.md`](steps/step-003/step-003.md) : Have `tokenize()` return a dynamic array of `Token`s with token type, start byte, and length. Check that start byte and length produce the expected values from the source text.
 * [`step-004.md`](steps/step-004/step-004.md) : Add line number, column number, and token index to the `Token` struct, as well as some debugging output.
@@ -32,7 +27,7 @@ The compiler will be implemented incrementally, step by step, in 30 minute sitdo
 * [`step-006.md`](steps/step-006/step-006.md) : Return a list of TokenizationError structs from `tokenize()` whenever an invalid integer is encountered during tokenization.
 * [`step-007.md`](steps/step-007/step-007.md) : Create a executable that will act as a REPL (read execute print loop) - i.e. an interactive prompt.
 * [`step-008.md`](steps/step-008/step-008.md) : In the REPL, print nice-looking error messages from the error list returned by `tokenize()`.
-* [`step-009.md`](steps/step-009/step-009.md) : Create an `execute()` function to "execute" tokens and return the final state of the program.
+* [`step-009.md`](steps/step-009/step-009.md) : Build a simple intepreter by creating an `execute()` function to "execute" tokens and return the final state.
 * [`step-010.md`](steps/step-010/step-010.md) : In the REPL, add a `state` command to print out the program state.
 
 
@@ -174,3 +169,4 @@ I have a few opinionated suggestions for you, before you get started:
 
 [^1]: https://mitchellh.com/writing/building-large-technical-projects
 [^2]: http://scheme2006.cs.uchicago.edu/11-ghuloum.pdf
+[^3]: Recommended languages: Odin, Zig, C. Rust may not be a good idea because implementing an Abstract Syntax Tree and other data structures might be more painful than it's worth, and may require learning how to write unsafe code. Python, JavaScript, and other non-systems programming languages might be able to work, but accessing the low-level bytes and controlling the memory layout might also be difficult.
