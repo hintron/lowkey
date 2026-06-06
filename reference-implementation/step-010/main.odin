@@ -11,11 +11,22 @@ import "core:unicode/utf8"
 
 when !ODIN_DEBUG { _ :: log } // Avoid unused import error for log
 
+KB :: 1024
+MB :: KB * 1024
+GB :: MB * 1024
+
 main :: proc() {
 	fmt.println("Welcome to the Lowkey compiler! Starting REPL mode:")
 
+	// program-wide allocations
 	arena: vmem.Arena
 	arena_allocator := vmem.arena_allocator(&arena)
+	state := init_state(arena_allocator)
+
+	// Make a dedicated arena allocator for the source text string builder
+	arena_source_text: vmem.Arena
+	arena_allocator_source_text := vmem.arena_allocator(&arena_source_text)
+	source_text_builder := strings.builder_make_len_cap(1 * MB, 50 * MB, arena_allocator_source_text)
 
 	input_buffer: [1024]byte
 
@@ -29,7 +40,19 @@ main :: proc() {
 			return
 		}
 
-		source_text := string(input_buffer[:n])
+		input_string := string(input_buffer[:n])
+
+		// Handle any commands (not intended to be part of the source text)
+		if input_string == "state\n" {
+			print_interpreter_state(&state)
+			continue
+		}
+
+		// Append input string to source text
+		strings.write_string(&source_text_builder, input_string)
+
+		// Get a string view/slice into the source text
+		source_text := strings.to_string(source_text_builder)
 
 		// Tokenize input
 		tokens, errors := tokenize(source_text, arena_allocator)
@@ -42,12 +65,15 @@ main :: proc() {
 			continue
 		}
 
-		// Print out output
-		for token in tokens {
-			fmt.println(token)
+		when ODIN_DEBUG {
+			// Print out tokens
+			for token in tokens {
+				fmt.println(token)
+			}
 		}
 
-		// print_program_state(execute(tokens, source_text))
+		// Execute the tokens directly, for now
+		execute(tokens, source_text, &state, arena_allocator)
 	}
 }
 
@@ -278,20 +304,25 @@ generate_error_message :: proc(error: TokenizationError, source_text: string) ->
 	return strings.to_string(builder)
 }
 
-ProgramState :: struct {
+InterpreterState :: struct {
 	// Keep track of variable names, in order of creation
 	var_names: [dynamic]string,
 	// Keep track of variable values
 	var_values: map[string]int,
 }
 
-// Execute the tokens directly and return a ProgramState struct.
-execute :: proc(tokens: [dynamic]Token, source_text: string, allocator: runtime.Allocator) -> ProgramState {
-	// Program state
-	program_state := ProgramState {
+init_state :: proc(allocator: runtime.Allocator) -> InterpreterState {
+	state := InterpreterState {
 		var_names = make([dynamic]string, allocator),
 		var_values = make(map[string]int, allocator),
 	}
+	return state
+}
+
+// Execute the tokens directly and return a ProgramState struct, initializing state if nil
+execute :: proc(tokens: [dynamic]Token, source_text: string, state: ^InterpreterState, allocator: runtime.Allocator) {
+	// Interpreter state in an input/output parameter, so make it modifiable
+	// state := state
 
 	// Execution state
 	is_doing_assignment : bool
@@ -321,17 +352,17 @@ execute :: proc(tokens: [dynamic]Token, source_text: string, allocator: runtime.
 		// We have enough context to do an assignment operation!:
 		//     lefthand := righthand
 		if lefthand_identifier.type != .Nil && is_doing_assignment && righthand_token.type != .Nil {
-			lefthand_var_name := source_text[lefthand_identifier.start_byte:][:lefthand_identifier.length]
-			if !(lefthand_var_name in program_state.var_values) {
+			lefthand_var_name := strings.clone(source_text[lefthand_identifier.start_byte:][:lefthand_identifier.length], allocator)
+			if !(lefthand_var_name in state.var_values) {
 				// First time we've seen this variable! Create it
-				append_elem(&program_state.var_names, lefthand_var_name)
+				append_elem(&state.var_names, lefthand_var_name)
 			}
 			righthand_value : int
 			ok : bool
 			switch righthand_token.type {
 			case .IdentifierVariable:
 				righthand_var_name := source_text[righthand_token.start_byte:][:righthand_token.length]
-				if righthand_value, ok = program_state.var_values[righthand_var_name]; !ok {
+				if righthand_value, ok = state.var_values[righthand_var_name]; !ok {
 					unimplemented("Tried to read from variable before it had a value!")
 				}
 			case .ConstantInteger:
@@ -346,7 +377,7 @@ execute :: proc(tokens: [dynamic]Token, source_text: string, allocator: runtime.
 			}
 
 			// Do the actual assignment, overwriting anything already there
-			program_state.var_values[lefthand_var_name] = righthand_value
+			state.var_values[lefthand_var_name] = righthand_value
 
 			// Reset for next assignment operation
 			is_doing_assignment = false
@@ -354,13 +385,11 @@ execute :: proc(tokens: [dynamic]Token, source_text: string, allocator: runtime.
 			righthand_token = {}
 		}
 	}
-
-	return program_state
 }
 
-print_program_state :: proc (state: ProgramState) {
+print_interpreter_state :: proc (state: ^InterpreterState) {
 	builder := strings.builder_make(context.temp_allocator)
-	strings.write_string(&builder, "Final Program State:\n")
+	strings.write_string(&builder, "Interpreter State:\n")
 
 	for variable in state.var_names {
 		strings.write_string(&builder, variable)
@@ -465,7 +494,8 @@ test_tokenize_009 :: proc(t: ^testing.T) {
 	source_text := "a := 1\nb := 3\nc := b\nd := c\n"
 	tokens, errors := tokenize(source_text, context.temp_allocator)
 	testing.expect_value(t, len(errors), 0)
-	state := execute(tokens, source_text, context.temp_allocator)
+	state : InterpreterState = init_state(context.temp_allocator)
+	execute(tokens, source_text, &state, context.temp_allocator)
 	testing.expect_value(t, state.var_names[0], "a")
 	testing.expect_value(t, state.var_values[state.var_names[0]], 1)
 	testing.expect_value(t, state.var_names[1], "b")

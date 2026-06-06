@@ -2,8 +2,7 @@
 
 # Task
 
-In the REPL, add a `state` command to print out the program state. When printing program state,
-
+In the REPL, properly execute code and add a `state` command to print out the state of the interpreter. Print variables in order of creation.
 
 
 # Tests
@@ -19,7 +18,7 @@ In the REPL, add a `state` command to print out the program state. When printing
 
   Example output (of `execute()`) to check:
   ```
-  map(string to int):
+  Interpreter State:
     "a" -> 1
     "b" -> 3
     "c" -> 3
@@ -30,6 +29,14 @@ In the REPL, add a `state` command to print out the program state. When printing
 
 NOTE: View this on a web browser in GitHub or in a markdown viewer to avoid spoilers! -->
 
+
+### How do I handle source text in REPL mode?
+<details>
+<summary>Show Hint</summary>
+
+Treat each input line in the REPL as its own source text. So all tokens will be relative to just that line. After execution and the next line is processed, those tokens will be stale because we will have already thrown away the last source text line. So, in between REPL input lines, only the interpreter state is carried over.
+
+</details>
 
 ### How should I execute the tokens?
 <details>
