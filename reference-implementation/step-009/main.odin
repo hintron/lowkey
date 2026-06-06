@@ -278,7 +278,7 @@ generate_error_message :: proc(error: TokenizationError, source_text: string) ->
 
 // Execute the tokens directly and return a map with variable name -> value.
 execute :: proc(tokens: [dynamic]Token, source_text: string, allocator: runtime.Allocator) -> map[string]int {
-	// Program state
+	// Initialize interpreter state
 	var_values := make(map[string]int, allocator)
 
 	// Execution state

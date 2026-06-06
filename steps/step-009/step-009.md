@@ -2,7 +2,7 @@
 
 # Task
 
-Create an `execute()` function to "execute" tokens and return the final state of the program.
+Build a simple intepreter by creating an `execute()` function to "execute" tokens and return the final state.
 
 Currently, there are only two operations that can be performed:
 1) assigning a constant to a variable, and
