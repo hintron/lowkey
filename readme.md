@@ -29,12 +29,13 @@ The compiler will be implemented incrementally, step by step, in 30 minute sitdo
 * [`step-008.md`](steps/step-008/step-008.md) : In the REPL, print nice-looking error messages from the error list returned by `tokenize()`.
 * [`step-009.md`](steps/step-009/step-009.md) : Build a simple intepreter by creating an `execute()` function to "execute" tokens and return the final state.
 * [`step-010.md`](steps/step-010/step-010.md) : In the REPL, add a `state` command to print out the program state.
+* [`step-XXX.md`](steps/step-XXX/step-XXX.md) : Add a `source` command to print out the current source text that has been accumulated.
 
 
 #### Unimplemented steps and step ideas
 
 * [`step-XXX.md`](steps/step-XXX/step-XXX.md) : Create a `parse()` function that takes in a token list and outputs a simple AST with naive precedence.
-* [`step-XXX.md`](steps/step-XXX/step-XXX.md) : Build a simple tree-walk interpreter repl mode with main, and use `end` keyword to exit repl.
+* [`step-XXX.md`](steps/step-XXX/step-XXX.md) : Build a simple tree-walk interpreter in REPL mode.
 * [`step-XXX.md`](steps/step-XXX/step-XXX.md) : Parse `-7234 + 3` and create an actual Abstract Syntax Tree (AST) instead of a list of nodes; AST creation visualization.
 * [`step-XXX.md`](steps/step-XXX/step-XXX.md) : Create a simple Lowkey runtime executable with an internal function called `lowkey_main_temp()` that returns a single constant number `42`, and print out that value.
 * [`step-XXX.md`](steps/step-XXX/step-XXX.md) : Create an assembly file for your given architecture and create a global function called `lowkey_main` that simply returns a constant number `43`. In the Lowkey runtime executable, replace `lowkey_main_temp()` with `lowkey_main()`. Finally, include the assembly file into the build, and verify that the runner prints out `43`.
