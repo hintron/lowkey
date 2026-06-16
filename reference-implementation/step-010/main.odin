@@ -24,9 +24,7 @@ main :: proc() {
 	state := init_state(arena_allocator)
 
 	// Make a dedicated arena allocator for the source text string builder
-	arena_source_text: vmem.Arena
-	arena_allocator_source_text := vmem.arena_allocator(&arena_source_text)
-	source_text_builder := strings.builder_make_len_cap(1 * MB, 50 * MB, arena_allocator_source_text)
+	source_text_builder := strings.builder_make_len_cap(1 * MB, 50 * MB, arena_allocator)
 
 	input_buffer: [1024]byte
 

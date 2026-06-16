@@ -1,4 +1,4 @@
-[Previous Step](../step-008/step-008.md) <-- [[Step Schedule](../../readme.md#step-schedule)] --> [Next Step](../step-XXX/step-XXX.md)
+[Previous Step](../step-008/step-008.md) <-- [[Step Schedule](../../readme.md#step-schedule)] --> [Next Step](../step-010/step-010.md)
 
 # Task
 
@@ -69,6 +69,6 @@ If you are still stuck, see my [step 9 reference implementation code](../../refe
 
 # Finished?
 
-Congratulations! Copy your code into the next step's directory and [read the task description at `step-XXX.md (The next step is currently under construction.)`](../step-XXX/step-XXX.md).
+Congratulations! Copy your code into the next step's directory and [read the task description at `step-010.md.`](../step-010/step-010.md).
 
-[Previous Step](../step-008/step-008.md) <-- [[Step Schedule](../../readme.md#step-schedule)] --> [Next Step](../step-XXX/step-XXX.md)
+[Previous Step](../step-008/step-008.md) <-- [[Step Schedule](../../readme.md#step-schedule)] --> [Next Step](../step-010/step-010.md)

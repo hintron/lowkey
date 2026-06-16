@@ -1,6 +1,6 @@
 --- step-009/main.odin
 +++ step-010/main.odin
-@@ -11,11 +11,22 @@
+@@ -11,11 +11,20 @@
  
  when !ODIN_DEBUG { _ :: log } // Avoid unused import error for log
  
@@ -17,13 +17,11 @@
 +	state := init_state(arena_allocator)
 +
 +	// Make a dedicated arena allocator for the source text string builder
-+	arena_source_text: vmem.Arena
-+	arena_allocator_source_text := vmem.arena_allocator(&arena_source_text)
-+	source_text_builder := strings.builder_make_len_cap(1 * MB, 50 * MB, arena_allocator_source_text)
++	source_text_builder := strings.builder_make_len_cap(1 * MB, 50 * MB, arena_allocator)
  
  	input_buffer: [1024]byte
  
-@@ -29,7 +40,19 @@
+@@ -29,7 +38,19 @@
  			return
  		}
  
@@ -44,7 +42,7 @@
  
  		// Tokenize input
  		tokens, errors := tokenize(source_text, arena_allocator)
-@@ -42,10 +65,15 @@
+@@ -42,10 +63,15 @@
  			continue
  		}
  
@@ -63,7 +61,7 @@
  	}
  }
  
-@@ -276,10 +304,25 @@
+@@ -276,10 +302,25 @@
  	return strings.to_string(builder)
  }
  
@@ -93,7 +91,7 @@
  
  	// Execution state
  	is_doing_assignment : bool
-@@ -309,13 +352,17 @@
+@@ -309,13 +350,17 @@
  		// We have enough context to do an assignment operation!:
  		//     lefthand := righthand
  		if lefthand_identifier.type != .Nil && is_doing_assignment && righthand_token.type != .Nil {
@@ -113,7 +111,7 @@
  					unimplemented("Tried to read from variable before it had a value!")
  				}
  			case .ConstantInteger:
-@@ -330,7 +377,7 @@
+@@ -330,7 +375,7 @@
  			}
  
  			// Do the actual assignment, overwriting anything already there
@@ -122,7 +120,7 @@
  
  			// Reset for next assignment operation
  			is_doing_assignment = false
-@@ -338,10 +385,23 @@
+@@ -338,10 +383,23 @@
  			righthand_token = {}
  		}
  	}
@@ -147,7 +145,7 @@
  ////////////////////////////////////////////////////////////////////////////////
  // Tests
  //
-@@ -434,9 +494,14 @@
+@@ -434,9 +492,14 @@
  	source_text := "a := 1\nb := 3\nc := b\nd := c\n"
  	tokens, errors := tokenize(source_text, context.temp_allocator)
  	testing.expect_value(t, len(errors), 0)
