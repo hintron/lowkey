@@ -13,7 +13,6 @@ when !ODIN_DEBUG { _ :: log } // Avoid unused import error for log
 
 KB :: 1024
 MB :: KB * 1024
-GB :: MB * 1024
 
 main :: proc() {
 	fmt.println("Welcome to the Lowkey compiler! Starting REPL mode:")
@@ -23,7 +22,7 @@ main :: proc() {
 	arena_allocator := vmem.arena_allocator(&arena)
 	state := init_state(arena_allocator)
 
-	// Make a dedicated arena allocator for the source text string builder
+	// Make a source text string builder, and init to large capacity so it doesn't reallocate
 	source_text_builder := strings.builder_make_len_cap(1 * MB, 50 * MB, arena_allocator)
 
 	input_buffer: [1024]byte
@@ -319,9 +318,6 @@ init_state :: proc(allocator: runtime.Allocator) -> InterpreterState {
 
 // Execute the tokens directly and return a ProgramState struct, initializing state if nil
 execute :: proc(tokens: [dynamic]Token, source_text: string, state: ^InterpreterState, allocator: runtime.Allocator) {
-	// Interpreter state in an input/output parameter, so make it modifiable
-	// state := state
-
 	// Execution state
 	is_doing_assignment : bool
 	lefthand_identifier : Token

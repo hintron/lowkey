@@ -1,12 +1,11 @@
 --- step-009/main.odin
 +++ step-010/main.odin
-@@ -11,11 +11,20 @@
+@@ -11,11 +11,19 @@
  
  when !ODIN_DEBUG { _ :: log } // Avoid unused import error for log
  
 +KB :: 1024
 +MB :: KB * 1024
-+GB :: MB * 1024
 +
  main :: proc() {
  	fmt.println("Welcome to the Lowkey compiler! Starting REPL mode:")
@@ -16,12 +15,12 @@
  	arena_allocator := vmem.arena_allocator(&arena)
 +	state := init_state(arena_allocator)
 +
-+	// Make a dedicated arena allocator for the source text string builder
++	// Make a source text string builder, and init to large capacity so it doesn't reallocate
 +	source_text_builder := strings.builder_make_len_cap(1 * MB, 50 * MB, arena_allocator)
  
  	input_buffer: [1024]byte
  
-@@ -29,7 +38,19 @@
+@@ -29,7 +37,19 @@
  			return
  		}
  
@@ -42,7 +41,7 @@
  
  		// Tokenize input
  		tokens, errors := tokenize(source_text, arena_allocator)
-@@ -42,10 +63,15 @@
+@@ -42,10 +62,15 @@
  			continue
  		}
  
@@ -61,7 +60,7 @@
  	}
  }
  
-@@ -276,10 +302,25 @@
+@@ -276,11 +301,23 @@
  	return strings.to_string(builder)
  }
  
@@ -83,15 +82,13 @@
 +	}
 +	return state
 +}
-+
+ 
 +// Execute the tokens directly and return a ProgramState struct, initializing state if nil
 +execute :: proc(tokens: [dynamic]Token, source_text: string, state: ^InterpreterState, allocator: runtime.Allocator) {
-+	// Interpreter state in an input/output parameter, so make it modifiable
-+	// state := state
- 
  	// Execution state
  	is_doing_assignment : bool
-@@ -309,13 +350,17 @@
+ 	lefthand_identifier : Token
+@@ -309,13 +346,17 @@
  		// We have enough context to do an assignment operation!:
  		//     lefthand := righthand
  		if lefthand_identifier.type != .Nil && is_doing_assignment && righthand_token.type != .Nil {
@@ -111,7 +108,7 @@
  					unimplemented("Tried to read from variable before it had a value!")
  				}
  			case .ConstantInteger:
-@@ -330,7 +375,7 @@
+@@ -330,7 +371,7 @@
  			}
  
  			// Do the actual assignment, overwriting anything already there
@@ -120,7 +117,7 @@
  
  			// Reset for next assignment operation
  			is_doing_assignment = false
-@@ -338,10 +383,23 @@
+@@ -338,10 +379,23 @@
  			righthand_token = {}
  		}
  	}
@@ -145,7 +142,7 @@
  ////////////////////////////////////////////////////////////////////////////////
  // Tests
  //
-@@ -434,9 +492,14 @@
+@@ -434,9 +488,14 @@
  	source_text := "a := 1\nb := 3\nc := b\nd := c\n"
  	tokens, errors := tokenize(source_text, context.temp_allocator)
  	testing.expect_value(t, len(errors), 0)
