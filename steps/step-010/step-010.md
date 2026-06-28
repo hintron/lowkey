@@ -1,4 +1,4 @@
-[Previous Step](../step-008/step-008.md) <-- [[Step Schedule](../../readme.md#step-schedule)] --> [Next Step](../step-XXX/step-XXX.md)
+[Previous Step](../step-009/step-009.md) <-- [[Step Schedule](../../readme.md#step-schedule)] --> [Next Step](../step-011/step-011.md)
 
 # Task
 
@@ -48,6 +48,6 @@ If you are still stuck, see my [step 10 reference implementation code](../../ref
 
 # Finished?
 
-Congratulations! Copy your code into the next step's directory and [read the task description at `step-XXX.md (The next step is currently under construction.)`](../step-XXX/step-XXX.md).
+Congratulations! Copy your code into the next step's directory and [read the task description at `step-011.md`](../step-011/step-011.md).
 
-[Previous Step](../step-009/step-009.md) <-- [[Step Schedule](../../readme.md#step-schedule)] --> [Next Step](../step-XXX/step-XXX.md)
+[Previous Step](../step-009/step-009.md) <-- [[Step Schedule](../../readme.md#step-schedule)] --> [Next Step](../step-011/step-011.md)
