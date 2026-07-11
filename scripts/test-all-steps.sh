@@ -101,13 +101,11 @@ for target_dir in "$REF_IMPL_DIR"/step-* "$REF_IMPL_DIR"/src; do
     pids+=("$!")
 done
 
-for pid in "${pids[@]}"; do
-    wait "$pid" || true
-done
-
 PASS=0
 FAIL=0
-for target_name in "${target_names[@]}"; do
+for i in "${!pids[@]}"; do
+    wait "${pids[$i]}" || true
+    target_name="${target_names[$i]}"
     cat "$tmp_dir/$target_name.log"
     if [[ -f "$tmp_dir/$target_name.status" ]] && [[ "$(<"$tmp_dir/$target_name.status")" == "PASS" ]]; then
         PASS=$((PASS+1))
