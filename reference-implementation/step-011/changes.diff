@@ -1,0 +1,92 @@
+--- step-010/main.odin
++++ step-011/main.odin
+@@ -14,6 +14,10 @@
+ KB :: 1024
+ MB :: KB * 1024
+ 
++////////////////////////////////////////////////////////////////////////////////
++// REPL
++////////////////////////////////////////////////////////////////////////////////
++
+ main :: proc() {
+ 	fmt.println("Welcome to the Lowkey compiler! Starting REPL mode:")
+ 
+@@ -74,6 +78,10 @@
+ 	}
+ }
+ 
++////////////////////////////////////////////////////////////////////////////////
++// Tokenization
++////////////////////////////////////////////////////////////////////////////////
++
+ TokenType :: enum {
+ 	Nil,
+ 	IdentifierVariable,
+@@ -301,6 +309,43 @@
+ 	return strings.to_string(builder)
+ }
+ 
++////////////////////////////////////////////////////////////////////////////////
++// Parsing
++////////////////////////////////////////////////////////////////////////////////
++
++SourceDestType :: enum {
++	Nil,
++	Variable,
++	NumberConstant
++}
++
++Statement :: struct {
++	statement_type: StatementType,
++	// Source is the right side of the assignment
++	sourceType: SourceDestType,
++	source: string,
++	// Dest is the left side of the assignment
++	destType: SourceDestType,
++	dest: string,
++}
++
++StatementType :: enum {
++	Nil,
++	Assignment,
++}
++
++parse :: proc(tokens: [dynamic]Token, source_text: string, allocator: runtime.Allocator) -> [dynamic]Statement {
++	statements := make([dynamic]Statement, allocator)
++
++		
++
++	return statements
++}
++
++////////////////////////////////////////////////////////////////////////////////
++// Execution
++////////////////////////////////////////////////////////////////////////////////
++
+ InterpreterState :: struct {
+ 	// Keep track of variable names, in order of creation
+ 	var_names: [dynamic]string,
+@@ -492,6 +537,23 @@
+ 	execute(tokens, source_text, &state, context.temp_allocator)
+ 	testing.expect_value(t, state.var_names[0], "a")
+ 	testing.expect_value(t, state.var_values[state.var_names[0]], 1)
++	testing.expect_value(t, state.var_names[1], "b")
++	testing.expect_value(t, state.var_values[state.var_names[1]], 3)
++	testing.expect_value(t, state.var_names[2], "c")
++	testing.expect_value(t, state.var_values[state.var_names[2]], 3)
++	testing.expect_value(t, state.var_names[3], "d")
++	testing.expect_value(t, state.var_values[state.var_names[3]], 3)
++}
++
++@(test)
++test_parse_011 :: proc(t: ^testing.T) {
++	source_text := "a := 1\nb := 3\nc := b\nd := c\n"
++	tokens, errors := tokenize(source_text, context.temp_allocator)
++	testing.expect_value(t, len(errors), 0)
++	statements, errors := parse(source_text, context.temp_allocator)
++	execute(tokens, source_text, &state, context.temp_allocator)
++	testing.expect_value(t, state.var_names[0], "a")
++	testing.expect_value(t, state.var_values[state.var_names[0]], 1)
+ 	testing.expect_value(t, state.var_names[1], "b")
+ 	testing.expect_value(t, state.var_values[state.var_names[1]], 3)
+ 	testing.expect_value(t, state.var_names[2], "c")

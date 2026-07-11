@@ -313,6 +313,34 @@ generate_error_message :: proc(error: TokenizationError, source_text: string) ->
 // Parsing
 ////////////////////////////////////////////////////////////////////////////////
 
+SourceDestType :: enum {
+	Nil,
+	Variable,
+	NumberConstant
+}
+
+Statement :: struct {
+	statement_type: StatementType,
+	// Source is the right side of the assignment
+	sourceType: SourceDestType,
+	source: string,
+	// Dest is the left side of the assignment
+	destType: SourceDestType,
+	dest: string,
+}
+
+StatementType :: enum {
+	Nil,
+	Assignment,
+}
+
+parse :: proc(tokens: [dynamic]Token, source_text: string, allocator: runtime.Allocator) -> [dynamic]Statement {
+	statements := make([dynamic]Statement, allocator)
+
+		
+
+	return statements
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 // Execution
@@ -518,11 +546,11 @@ test_tokenize_009 :: proc(t: ^testing.T) {
 }
 
 @(test)
-test_tokenize_011 :: proc(t: ^testing.T) {
+test_parse_011 :: proc(t: ^testing.T) {
 	source_text := "a := 1\nb := 3\nc := b\nd := c\n"
 	tokens, errors := tokenize(source_text, context.temp_allocator)
 	testing.expect_value(t, len(errors), 0)
-	ast, errors := parse(source_text, context.temp_allocator)
+	statements, errors := parse(source_text, context.temp_allocator)
 	execute(tokens, source_text, &state, context.temp_allocator)
 	testing.expect_value(t, state.var_names[0], "a")
 	testing.expect_value(t, state.var_values[state.var_names[0]], 1)
