@@ -2,7 +2,7 @@
 
 # Task
 
-In the REPL, properly execute code and add a `state` command to print out the state of the interpreter. Print variables in order of creation.
+In the REPL, properly execute the tokens and add a `state` command to print out the state of the interpreter. Print variables in order of creation.
 
 
 # Tests
