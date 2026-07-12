@@ -29,7 +29,7 @@ The compiler will be implemented incrementally, step by step, in 30 minute sitdo
 * [`step-008.md`](steps/step-008/step-008.md) : In the REPL, print nice-looking error messages from the error list returned by `tokenize()`.
 * [`step-009.md`](steps/step-009/step-009.md) : Build a simple intepreter by creating an `execute()` function to "execute" tokens and return the final state.
 * [`step-010.md`](steps/step-010/step-010.md) : In the REPL, add a `state` command to print out the program state.
-* [`step-011.md`](steps/step-011/step-011.md) : Create a `parse()` function that takes in a token list and outputs an array of statements.
+* [`step-011.md`](steps/step-011/step-011.md) : Create a `parse()` function that takes in a token list and outputs an array of simple assignment statement AST nodes.
 * [`step-012.md`](steps/step-012/step-012.md) : Have the `execute()` function execute the AST instead of the list of tokens.
 
 

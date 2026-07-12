@@ -22,7 +22,18 @@
  TokenType :: enum {
  	Nil,
  	IdentifierVariable,
-@@ -301,6 +309,43 @@
+@@ -240,6 +248,10 @@
+ 	return tokens, errors
+ }
+ 
++token_index_to_string :: proc(token_idx: int, tokens: [dynamic]Token, source_text: string) -> string {
++	return token_to_string(tokens[token_idx], source_text)
++}
++
+ token_to_string :: proc(token: Token, source_text: string) -> string {
+ 	return source_text[token.start_byte:(token.start_byte + token.length)]
+ }
+@@ -301,6 +313,107 @@
  	return strings.to_string(builder)
  }
  
@@ -30,34 +41,98 @@
 +// Parsing
 +////////////////////////////////////////////////////////////////////////////////
 +
-+SourceDestType :: enum {
++AstNodeType :: enum {
++	Nil,
++	Assignment,
++}
++
++AstNode :: struct {
++	type: AstNodeType,  // Source is the right side of the assignment
++	sourceType: ValueType,
++	sourceToken: int,  // The index into the token stream for this value
++	destType: ValueType,  // Dest is the left side of the assignment
++	destToken: int,  // The index into the token stream for this value
++}
++
++ValueType :: enum {
 +	Nil,
 +	Variable,
 +	NumberConstant
 +}
 +
-+Statement :: struct {
-+	statement_type: StatementType,
-+	// Source is the right side of the assignment
-+	sourceType: SourceDestType,
-+	source: string,
-+	// Dest is the left side of the assignment
-+	destType: SourceDestType,
-+	dest: string,
++
++parse :: proc(tokens: [dynamic]Token, source_text: string, allocator: runtime.Allocator) -> ([dynamic]AstNode) {
++	nodes := make([dynamic]AstNode, allocator)
++
++	curr_token := 0
++	curr_statement := 0
++	total_tokens := len(tokens)
++	for curr_token < total_tokens {
++		token := tokens[curr_token]
++		switch token.type {
++		case .Nil:
++			unimplemented()
++		case .IdentifierVariable:
++			if curr_token + 1 >= total_tokens {
++				break
++			}
++			next_token := tokens[curr_token + 1]
++			if next_token.type == .OperatorBinaryAssignment {
++				node, tokens_eaten := parse_statement_assignment(tokens, curr_token)
++				append_elem(&nodes, node)
++				curr_token += tokens_eaten
++				curr_statement += 1
++			} else {
++				unimplemented()
++			}
++		case .OperatorBinaryAssignment:
++			unimplemented()
++		case .ConstantInteger:
++			unimplemented()
++		}
++	}
++
++	return nodes
 +}
 +
-+StatementType :: enum {
-+	Nil,
-+	Assignment,
++// Parse an assignment statement and return an AstNode and the number of tokens it consumed
++// The assignment statement expects a left side, an assigment operator, and a right side
++parse_statement_assignment :: proc(tokens: [dynamic]Token, current_token_idx: int) -> (AstNode, int) {
++	next_token_idx := current_token_idx
++	node := AstNode {
++		type = .Assignment
++	}
++
++	left_side := tokens[next_token_idx]
++	if left_side.type != .IdentifierVariable {
++		panic("Assignment statement expected identifier variable for left side")
++	}
++	node.destType = .Variable
++	node.destToken = next_token_idx
++	next_token_idx += 1
++
++	assignment_operator := tokens[next_token_idx]
++	if assignment_operator.type != .OperatorBinaryAssignment {
++		panic("Assignment statement expected binary assignment operator")
++	}
++	next_token_idx += 1
++
++	right_side := tokens[next_token_idx]
++	if right_side.type == .IdentifierVariable {
++		node.sourceType = .Variable
++	} else if right_side.type == .ConstantInteger {
++		node.sourceType = .NumberConstant
++	} else {
++		panic("Assignment statement expected variable or constant for right side")
++	}
++	node.sourceToken = next_token_idx
++	next_token_idx += 1
++
++	total_tokens := next_token_idx - current_token_idx
++
++	return node, total_tokens
 +}
 +
-+parse :: proc(tokens: [dynamic]Token, source_text: string, allocator: runtime.Allocator) -> [dynamic]Statement {
-+	statements := make([dynamic]Statement, allocator)
-+
-+		
-+
-+	return statements
-+}
 +
 +////////////////////////////////////////////////////////////////////////////////
 +// Execution
@@ -66,27 +141,36 @@
  InterpreterState :: struct {
  	// Keep track of variable names, in order of creation
  	var_names: [dynamic]string,
-@@ -492,6 +537,23 @@
- 	execute(tokens, source_text, &state, context.temp_allocator)
- 	testing.expect_value(t, state.var_names[0], "a")
- 	testing.expect_value(t, state.var_values[state.var_names[0]], 1)
-+	testing.expect_value(t, state.var_names[1], "b")
-+	testing.expect_value(t, state.var_values[state.var_names[1]], 3)
-+	testing.expect_value(t, state.var_names[2], "c")
-+	testing.expect_value(t, state.var_values[state.var_names[2]], 3)
-+	testing.expect_value(t, state.var_names[3], "d")
-+	testing.expect_value(t, state.var_values[state.var_names[3]], 3)
-+}
+@@ -499,3 +612,32 @@
+ 	testing.expect_value(t, state.var_names[3], "d")
+ 	testing.expect_value(t, state.var_values[state.var_names[3]], 3)
+ }
 +
 +@(test)
 +test_parse_011 :: proc(t: ^testing.T) {
 +	source_text := "a := 1\nb := 3\nc := b\nd := c\n"
 +	tokens, errors := tokenize(source_text, context.temp_allocator)
 +	testing.expect_value(t, len(errors), 0)
-+	statements, errors := parse(source_text, context.temp_allocator)
-+	execute(tokens, source_text, &state, context.temp_allocator)
-+	testing.expect_value(t, state.var_names[0], "a")
-+	testing.expect_value(t, state.var_values[state.var_names[0]], 1)
- 	testing.expect_value(t, state.var_names[1], "b")
- 	testing.expect_value(t, state.var_values[state.var_names[1]], 3)
- 	testing.expect_value(t, state.var_names[2], "c")
++	statements := parse(tokens, source_text, context.temp_allocator)
++	testing.expect_value(t, len(statements), 4)
++	testing.expect_value(t, statements[0].type, AstNodeType.Assignment)
++	testing.expect_value(t, statements[0].destType, ValueType.Variable)
++	testing.expect_value(t, token_index_to_string(statements[0].destToken, tokens, source_text), "a")
++	testing.expect_value(t, statements[0].sourceType, ValueType.NumberConstant)
++	testing.expect_value(t, token_index_to_string(statements[0].sourceToken, tokens, source_text), "1")
++	testing.expect_value(t, statements[1].type, AstNodeType.Assignment)
++	testing.expect_value(t, statements[1].destType, ValueType.Variable)
++	testing.expect_value(t, token_index_to_string(statements[1].destToken, tokens, source_text), "b")
++	testing.expect_value(t, statements[1].sourceType, ValueType.NumberConstant)
++	testing.expect_value(t, token_index_to_string(statements[1].sourceToken, tokens, source_text), "3")
++	testing.expect_value(t, statements[2].type, AstNodeType.Assignment)
++	testing.expect_value(t, statements[2].destType, ValueType.Variable)
++	testing.expect_value(t, token_index_to_string(statements[2].destToken, tokens, source_text), "c")
++	testing.expect_value(t, statements[2].sourceType, ValueType.Variable)
++	testing.expect_value(t, token_index_to_string(statements[2].sourceToken, tokens, source_text), "b")
++	testing.expect_value(t, statements[3].type, AstNodeType.Assignment)
++	testing.expect_value(t, statements[3].destType, ValueType.Variable)
++	testing.expect_value(t, token_index_to_string(statements[3].destToken, tokens, source_text), "d")
++	testing.expect_value(t, statements[3].sourceType, ValueType.Variable)
++	testing.expect_value(t, token_index_to_string(statements[3].sourceToken, tokens, source_text), "c")
++}
