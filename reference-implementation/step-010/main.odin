@@ -484,7 +484,7 @@ test_tokenize_006 :: proc(t: ^testing.T) {
 }
 
 @(test)
-test_tokenize_009 :: proc(t: ^testing.T) {
+test_execute_009 :: proc(t: ^testing.T) {
 	source_text := "a := 1\nb := 3\nc := b\nd := c\n"
 	tokens, errors := tokenize(source_text, context.temp_allocator)
 	testing.expect_value(t, len(errors), 0)
