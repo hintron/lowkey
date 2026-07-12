@@ -67,7 +67,7 @@ Start tokenizing the source text by making a loop and looking at one character a
 <details>
 <summary>Show Hint</summary>
 
-To tokenize a word, start by skipping whitespace characters - i.e. space (` `), tab (`/t`), and newline (`/n`). If the current character is not whitespace, then you know you have hit your first word.
+To tokenize a word, start by skipping whitespace characters - i.e. space (` `), tab (`\t`), and newline (`\n`). If the current character is not whitespace, then you know you have hit your first word.
 </details>
 
 ---
