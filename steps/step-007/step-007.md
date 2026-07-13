@@ -1,9 +1,10 @@
 [Previous Step](../step-006/step-006.md) <-- [[Step Schedule](../../readme.md#step-schedule)] --> [Next Step](../step-008/step-008.md)
 
 # Task
-Create a executable (i.e. fill out `main()`) that will act as a [REPL (read execute print loop)](https://en.wikipedia.org/wiki/Read%E2%80%93eval%E2%80%93print_loop) - i.e. an interactive prompt to the compiler.
 
-Simply accept a single line of input from the user at a time, pass that string to `tokenize()`, and print out the returned tokens. If there are errors, print out the errors and don't print out the tokens. Then repeat.
+Create the beginnings of a [REPL (read execute print loop)](https://en.wikipedia.org/wiki/Read%E2%80%93eval%E2%80%93print_loop) - i.e. an interactive prompt to the compiler.
+
+To do this, simply fill out `main()` to accept one line of input from the user at a time, pass that string to `tokenize()`, and print out the returned tokens. If there are errors, print out the errors and don't print out the tokens. Then repeat.
 
 
 # Tests

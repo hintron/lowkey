@@ -1,6 +1,6 @@
 --- step-005/main.odin
 +++ step-006/main.odin
-@@ -25,7 +25,19 @@
+@@ -29,7 +29,19 @@
  	token_index: int,
  }
  
@@ -21,7 +21,7 @@
  	// TODO: Assert that source file length is < INT_MAX
  	// TODO: Assert that source file ends with whitespace
  	when ODIN_DEBUG {
-@@ -36,8 +48,10 @@
+@@ -40,8 +52,10 @@
  	}
  
  	tokens := make([dynamic]Token, allocator)
@@ -32,7 +32,7 @@
  	column_number := 0
  	token_index := 0
  
-@@ -47,6 +61,7 @@
+@@ -51,6 +65,7 @@
  	// we loop through characters.
  	currently_tokenizing := false
  	current_token : Token
@@ -40,7 +40,7 @@
  	// Loop through each byte
  	for next_position < len(source_text) {
  		current_position = next_position
-@@ -74,12 +89,16 @@
+@@ -78,12 +93,16 @@
  				append(&tokens, current_token)
  				current_token = {}
  				currently_tokenizing = false
@@ -57,7 +57,7 @@
  			}
  
  			when ODIN_DEBUG {
-@@ -88,6 +107,8 @@
+@@ -92,6 +111,8 @@
  				}
  			}
  			continue
@@ -66,7 +66,7 @@
  		}
  
  		// Something other than whitespace! Let's figure out what it is
-@@ -112,11 +133,46 @@
+@@ -116,11 +137,46 @@
  
  			token_index += 1
  			currently_tokenizing = true
@@ -114,7 +114,7 @@
  }
  
  token_to_string :: proc(token: Token, source_text: string) -> string {
-@@ -137,7 +193,7 @@
+@@ -141,7 +197,7 @@
  @(test)
  test_tokenize :: proc(t: ^testing.T) {
  	source_text := "This   is my program\nLine two\n Line  three \n"
@@ -123,7 +123,7 @@
  	testing.expect_value(t, token_to_string(tokens[0], source_text), "This")
  	testing.expect_value(t, tokens[0].line_number, 1)
  	testing.expect_value(t, tokens[0].column_number, 1)
-@@ -175,7 +231,7 @@
+@@ -179,7 +235,7 @@
  @(test)
  test_tokenize_005 :: proc(t: ^testing.T) {
  	source_text := "my_var_1 := 1_337\nmy_var_2 := 663\n"
@@ -132,7 +132,7 @@
  	testing.expect_value(t, token_to_string(tokens[0], source_text), "my_var_1")
  	testing.expect_value(t, tokens[0].line_number, 1)
  	testing.expect_value(t, tokens[0].column_number, 1)
-@@ -201,3 +257,15 @@
+@@ -205,3 +261,15 @@
  	testing.expect_value(t, tokens[5].column_number, 13)
  	testing.expect_value(t, tokens[5].token_index, 5)
  }

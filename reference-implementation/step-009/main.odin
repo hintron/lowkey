@@ -11,6 +11,10 @@ import "core:unicode/utf8"
 
 when !ODIN_DEBUG { _ :: log } // Avoid unused import error for log
 
+////////////////////////////////////////////////////////////////////////////////
+// REPL
+////////////////////////////////////////////////////////////////////////////////
+
 main :: proc() {
 	fmt.println("Welcome to the Lowkey compiler! Starting REPL mode:")
 
@@ -48,6 +52,10 @@ main :: proc() {
 		}
 	}
 }
+
+////////////////////////////////////////////////////////////////////////////////
+// Tokenization
+////////////////////////////////////////////////////////////////////////////////
 
 TokenType :: enum {
 	Nil,
@@ -276,6 +284,10 @@ generate_error_message :: proc(error: TokenizationError, source_text: string) ->
 	return strings.to_string(builder)
 }
 
+////////////////////////////////////////////////////////////////////////////////
+// Execution
+////////////////////////////////////////////////////////////////////////////////
+
 // Execute the tokens directly and return a map with variable name -> value.
 execute :: proc(tokens: [dynamic]Token, source_text: string, allocator: runtime.Allocator) -> map[string]int {
 	// Initialize interpreter state
@@ -344,9 +356,9 @@ execute :: proc(tokens: [dynamic]Token, source_text: string, allocator: runtime.
 
 ////////////////////////////////////////////////////////////////////////////////
 // Tests
-//
-// odin test . -debug -define:ODIN_TEST_SHORT_LOGS=true -define:ODIN_TEST_THREADS=1
 ////////////////////////////////////////////////////////////////////////////////
+// odin test . -debug -define:ODIN_TEST_SHORT_LOGS=true -define:ODIN_TEST_THREADS=1
+
 import "core:testing"
 
 @(test)

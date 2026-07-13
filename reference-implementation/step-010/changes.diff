@@ -1,12 +1,16 @@
 --- step-009/main.odin
 +++ step-010/main.odin
-@@ -11,11 +11,19 @@
+@@ -11,6 +11,9 @@
  
  when !ODIN_DEBUG { _ :: log } // Avoid unused import error for log
  
 +KB :: 1024
 +MB :: KB * 1024
 +
+ ////////////////////////////////////////////////////////////////////////////////
+ // REPL
+ ////////////////////////////////////////////////////////////////////////////////
+@@ -18,8 +21,13 @@
  main :: proc() {
  	fmt.println("Welcome to the Lowkey compiler! Starting REPL mode:")
  
@@ -20,7 +24,7 @@
  
  	input_buffer: [1024]byte
  
-@@ -29,7 +37,19 @@
+@@ -33,7 +41,19 @@
  			return
  		}
  
@@ -41,7 +45,7 @@
  
  		// Tokenize input
  		tokens, errors := tokenize(source_text, arena_allocator)
-@@ -42,10 +62,15 @@
+@@ -46,10 +66,15 @@
  			continue
  		}
  
@@ -60,9 +64,9 @@
  	}
  }
  
-@@ -276,11 +301,23 @@
- 	return strings.to_string(builder)
- }
+@@ -288,11 +313,23 @@
+ // Execution
+ ////////////////////////////////////////////////////////////////////////////////
  
 -// Execute the tokens directly and return a map with variable name -> value.
 -execute :: proc(tokens: [dynamic]Token, source_text: string, allocator: runtime.Allocator) -> map[string]int {
@@ -88,7 +92,7 @@
  	// Execution state
  	is_doing_assignment : bool
  	lefthand_identifier : Token
-@@ -309,13 +346,17 @@
+@@ -321,13 +358,17 @@
  		// We have enough context to do an assignment operation!:
  		//     lefthand := righthand
  		if lefthand_identifier.type != .Nil && is_doing_assignment && righthand_token.type != .Nil {
@@ -108,7 +112,7 @@
  					unimplemented("Tried to read from variable before it had a value!")
  				}
  			case .ConstantInteger:
-@@ -330,7 +371,7 @@
+@@ -342,7 +383,7 @@
  			}
  
  			// Do the actual assignment, overwriting anything already there
@@ -117,7 +121,7 @@
  
  			// Reset for next assignment operation
  			is_doing_assignment = false
-@@ -338,10 +379,23 @@
+@@ -350,10 +391,23 @@
  			righthand_token = {}
  		}
  	}
@@ -141,8 +145,8 @@
 +
  ////////////////////////////////////////////////////////////////////////////////
  // Tests
- //
-@@ -434,9 +488,14 @@
+ ////////////////////////////////////////////////////////////////////////////////
+@@ -446,9 +500,14 @@
  	source_text := "a := 1\nb := 3\nc := b\nd := c\n"
  	tokens, errors := tokenize(source_text, context.temp_allocator)
  	testing.expect_value(t, len(errors), 0)

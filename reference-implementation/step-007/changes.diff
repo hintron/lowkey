@@ -1,6 +1,6 @@
 --- step-006/main.odin
 +++ step-007/main.odin
-@@ -3,11 +3,42 @@
+@@ -3,11 +3,46 @@
  import "base:runtime"
  import "core:fmt"
  import "core:log"
@@ -9,6 +9,10 @@
  
  when !ODIN_DEBUG { _ :: log } // Avoid unused import error for log
  
++////////////////////////////////////////////////////////////////////////////////
++// REPL
++////////////////////////////////////////////////////////////////////////////////
++
  main :: proc() {
 -	fmt.println("Hello, world, from the Lowkey compiler!")
 +	fmt.println("Welcome to the Lowkey compiler! Starting REPL mode:")
@@ -43,4 +47,4 @@
 +	}
  }
  
- TokenType :: enum {
+ ////////////////////////////////////////////////////////////////////////////////

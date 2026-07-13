@@ -1,6 +1,6 @@
 --- step-004/main.odin
 +++ step-005/main.odin
-@@ -12,6 +12,8 @@
+@@ -16,6 +16,8 @@
  
  TokenType :: enum {
  	IdentifierVariable,
@@ -9,7 +9,7 @@
  }
  
  Token :: struct {
-@@ -43,7 +45,7 @@
+@@ -47,7 +49,7 @@
  	next_position := 0
  	// A simple state machine to indicate if we are tokenizing a word or not as
  	// we loop through characters.
@@ -18,7 +18,7 @@
  	current_token : Token
  	// Loop through each byte
  	for next_position < len(source_text) {
-@@ -56,7 +58,7 @@
+@@ -60,7 +62,7 @@
  		// Skip all whitespace
  		if is_whitespace(character) {
  			// If we hit whitespace after an identifier, append token to output!
@@ -27,7 +27,7 @@
  				current_token.length = current_position - current_token.start_byte
  				when ODIN_DEBUG {
  					log.debugf(
-@@ -70,7 +72,8 @@
+@@ -74,7 +76,8 @@
  					)
  				}
  				append(&tokens, current_token)
@@ -37,7 +37,7 @@
  			}
  
  			// A newline increments line number and resets column number
-@@ -87,19 +90,28 @@
+@@ -91,19 +94,28 @@
  			continue
  		}
  
@@ -70,16 +70,7 @@
  		}
  	}
  
-@@ -117,6 +129,8 @@
- 
- ////////////////////////////////////////////////////////////////////////////////
- // Tests
-+//
-+// odin test . -debug -define:ODIN_TEST_SHORT_LOGS=true -define:ODIN_TEST_THREADS=1
- ////////////////////////////////////////////////////////////////////////////////
- import "core:testing"
- 
-@@ -157,3 +171,33 @@
+@@ -163,3 +175,33 @@
  	testing.expect_value(t, tokens[7].column_number, 8)
  	testing.expect_value(t, tokens[7].token_index, 7)
  }

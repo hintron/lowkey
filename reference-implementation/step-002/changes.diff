@@ -1,6 +1,6 @@
 --- step-001/main.odin
 +++ step-002/main.odin
-@@ -1,7 +1,55 @@
+@@ -1,7 +1,60 @@
  package lowkey
  
 +import "base:runtime"
@@ -10,6 +10,9 @@
  	fmt.println("Hello, world, from the Lowkey compiler!")
  }
 +
++////////////////////////////////////////////////////////////////////////////////
++// Tokenization
++////////////////////////////////////////////////////////////////////////////////
 +
 +tokenize :: proc(source_text: string, allocator: runtime.Allocator) -> [dynamic]u8 {
 +	output := make([dynamic]u8, allocator)
@@ -45,6 +48,8 @@
 +////////////////////////////////////////////////////////////////////////////////
 +// Tests
 +////////////////////////////////////////////////////////////////////////////////
++// odin test . -debug -define:ODIN_TEST_SHORT_LOGS=true -define:ODIN_TEST_THREADS=1
++
 +import "core:testing"
 +
 +@(test)

@@ -10,7 +10,7 @@
  
  main :: proc() {
  	fmt.println("Hello, world, from the Lowkey compiler!")
-@@ -15,14 +18,27 @@
+@@ -19,14 +22,27 @@
  	type: TokenType,
  	start_byte: int,
  	length: int,
@@ -38,7 +38,7 @@
  	current_position := 0
  	next_position := 0
  	// A simple state machine to indicate if we are tokenizing a word or not as
-@@ -33,6 +49,7 @@
+@@ -37,6 +53,7 @@
  	for next_position < len(source_text) {
  		current_position = next_position
  		next_position += 1
@@ -46,7 +46,7 @@
  
  		character := source_text[current_position]
  
-@@ -41,9 +58,32 @@
+@@ -45,9 +62,32 @@
  			// If we hit whitespace after an identifier, append token to output!
  			if tokenizing_word {
  				current_token.length = current_position - current_token.start_byte
@@ -79,7 +79,7 @@
  			continue
  		}
  
-@@ -54,13 +94,16 @@
+@@ -58,13 +98,16 @@
  				type = .IdentifierVariable,
  				start_byte = current_position,
  				// We will fill in length at end of parsing token
@@ -97,7 +97,7 @@
  	return tokens
  }
  
-@@ -79,10 +122,38 @@
+@@ -85,10 +128,38 @@
  
  @(test)
  test_tokenize :: proc(t: ^testing.T) {

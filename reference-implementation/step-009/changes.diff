@@ -8,7 +8,7 @@
  import "core:unicode/utf8"
  
  when !ODIN_DEBUG { _ :: log } // Avoid unused import error for log
-@@ -17,6 +18,7 @@
+@@ -21,6 +22,7 @@
  	arena_allocator := vmem.arena_allocator(&arena)
  
  	input_buffer: [1024]byte
@@ -16,18 +16,21 @@
  	for {
  		defer free_all(context.temp_allocator)
  
-@@ -48,6 +50,7 @@
- }
+@@ -56,6 +58,7 @@
+ ////////////////////////////////////////////////////////////////////////////////
  
  TokenType :: enum {
 +	Nil,
  	IdentifierVariable,
  	OperatorBinaryAssignment,
  	ConstantInteger,
-@@ -273,6 +276,72 @@
- 	return strings.to_string(builder)
+@@ -282,6 +285,76 @@
  }
  
+ ////////////////////////////////////////////////////////////////////////////////
++// Execution
++////////////////////////////////////////////////////////////////////////////////
++
 +// Execute the tokens directly and return a map with variable name -> value.
 +execute :: proc(tokens: [dynamic]Token, source_text: string, allocator: runtime.Allocator) -> map[string]int {
 +	// Initialize interpreter state
@@ -94,10 +97,11 @@
 +	return var_values
 +}
 +
- ////////////////////////////////////////////////////////////////////////////////
++////////////////////////////////////////////////////////////////////////////////
  // Tests
- //
-@@ -359,3 +428,15 @@
+ ////////////////////////////////////////////////////////////////////////////////
+ // odin test . -debug -define:ODIN_TEST_SHORT_LOGS=true -define:ODIN_TEST_THREADS=1
+@@ -367,3 +440,15 @@
  	testing.expect_value(t, errors[1].line_number, 2)
  	testing.expect_value(t, errors[1].column_number, 14)
  }
