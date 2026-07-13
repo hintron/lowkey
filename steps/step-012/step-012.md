@@ -4,7 +4,7 @@
 
 Implement `//` as a single line comment.
 
-In the tokenizer, simply discard everything after // until a newline is reached.
+In the tokenizer, simply discard everything after `//` until a newline is reached. Single `/` should generate a tokenization error, for now.
 
 # Background
 
