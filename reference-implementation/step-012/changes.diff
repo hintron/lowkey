@@ -1,0 +1,196 @@
+--- step-011/main.odin
++++ step-012/main.odin
+@@ -100,6 +100,7 @@
+ 
+ TokenizationErrorType :: enum {
+ 	InvalidNumber,
++	StraySlash,
+ }
+ 
+ TokenizationError :: struct {
+@@ -115,6 +116,8 @@
+ 	Idle,
+ 	CurrentlyTokenizing, // Currently creating a token
+ 	CurrentlyError, // We hit an error - skipping to the next token
++	PreviousSlash, // The previous character was a slash - precursor to single-line comment
++	CurrentlyComment, // We are in a single-line comment - skipping to the next line
+ }
+ 
+ tokenize :: proc(source_text: string, allocator: runtime.Allocator) -> ([dynamic]Token, [dynamic]TokenizationError) {
+@@ -149,24 +152,57 @@
+ 
+ 		character := source_text[current_position]
+ 
++		// Skip all single-line comments
++		if character == '/' && tokenization_state != .CurrentlyComment {
++			if tokenization_state != .PreviousSlash {
++				when ODIN_DEBUG {
++					log.debugf("> Slash encountered")
++				}
++
++				if tokenization_state == .CurrentlyTokenizing {
++					// Allow for a comment to come right after a token. E.g. a := 5// Hi
++					complete_and_append_token(&tokens, &current_token, current_position, source_text)
++				}
++
++				tokenization_state = .PreviousSlash
++			} else {
++				when ODIN_DEBUG {
++					log.debugf("> Single-line comment encountered")
++				}
++				tokenization_state = .CurrentlyComment
++			}
++			continue
++		}
++
++		if tokenization_state == .PreviousSlash {
++			when ODIN_DEBUG {
++				log.debugf("> Stray slash encountered")
++			}
++
++			// After looking at the next character, we realized that the
++			// previous character was a stray single `/`! We only support //
++			error := TokenizationError {
++				type = .StraySlash,
++				start_byte = current_position,
++				line_start_byte = line_start_byte,
++				line_number = line_number,
++				column_number = column_number - 1, // -1 for previous character column
++			}
++			append(&errors, error)
++			tokenization_state = .CurrentlyError
++			continue
++		}
++
+ 		// Skip all whitespace
+ 		if is_whitespace(character) {
+ 			// If we hit whitespace after an identifier, append token to output!
+-			if tokenization_state == .CurrentlyTokenizing {
+-				current_token.length = current_position - current_token.start_byte
++			if tokenization_state == .CurrentlyComment {
+ 				when ODIN_DEBUG {
+-					log.debugf(
+-						"> Token %v: %v (%v:%v, byte %v) (%v)",
+-						current_token.token_index,
+-						source_text[current_token.start_byte:(current_token.start_byte + current_token.length)],
+-						current_token.line_number,
+-						current_token.column_number,
+-						current_token.start_byte,
+-						current_token.type
+-					)
++					log.debugf("> Whitespace encountered during comment")
+ 				}
+-				append(&tokens, current_token)
+-				current_token = {}
++				// Don't do anything until newline is hit
++			} else if tokenization_state == .CurrentlyTokenizing {
++				complete_and_append_token(&tokens, &current_token, current_position, source_text)
+ 				tokenization_state = .Idle
+ 			} else if tokenization_state == .CurrentlyError {
+ 				// Reset now that we are going to next token
+@@ -178,6 +214,7 @@
+ 				line_number += 1
+ 				column_number = 0
+ 				line_start_byte = current_position + 1
++				tokenization_state = .Idle // Reset single-line comment
+ 			}
+ 
+ 			when ODIN_DEBUG {
+@@ -253,6 +290,23 @@
+ 	return tokens, errors
+ }
+ 
++complete_and_append_token :: proc(tokens: ^[dynamic]Token, current_token: ^Token, current_position: int, source_text: string) {
++	current_token.length = current_position - current_token.start_byte
++	when ODIN_DEBUG {
++		log.debugf(
++			"> Token %v: %v (%v:%v, byte %v) (%v)",
++			current_token.token_index,
++			source_text[current_token.start_byte:(current_token.start_byte + current_token.length)],
++			current_token.line_number,
++			current_token.column_number,
++			current_token.start_byte,
++			current_token.type
++		)
++	}
++	append(tokens, current_token^)
++	current_token^ = {}
++}
++
+ token_index_to_string :: proc(token_idx: int, tokens: [dynamic]Token, source_text: string) -> string {
+ 	return token_to_string(tokens[token_idx], source_text)
+ }
+@@ -280,14 +334,17 @@
+ 	// Print out the error information
+ 	switch (error.type) {
+ 	case .InvalidNumber:
+-		strings.write_string(&builder, "Invalid Number (")
+-		strings.write_int(&builder, error.line_number)
+-		strings.write_rune(&builder, ':')
+-		strings.write_int(&builder, error.column_number)
+-		strings.write_string(&builder, "; byte ")
+-		strings.write_int(&builder, error.start_byte)
+-		strings.write_string(&builder, ")\n")
+-	}
++		strings.write_string(&builder, "Invalid Number")
++	case .StraySlash:
++		strings.write_string(&builder, "Stray Slash")
++	}
++	strings.write_string(&builder, " (")
++	strings.write_int(&builder, error.line_number)
++	strings.write_rune(&builder, ':')
++	strings.write_int(&builder, error.column_number)
++	strings.write_string(&builder, "; byte ")
++	strings.write_int(&builder, error.start_byte)
++	strings.write_string(&builder, ")\n")
+ 
+ 	// Get the byte location for the end of the line
+ 	line_end_byte := error.line_start_byte
+@@ -341,7 +398,6 @@
+ 	NumberConstant
+ }
+ 
+-
+ parse :: proc(tokens: [dynamic]Token, source_text: string, allocator: runtime.Allocator) -> ([dynamic]AstNode) {
+ 	nodes := make([dynamic]AstNode, allocator)
+ 
+@@ -644,3 +700,39 @@
+ 	testing.expect_value(t, statements[3].sourceType, ValueType.Variable)
+ 	testing.expect_value(t, token_index_to_string(statements[3].sourceToken, tokens, source_text), "c")
+ }
++
++@(test)
++test_tokenize_012 :: proc(t: ^testing.T) {
++	source_text := `
++// Goodbye, world!
++a := 5 // This is a comment
++// This is a comment b := 5
++// // // // Hi
++c := 5//0
++//d := 5
++  // e := 5 // Hi
++/
++`
++	tokens, errors := tokenize(source_text, context.temp_allocator)
++	testing.expect_value(t, token_to_string(tokens[0], source_text), "a")
++	testing.expect_value(t, tokens[0].line_number, 3)
++	testing.expect_value(t, tokens[0].column_number, 1)
++	testing.expect_value(t, token_to_string(tokens[1], source_text), ":=")
++	testing.expect_value(t, tokens[1].line_number, 3)
++	testing.expect_value(t, tokens[1].column_number, 3)
++	testing.expect_value(t, token_to_string(tokens[2], source_text), "5")
++	testing.expect_value(t, tokens[2].line_number, 3)
++	testing.expect_value(t, tokens[2].column_number, 6)
++	testing.expect_value(t, token_to_string(tokens[3], source_text), "c")
++	testing.expect_value(t, tokens[3].line_number, 6)
++	testing.expect_value(t, tokens[3].column_number, 1)
++	testing.expect_value(t, token_to_string(tokens[4], source_text), ":=")
++	testing.expect_value(t, tokens[4].line_number, 6)
++	testing.expect_value(t, tokens[4].column_number, 3)
++	testing.expect_value(t, token_to_string(tokens[5], source_text), "5")
++	testing.expect_value(t, tokens[5].line_number, 6)
++	testing.expect_value(t, tokens[5].column_number, 6)
++	testing.expect_value(t, errors[0].type, TokenizationErrorType.StraySlash)
++	testing.expect_value(t, errors[0].line_number, 9)
++	testing.expect_value(t, errors[0].column_number, 1)
++}
