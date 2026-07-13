@@ -9,42 +9,21 @@
  }
  
  Token :: struct {
-@@ -47,7 +49,7 @@
- 	next_position := 0
- 	// A simple state machine to indicate if we are tokenizing a word or not as
- 	// we loop through characters.
--	tokenizing_word := false
-+	currently_tokenizing := false
- 	current_token : Token
- 	// Loop through each byte
- 	for next_position < len(source_text) {
-@@ -60,7 +62,7 @@
- 		// Skip all whitespace
- 		if is_whitespace(character) {
- 			// If we hit whitespace after an identifier, append token to output!
--			if tokenizing_word {
-+			if currently_tokenizing {
- 				current_token.length = current_position - current_token.start_byte
- 				when ODIN_DEBUG {
- 					log.debugf(
-@@ -74,7 +76,8 @@
+@@ -74,6 +76,7 @@
  					)
  				}
  				append(&tokens, current_token)
--				tokenizing_word = false
 +				current_token = {}
-+				currently_tokenizing = false
+ 				currently_tokenizing = false
  			}
  
- 			// A newline increments line number and resets column number
-@@ -91,19 +94,28 @@
+@@ -91,17 +94,26 @@
  			continue
  		}
  
 -		// Anything other than whitespace is an identifier! (for now)
--		if !tokenizing_word {
 +		// Something other than whitespace! Let's figure out what it is
-+		if !currently_tokenizing {
+ 		if !currently_tokenizing {
  			// Append byte position of new word to output
  			current_token = Token {
 -				type = .IdentifierVariable,
@@ -65,11 +44,8 @@
 +			}
 +
  			token_index += 1
--			tokenizing_word = true
-+			currently_tokenizing = true
+ 			currently_tokenizing = true
  		}
- 	}
- 
 @@ -163,3 +175,33 @@
  	testing.expect_value(t, tokens[7].column_number, 8)
  	testing.expect_value(t, tokens[7].token_index, 7)

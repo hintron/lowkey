@@ -47,7 +47,7 @@ tokenize :: proc(source_text: string, allocator: runtime.Allocator) -> [dynamic]
 	next_position := 0
 	// A simple state machine to indicate if we are tokenizing a word or not as
 	// we loop through characters.
-	tokenizing_word := false
+	currently_tokenizing := false
 	current_token : Token
 	// Loop through each byte
 	for next_position < len(source_text) {
@@ -60,7 +60,7 @@ tokenize :: proc(source_text: string, allocator: runtime.Allocator) -> [dynamic]
 		// Skip all whitespace
 		if is_whitespace(character) {
 			// If we hit whitespace after an identifier, append token to output!
-			if tokenizing_word {
+			if currently_tokenizing {
 				current_token.length = current_position - current_token.start_byte
 				when ODIN_DEBUG {
 					log.debugf(
@@ -74,7 +74,7 @@ tokenize :: proc(source_text: string, allocator: runtime.Allocator) -> [dynamic]
 					)
 				}
 				append(&tokens, current_token)
-				tokenizing_word = false
+				currently_tokenizing = false
 			}
 
 			// A newline increments line number and resets column number
@@ -92,7 +92,7 @@ tokenize :: proc(source_text: string, allocator: runtime.Allocator) -> [dynamic]
 		}
 
 		// Anything other than whitespace is an identifier! (for now)
-		if !tokenizing_word {
+		if !currently_tokenizing {
 			// Append byte position of new word to output
 			current_token = Token {
 				type = .IdentifierVariable,
@@ -103,7 +103,7 @@ tokenize :: proc(source_text: string, allocator: runtime.Allocator) -> [dynamic]
 				token_index = token_index,
 			}
 			token_index += 1
-			tokenizing_word = true
+			currently_tokenizing = true
 		}
 	}
 

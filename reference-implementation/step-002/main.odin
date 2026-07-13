@@ -17,7 +17,7 @@ tokenize :: proc(source_text: string, allocator: runtime.Allocator) -> [dynamic]
 
 	// A simple state machine to indicate if we are tokenizing a word or not as
 	// we loop through characters.
-	tokenizing_word := false
+	currently_tokenizing := false
 
 	// Loop through each byte
 	for next_position < len(source_text) {
@@ -28,15 +28,15 @@ tokenize :: proc(source_text: string, allocator: runtime.Allocator) -> [dynamic]
 
 		// Skip all whitespace
 		if character == ' ' || character == '\t' || character == '\n' {
-			tokenizing_word = false
+			currently_tokenizing = false
 			continue
 		}
 
 		// Anything other than whitespace is a word! (for now)
-		if !tokenizing_word {
+		if !currently_tokenizing {
 			// Append byte position of new word to output
 			append(&output, u8(current_position))
-			tokenizing_word = true
+			currently_tokenizing = true
 		}
 	}
 	return output
