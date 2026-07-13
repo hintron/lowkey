@@ -36,7 +36,7 @@
  			}
  			continue
  		}
-@@ -222,6 +228,59 @@
+@@ -227,6 +233,59 @@
  	return character == ' ' || character == '\t' || character == '\n'
  }
  

@@ -24,7 +24,7 @@
  	IdentifierVariable,
  	OperatorBinaryAssignment,
  	ConstantInteger,
-@@ -282,6 +285,76 @@
+@@ -287,6 +290,76 @@
  }
  
  ////////////////////////////////////////////////////////////////////////////////
@@ -101,7 +101,7 @@
  // Tests
  ////////////////////////////////////////////////////////////////////////////////
  // odin test . -debug -define:ODIN_TEST_SHORT_LOGS=true -define:ODIN_TEST_THREADS=1
-@@ -367,3 +440,15 @@
+@@ -372,3 +445,15 @@
  	testing.expect_value(t, errors[1].line_number, 2)
  	testing.expect_value(t, errors[1].column_number, 14)
  }

@@ -79,6 +79,8 @@ To tokenize a word, start by skipping whitespace characters - i.e. space (` `), 
 In order to tokenize multiple words while only looking at one character at a time, you need to make a simple state machine that indicates what state you are in (am I currently tokenizing a word for the current character?).
 
 So, create a boolean variable that indicates if you are currently tokenizing a word or not. Set it to true when you hit a word (and output the starting byte position if it was false beforehand), and when you hit whitespace, set it to false.
+
+In later steps, we will convert this boolean variable into a state variable, so that our state machine can support more than two states.
 </details>
 
 ---

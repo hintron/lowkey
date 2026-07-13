@@ -33,6 +33,15 @@ Since we are just tokenizing at this stage, the tokenizer doesn't need to unders
 </details>
 
 
+### How do I determine if the tokenizer is in an error state or not?
+<details>
+<summary>Show Hint</summary>
+
+Create a tokenizer state variable (an enum), and make it be in one of three states: idle, currently tokenizing, and currently error. Those three states are mutually exclusive, forming the states of a state machine.
+
+</details>
+
+
 
 ### Solution in Odin (Reference Implementation)
 

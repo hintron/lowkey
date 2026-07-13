@@ -41,6 +41,13 @@ TokenizationError :: struct {
 	column_number: int,
 }
 
+// The states for the tokenization state machine
+TokenizationState :: enum {
+	Idle,
+	CurrentlyTokenizing, // Currently creating a token
+	CurrentlyError, // We hit an error - skipping to the next token
+}
+
 tokenize :: proc(source_text: string, allocator: runtime.Allocator) -> ([dynamic]Token, [dynamic]TokenizationError) {
 	// TODO: Assert that source file length is < INT_MAX
 	// TODO: Assert that source file ends with whitespace
@@ -61,11 +68,10 @@ tokenize :: proc(source_text: string, allocator: runtime.Allocator) -> ([dynamic
 
 	current_position := 0
 	next_position := 0
-	// A simple state machine to indicate if we are tokenizing a word or not as
-	// we loop through characters.
-	currently_tokenizing := false
+	// A simple state machine to indicate if we are currently tokenizing a token
+	// or skipping characters due to error.
+	tokenization_state : TokenizationState
 	current_token : Token
-	skip_to_next_token_on_error := false
 	// Loop through each byte
 	for next_position < len(source_text) {
 		current_position = next_position
@@ -77,7 +83,7 @@ tokenize :: proc(source_text: string, allocator: runtime.Allocator) -> ([dynamic
 		// Skip all whitespace
 		if is_whitespace(character) {
 			// If we hit whitespace after an identifier, append token to output!
-			if currently_tokenizing {
+			if tokenization_state == .CurrentlyTokenizing {
 				current_token.length = current_position - current_token.start_byte
 				when ODIN_DEBUG {
 					log.debugf(
@@ -92,10 +98,10 @@ tokenize :: proc(source_text: string, allocator: runtime.Allocator) -> ([dynamic
 				}
 				append(&tokens, current_token)
 				current_token = {}
-				currently_tokenizing = false
-			} else if skip_to_next_token_on_error {
+				tokenization_state = .Idle
+			} else if tokenization_state == .CurrentlyError {
 				// Reset now that we are going to next token
-				skip_to_next_token_on_error = false
+				tokenization_state = .Idle
 			}
 
 			// A newline increments line number and resets column number
@@ -111,12 +117,12 @@ tokenize :: proc(source_text: string, allocator: runtime.Allocator) -> ([dynamic
 				}
 			}
 			continue
-		} else if skip_to_next_token_on_error {
+		} else if tokenization_state == .CurrentlyError {
 			continue
 		}
 
 		// Something other than whitespace! Let's figure out what it is
-		if !currently_tokenizing {
+		if tokenization_state == .Idle {
 			// Append byte position of new word to output
 			current_token = Token {
 				start_byte = current_position,
@@ -136,7 +142,7 @@ tokenize :: proc(source_text: string, allocator: runtime.Allocator) -> ([dynamic
 			}
 
 			token_index += 1
-			currently_tokenizing = true
+			tokenization_state = .CurrentlyTokenizing
 			continue
 		}
 
@@ -153,8 +159,7 @@ tokenize :: proc(source_text: string, allocator: runtime.Allocator) -> ([dynamic
 				column_number = column_number,
 			}
 			append(&errors, error)
-			skip_to_next_token_on_error = true
-			currently_tokenizing = false
+			tokenization_state = .CurrentlyError
 			current_token = {}
 			token_index -= 1
 
