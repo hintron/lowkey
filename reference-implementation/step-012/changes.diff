@@ -2,12 +2,12 @@
 +++ step-012/main.odin
 @@ -100,6 +100,7 @@
  
- TokenizationErrorType :: enum {
+ ErrorType :: enum {
  	InvalidNumber,
 +	StraySlash,
  }
  
- TokenizationError :: struct {
+ Error :: struct {
 @@ -115,6 +116,8 @@
  	Idle,
  	CurrentlyTokenizing, // Currently creating a token
@@ -16,7 +16,7 @@
 +	CurrentlyComment, // We are in a single-line comment - skipping to the next line
  }
  
- tokenize :: proc(source_text: string, allocator: runtime.Allocator) -> ([dynamic]Token, [dynamic]TokenizationError) {
+ tokenize :: proc(source_text: string, allocator: runtime.Allocator) -> ([dynamic]Token, [dynamic]Error) {
 @@ -149,24 +152,57 @@
  
  		character := source_text[current_position]
@@ -50,7 +50,7 @@
 +
 +			// After looking at the next character, we realized that the
 +			// previous character was a stray single `/`! We only support //
-+			error := TokenizationError {
++			error := Error {
 +				type = .StraySlash,
 +				start_byte = current_position,
 +				line_start_byte = line_start_byte,
@@ -190,7 +190,7 @@
 +	testing.expect_value(t, token_to_string(tokens[5], source_text), "5")
 +	testing.expect_value(t, tokens[5].line_number, 6)
 +	testing.expect_value(t, tokens[5].column_number, 6)
-+	testing.expect_value(t, errors[0].type, TokenizationErrorType.StraySlash)
++	testing.expect_value(t, errors[0].type, ErrorType.StraySlash)
 +	testing.expect_value(t, errors[0].line_number, 9)
 +	testing.expect_value(t, errors[0].column_number, 1)
 +}

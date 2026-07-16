@@ -18,7 +18,7 @@ To do this, simply fill out `main()` to accept one line of input from the user a
 
   Example output:
   ```
-  Tokenization error:  TokenizationError{type = "InvalidNumber", start_byte = 11, line_start_byte = 0, line_number = 1, column_number = 12}
+  Tokenization error:  Error{type = "InvalidNumber", start_byte = 11, line_start_byte = 0, line_number = 1, column_number = 12}
   ```
 
   Example Input (interactive input):

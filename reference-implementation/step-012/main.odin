@@ -98,13 +98,13 @@ Token :: struct {
 	token_index: int,
 }
 
-TokenizationErrorType :: enum {
+ErrorType :: enum {
 	InvalidNumber,
 	StraySlash,
 }
 
-TokenizationError :: struct {
-	type: TokenizationErrorType,
+Error :: struct {
+	type: ErrorType,
 	start_byte: int,
 	line_start_byte: int,  // To find the line length, just iterate until next \n
 	line_number: int,
@@ -120,7 +120,7 @@ TokenizationState :: enum {
 	CurrentlyComment, // We are in a single-line comment - skipping to the next line
 }
 
-tokenize :: proc(source_text: string, allocator: runtime.Allocator) -> ([dynamic]Token, [dynamic]TokenizationError) {
+tokenize :: proc(source_text: string, allocator: runtime.Allocator) -> ([dynamic]Token, [dynamic]Error) {
 	// TODO: Assert that source file length is < INT_MAX
 	// TODO: Assert that source file ends with whitespace
 	when ODIN_DEBUG {
@@ -131,7 +131,7 @@ tokenize :: proc(source_text: string, allocator: runtime.Allocator) -> ([dynamic
 	}
 
 	tokens := make([dynamic]Token, allocator)
-	errors := make([dynamic]TokenizationError, allocator)
+	errors := make([dynamic]Error, allocator)
 
 	line_number := 1
 	line_start_byte := 0
@@ -181,7 +181,7 @@ tokenize :: proc(source_text: string, allocator: runtime.Allocator) -> ([dynamic
 
 			// After looking at the next character, we realized that the
 			// previous character was a stray single `/`! We only support //
-			error := TokenizationError {
+			error := Error {
 				type = .StraySlash,
 				start_byte = current_position,
 				line_start_byte = line_start_byte,
@@ -257,7 +257,7 @@ tokenize :: proc(source_text: string, allocator: runtime.Allocator) -> ([dynamic
 			current_token.type == .ConstantInteger &&
 			((character < '0' || character > '9') && character != '_')
 		{
-			error := TokenizationError {
+			error := Error {
 				type = .InvalidNumber,
 				start_byte = current_position,
 				line_start_byte = line_start_byte,
@@ -326,7 +326,7 @@ is_whitespace :: proc(character: u8) -> bool {
 //   Tokenization Error: Invalid Number (1:12; byte 11)
 //       a := 234234h //extra line context
 //       -----------^
-generate_error_message :: proc(error: TokenizationError, source_text: string) -> string {
+generate_error_message :: proc(error: Error, source_text: string) -> string {
 	// Use a string builder to generate a string with multiple lines
 	builder := strings.builder_make(context.temp_allocator)
 	strings.write_string(&builder, "Tokenization Error: ")
@@ -647,10 +647,10 @@ test_tokenize_005 :: proc(t: ^testing.T) {
 test_tokenize_006 :: proc(t: ^testing.T) {
 	source_text := "1_my_var_ := 1_337\nmy_var_2 := 6^3\n"
 	_, errors := tokenize(source_text, context.temp_allocator)
-	testing.expect_value(t, errors[0].type, TokenizationErrorType.InvalidNumber)
+	testing.expect_value(t, errors[0].type, ErrorType.InvalidNumber)
 	testing.expect_value(t, errors[0].line_number, 1)
 	testing.expect_value(t, errors[0].column_number, 3)
-	testing.expect_value(t, errors[1].type, TokenizationErrorType.InvalidNumber)
+	testing.expect_value(t, errors[1].type, ErrorType.InvalidNumber)
 	testing.expect_value(t, errors[1].line_number, 2)
 	testing.expect_value(t, errors[1].column_number, 14)
 }
@@ -732,7 +732,7 @@ c := 5//0
 	testing.expect_value(t, token_to_string(tokens[5], source_text), "5")
 	testing.expect_value(t, tokens[5].line_number, 6)
 	testing.expect_value(t, tokens[5].column_number, 6)
-	testing.expect_value(t, errors[0].type, TokenizationErrorType.StraySlash)
+	testing.expect_value(t, errors[0].type, ErrorType.StraySlash)
 	testing.expect_value(t, errors[0].line_number, 9)
 	testing.expect_value(t, errors[0].column_number, 1)
 }

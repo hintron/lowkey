@@ -1,7 +1,7 @@
 [Previous Step](../step-005/step-005.md) <-- [[Step Schedule](../../readme.md#step-schedule)] --> [Next Step](../step-007/step-007.md)
 
 # Task
-Return a list of `TokenizationError` structs from `tokenize()` whenever an invalid integer is encountered during tokenization. The struct should have `type`, `start_byte`, `line_start_byte`, `line_number`, and `column_number`. For `type`, there only needs to be an `InvalidNumber` variant for now.
+Return a list of `Error` structs from `tokenize()` whenever an invalid integer is encountered during tokenization. The struct should have `type`, `start_byte`, `line_start_byte`, `line_number`, and `column_number`. For `type`, there only needs to be an `InvalidNumber` variant for now.
 
 
 # Tests

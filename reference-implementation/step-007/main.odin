@@ -64,12 +64,12 @@ Token :: struct {
 	token_index: int,
 }
 
-TokenizationErrorType :: enum {
+ErrorType :: enum {
 	InvalidNumber,
 }
 
-TokenizationError :: struct {
-	type: TokenizationErrorType,
+Error :: struct {
+	type: ErrorType,
 	start_byte: int,
 	line_start_byte: int,  // To find the line length, just iterate until next \n
 	line_number: int,
@@ -83,7 +83,7 @@ TokenizationState :: enum {
 	CurrentlyError, // We hit an error - skipping to the next token
 }
 
-tokenize :: proc(source_text: string, allocator: runtime.Allocator) -> ([dynamic]Token, [dynamic]TokenizationError) {
+tokenize :: proc(source_text: string, allocator: runtime.Allocator) -> ([dynamic]Token, [dynamic]Error) {
 	// TODO: Assert that source file length is < INT_MAX
 	// TODO: Assert that source file ends with whitespace
 	when ODIN_DEBUG {
@@ -94,7 +94,7 @@ tokenize :: proc(source_text: string, allocator: runtime.Allocator) -> ([dynamic
 	}
 
 	tokens := make([dynamic]Token, allocator)
-	errors := make([dynamic]TokenizationError, allocator)
+	errors := make([dynamic]Error, allocator)
 
 	line_number := 1
 	line_start_byte := 0
@@ -186,7 +186,7 @@ tokenize :: proc(source_text: string, allocator: runtime.Allocator) -> ([dynamic
 			current_token.type == .ConstantInteger &&
 			((character < '0' || character > '9') && character != '_')
 		{
-			error := TokenizationError {
+			error := Error {
 				type = .InvalidNumber,
 				start_byte = current_position,
 				line_start_byte = line_start_byte,
@@ -306,10 +306,10 @@ test_tokenize_005 :: proc(t: ^testing.T) {
 test_tokenize_006 :: proc(t: ^testing.T) {
 	source_text := "1_my_var_ := 1_337\nmy_var_2 := 6^3\n"
 	_, errors := tokenize(source_text, context.temp_allocator)
-	testing.expect_value(t, errors[0].type, TokenizationErrorType.InvalidNumber)
+	testing.expect_value(t, errors[0].type, ErrorType.InvalidNumber)
 	testing.expect_value(t, errors[0].line_number, 1)
 	testing.expect_value(t, errors[0].column_number, 3)
-	testing.expect_value(t, errors[1].type, TokenizationErrorType.InvalidNumber)
+	testing.expect_value(t, errors[1].type, ErrorType.InvalidNumber)
 	testing.expect_value(t, errors[1].line_number, 2)
 	testing.expect_value(t, errors[1].column_number, 14)
 }

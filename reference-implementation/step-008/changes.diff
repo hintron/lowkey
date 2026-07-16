@@ -47,7 +47,7 @@
 +//   Tokenization Error: Invalid Number (1:12; byte 11)
 +//       a := 234234h //extra line context
 +//       -----------^
-+generate_error_message :: proc(error: TokenizationError, source_text: string) -> string {
++generate_error_message :: proc(error: Error, source_text: string) -> string {
 +	// Use a string builder to generate a string with multiple lines
 +	builder := strings.builder_make(context.temp_allocator)
 +	strings.write_string(&builder, "Tokenization Error: ")
