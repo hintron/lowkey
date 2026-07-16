@@ -54,7 +54,7 @@
 +
 +	// Print out the error information
 +	switch (error.type) {
-+	case .InvalidNumber:
++	case .TokenizationInvalidNumber:
 +		strings.write_string(&builder, "Invalid Number (")
 +		strings.write_int(&builder, error.line_number)
 +		strings.write_rune(&builder, ':')

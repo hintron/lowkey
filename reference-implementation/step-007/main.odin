@@ -175,7 +175,7 @@ tokenize :: proc(source_text: string, allocator: runtime.Allocator) -> ([dynamic
 			((character < '0' || character > '9') && character != '_')
 		{
 			error := Error {
-				type = .InvalidNumber,
+				type = .TokenizationInvalidNumber,
 				start_byte = current_position,
 				line_start_byte = line_start_byte,
 				line_number = line_number,
@@ -220,7 +220,7 @@ is_whitespace :: proc(character: u8) -> bool {
 ////////////////////////////////////////////////////////////////////////////////
 
 ErrorType :: enum {
-	InvalidNumber,
+	TokenizationInvalidNumber,
 }
 
 Error :: struct {
@@ -310,10 +310,10 @@ test_tokenize_005 :: proc(t: ^testing.T) {
 test_tokenize_006 :: proc(t: ^testing.T) {
 	source_text := "1_my_var_ := 1_337\nmy_var_2 := 6^3\n"
 	_, errors := tokenize(source_text, context.temp_allocator)
-	testing.expect_value(t, errors[0].type, ErrorType.InvalidNumber)
+	testing.expect_value(t, errors[0].type, ErrorType.TokenizationInvalidNumber)
 	testing.expect_value(t, errors[0].line_number, 1)
 	testing.expect_value(t, errors[0].column_number, 3)
-	testing.expect_value(t, errors[1].type, ErrorType.InvalidNumber)
+	testing.expect_value(t, errors[1].type, ErrorType.TokenizationInvalidNumber)
 	testing.expect_value(t, errors[1].line_number, 2)
 	testing.expect_value(t, errors[1].column_number, 14)
 }
