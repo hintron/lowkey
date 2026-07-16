@@ -1,14 +1,6 @@
 --- step-011/main.odin
 +++ step-012/main.odin
-@@ -100,6 +100,7 @@
- 
- ErrorType :: enum {
- 	InvalidNumber,
-+	StraySlash,
- }
- 
- Error :: struct {
-@@ -115,6 +116,8 @@
+@@ -103,6 +103,8 @@
  	Idle,
  	CurrentlyTokenizing, // Currently creating a token
  	CurrentlyError, // We hit an error - skipping to the next token
@@ -17,7 +9,7 @@
  }
  
  tokenize :: proc(source_text: string, allocator: runtime.Allocator) -> ([dynamic]Token, [dynamic]Error) {
-@@ -149,24 +152,57 @@
+@@ -137,24 +139,57 @@
  
  		character := source_text[current_position]
  
@@ -88,7 +80,7 @@
  				tokenization_state = .Idle
  			} else if tokenization_state == .CurrentlyError {
  				// Reset now that we are going to next token
-@@ -178,6 +214,7 @@
+@@ -166,6 +201,7 @@
  				line_number += 1
  				column_number = 0
  				line_start_byte = current_position + 1
@@ -96,7 +88,7 @@
  			}
  
  			when ODIN_DEBUG {
-@@ -253,6 +290,23 @@
+@@ -241,6 +277,23 @@
  	return tokens, errors
  }
  
@@ -120,7 +112,15 @@
  token_index_to_string :: proc(token_idx: int, tokens: [dynamic]Token, source_text: string) -> string {
  	return token_to_string(tokens[token_idx], source_text)
  }
-@@ -280,14 +334,17 @@
+@@ -259,6 +312,7 @@
+ 
+ ErrorType :: enum {
+ 	InvalidNumber,
++	StraySlash,
+ }
+ 
+ Error :: struct {
+@@ -284,14 +338,17 @@
  	// Print out the error information
  	switch (error.type) {
  	case .InvalidNumber:
@@ -146,7 +146,7 @@
  
  	// Get the byte location for the end of the line
  	line_end_byte := error.line_start_byte
-@@ -341,7 +398,6 @@
+@@ -345,7 +402,6 @@
  	NumberConstant
  }
  
@@ -154,7 +154,7 @@
  parse :: proc(tokens: [dynamic]Token, source_text: string, allocator: runtime.Allocator) -> ([dynamic]AstNode) {
  	nodes := make([dynamic]AstNode, allocator)
  
-@@ -644,3 +700,39 @@
+@@ -648,3 +704,39 @@
  	testing.expect_value(t, statements[3].sourceType, ValueType.Variable)
  	testing.expect_value(t, token_index_to_string(statements[3].sourceToken, tokens, source_text), "c")
  }

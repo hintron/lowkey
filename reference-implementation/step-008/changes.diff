@@ -36,8 +36,8 @@
  			}
  			continue
  		}
-@@ -227,6 +233,59 @@
- 	return character == ' ' || character == '\t' || character == '\n'
+@@ -231,6 +237,59 @@
+ 	column_number: int,
  }
  
 +// Generate a nice-looking error message from a tokenization error.

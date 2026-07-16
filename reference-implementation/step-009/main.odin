@@ -73,18 +73,6 @@ Token :: struct {
 	token_index: int,
 }
 
-ErrorType :: enum {
-	InvalidNumber,
-}
-
-Error :: struct {
-	type: ErrorType,
-	start_byte: int,
-	line_start_byte: int,  // To find the line length, just iterate until next \n
-	line_number: int,
-	column_number: int,
-}
-
 // The states for the tokenization state machine
 TokenizationState :: enum {
 	Idle,
@@ -234,6 +222,22 @@ token_to_string :: proc(token: Token, source_text: string) -> string {
 
 is_whitespace :: proc(character: u8) -> bool {
 	return character == ' ' || character == '\t' || character == '\n'
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Errors
+////////////////////////////////////////////////////////////////////////////////
+
+ErrorType :: enum {
+	InvalidNumber,
+}
+
+Error :: struct {
+	type: ErrorType,
+	start_byte: int,
+	line_start_byte: int,  // To find the line length, just iterate until next \n
+	line_number: int,
+	column_number: int,
 }
 
 // Generate a nice-looking error message from a tokenization error.

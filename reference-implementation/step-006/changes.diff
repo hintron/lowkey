@@ -1,22 +1,10 @@
 --- step-005/main.odin
 +++ step-006/main.odin
-@@ -29,7 +29,26 @@
+@@ -29,7 +29,14 @@
  	token_index: int,
  }
  
 -tokenize :: proc(source_text: string, allocator: runtime.Allocator) -> [dynamic]Token {
-+ErrorType :: enum {
-+	InvalidNumber,
-+}
-+
-+Error :: struct {
-+	type: ErrorType,
-+	start_byte: int,
-+	line_start_byte: int,  // To find the line length, just iterate until next \n
-+	line_number: int,
-+	column_number: int,
-+}
-+
 +// The states for the tokenization state machine
 +TokenizationState :: enum {
 +	Idle,
@@ -28,7 +16,7 @@
  	// TODO: Assert that source file length is < INT_MAX
  	// TODO: Assert that source file ends with whitespace
  	when ODIN_DEBUG {
-@@ -40,16 +59,18 @@
+@@ -40,16 +47,18 @@
  	}
  
  	tokens := make([dynamic]Token, allocator)
@@ -50,7 +38,7 @@
  	current_token : Token
  	// Loop through each byte
  	for next_position < len(source_text) {
-@@ -62,7 +83,7 @@
+@@ -62,7 +71,7 @@
  		// Skip all whitespace
  		if is_whitespace(character) {
  			// If we hit whitespace after an identifier, append token to output!
@@ -59,7 +47,7 @@
  				current_token.length = current_position - current_token.start_byte
  				when ODIN_DEBUG {
  					log.debugf(
-@@ -77,13 +98,17 @@
+@@ -77,13 +86,17 @@
  				}
  				append(&tokens, current_token)
  				current_token = {}
@@ -78,7 +66,7 @@
  			}
  
  			when ODIN_DEBUG {
-@@ -92,10 +117,12 @@
+@@ -92,10 +105,12 @@
  				}
  			}
  			continue
@@ -92,7 +80,7 @@
  			// Append byte position of new word to output
  			current_token = Token {
  				start_byte = current_position,
-@@ -115,12 +142,46 @@
+@@ -115,12 +130,46 @@
  			}
  
  			token_index += 1
@@ -141,7 +129,30 @@
  }
  
  token_to_string :: proc(token: Token, source_text: string) -> string {
-@@ -141,7 +202,7 @@
+@@ -132,6 +181,22 @@
+ }
+ 
+ ////////////////////////////////////////////////////////////////////////////////
++// Errors
++////////////////////////////////////////////////////////////////////////////////
++
++ErrorType :: enum {
++	InvalidNumber,
++}
++
++Error :: struct {
++	type: ErrorType,
++	start_byte: int,
++	line_start_byte: int,  // To find the line length, just iterate until next \n
++	line_number: int,
++	column_number: int,
++}
++
++////////////////////////////////////////////////////////////////////////////////
+ // Tests
+ ////////////////////////////////////////////////////////////////////////////////
+ // odin test . -debug -define:ODIN_TEST_SHORT_LOGS=true -define:ODIN_TEST_THREADS=1
+@@ -141,7 +206,7 @@
  @(test)
  test_tokenize :: proc(t: ^testing.T) {
  	source_text := "This   is my program\nLine two\n Line  three \n"
@@ -150,7 +161,7 @@
  	testing.expect_value(t, token_to_string(tokens[0], source_text), "This")
  	testing.expect_value(t, tokens[0].line_number, 1)
  	testing.expect_value(t, tokens[0].column_number, 1)
-@@ -179,7 +240,7 @@
+@@ -179,7 +244,7 @@
  @(test)
  test_tokenize_005 :: proc(t: ^testing.T) {
  	source_text := "my_var_1 := 1_337\nmy_var_2 := 663\n"
@@ -159,7 +170,7 @@
  	testing.expect_value(t, token_to_string(tokens[0], source_text), "my_var_1")
  	testing.expect_value(t, tokens[0].line_number, 1)
  	testing.expect_value(t, tokens[0].column_number, 1)
-@@ -205,3 +266,15 @@
+@@ -205,3 +270,15 @@
  	testing.expect_value(t, tokens[5].column_number, 13)
  	testing.expect_value(t, tokens[5].token_index, 5)
  }
