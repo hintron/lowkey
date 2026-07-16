@@ -169,7 +169,7 @@ tokenize :: proc(source_text: string, allocator: runtime.Allocator) -> ([dynamic
 			// After looking at the next character, we realized that the
 			// previous character was a stray single `/`! We only support //
 			error := Error {
-				type = .StraySlash,
+				type = .TokenizationStraySlash,
 				start_byte = current_position,
 				line_start_byte = line_start_byte,
 				line_number = line_number,
@@ -312,7 +312,7 @@ is_whitespace :: proc(character: u8) -> bool {
 
 ErrorType :: enum {
 	TokenizationInvalidNumber,
-	StraySlash,
+	TokenizationStraySlash,
 }
 
 Error :: struct {
@@ -339,7 +339,7 @@ generate_error_message :: proc(error: Error, source_text: string) -> string {
 	switch (error.type) {
 	case .TokenizationInvalidNumber:
 		strings.write_string(&builder, "Invalid Number")
-	case .StraySlash:
+	case .TokenizationStraySlash:
 		strings.write_string(&builder, "Stray Slash")
 	}
 	strings.write_string(&builder, " (")
@@ -736,7 +736,7 @@ c := 5//0
 	testing.expect_value(t, token_to_string(tokens[5], source_text), "5")
 	testing.expect_value(t, tokens[5].line_number, 6)
 	testing.expect_value(t, tokens[5].column_number, 6)
-	testing.expect_value(t, errors[0].type, ErrorType.StraySlash)
+	testing.expect_value(t, errors[0].type, ErrorType.TokenizationStraySlash)
 	testing.expect_value(t, errors[0].line_number, 9)
 	testing.expect_value(t, errors[0].column_number, 1)
 }
