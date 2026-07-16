@@ -51,27 +51,21 @@
  
  	line_number := 1
  	line_start_byte := 0
-@@ -161,7 +154,19 @@
+@@ -161,7 +154,13 @@
  
  				if tokenization_state == .CurrentlyTokenizing {
  					// Allow for a comment to come right after a token. E.g. a := 5// Hi
 +					current_token.flags += {.IsStatementEnd}
-+					when ODIN_DEBUG {
-+						log.debugf("> Adding statement end to current token")
-+					}
  					complete_and_append_token(&tokens, &current_token, current_position, source_text)
 +				} else {
 +					// Mark the last previously-completed token on this line as a statement end. E.g. a := 5 // Hi
 +					if len(tokens) > 0 && tokens[len(tokens) - 1].line_number == line_number {
 +						tokens[len(tokens) - 1].flags += {.IsStatementEnd}
-+						when ODIN_DEBUG {
-+							log.debugf("> Adding statement end to previously-completed token")
-+						}
 +					}
  				}
  
  				tokenization_state = .PreviousSlash
-@@ -181,8 +186,8 @@
+@@ -181,8 +180,8 @@
  
  			// After looking at the next character, we realized that the
  			// previous character was a stray single `/`! We only support //
@@ -82,7 +76,7 @@
  				start_byte = current_position,
  				line_start_byte = line_start_byte,
  				line_number = line_number,
-@@ -195,6 +200,7 @@
+@@ -195,6 +194,7 @@
  
  		// Skip all whitespace
  		if is_whitespace(character) {
@@ -90,7 +84,7 @@
  			// If we hit whitespace after an identifier, append token to output!
  			if tokenization_state == .CurrentlyComment {
  				when ODIN_DEBUG {
-@@ -202,19 +208,30 @@
+@@ -202,19 +202,27 @@
  				}
  				// Don't do anything until newline is hit
  			} else if tokenization_state == .CurrentlyTokenizing {
@@ -111,9 +105,6 @@
  				tokenization_state = .Idle // Reset single-line comment
 +				// For the last token in a line, add a 'statement end' flag
 +				if finish_token {
-+					when ODIN_DEBUG {
-+						log.debugf("> Adding statement end")
-+					}
 +					current_token.flags += {.IsStatementEnd}
 +				}
 +			}
@@ -123,7 +114,7 @@
  			}
  
  			when ODIN_DEBUG {
-@@ -235,6 +252,7 @@
+@@ -235,6 +243,7 @@
  				// We will fill in length at end of parsing token
  				line_number = line_number,
  				column_number = column_number,
@@ -131,7 +122,7 @@
  				token_index = token_index,
  			}
  
-@@ -257,8 +275,8 @@
+@@ -257,8 +266,8 @@
  			current_token.type == .ConstantInteger &&
  			((character < '0' || character > '9') && character != '_')
  		{
@@ -142,7 +133,7 @@
  				start_byte = current_position,
  				line_start_byte = line_start_byte,
  				line_number = line_number,
-@@ -319,6 +337,29 @@
+@@ -319,6 +328,29 @@
  	return character == ' ' || character == '\t' || character == '\n'
  }
  
@@ -172,7 +163,7 @@
  // Generate a nice-looking error message from a tokenization error.
  // Allocates using context's temporary allocator; free using `free_all(context.temp_allocator)`
  //
-@@ -326,17 +367,25 @@
+@@ -326,17 +358,25 @@
  //   Tokenization Error: Invalid Number (1:12; byte 11)
  //       a := 234234h //extra line context
  //       -----------^
@@ -204,7 +195,7 @@
  	}
  	strings.write_string(&builder, " (")
  	strings.write_int(&builder, error.line_number)
-@@ -398,8 +447,12 @@
+@@ -398,8 +438,12 @@
  	NumberConstant
  }
  
@@ -218,14 +209,11 @@
  
  	curr_token := 0
  	curr_statement := 0
-@@ -410,26 +463,99 @@
+@@ -410,26 +454,78 @@
  		case .Nil:
  			unimplemented()
  		case .IdentifierVariable:
 +			if TokenFlag.IsStatementEnd in token.flags {
-+				when ODIN_DEBUG {
-+					log.debugf("> Error: ParsingStrayIdentifier. Token %v: %v (%v:%v, byte %v)", token.type, token_to_string(token, source_text), token.line_number, token.column_number, token.start_byte)
-+				}
 +				append(&errors, Error {
 +					type = .ParsingStrayIdentifier,
 +					start_byte = token.start_byte,
@@ -239,18 +227,13 @@
 +
  			if curr_token + 1 >= total_tokens {
 -				break
-+				when ODIN_DEBUG {
-+						log.debugf("> Error: Not enough tokens left to finish assignment")
-+				}
++				// Not enough tokens left to finish assignment
 +				continue
  			}
  			next_token := tokens[curr_token + 1]
 +
  			if next_token.type == .OperatorBinaryAssignment {
 +				if next_token.line_number == last_assignment_line {
-+					when ODIN_DEBUG {
-+						log.debugf("> Error: ParsingMultipleAssignment. Token %v: %v (%v:%v, byte %v)", token.type, token_to_string(token, source_text), token.line_number, token.column_number, token.start_byte)
-+					}
 +					append(&errors, Error {
 +						type = .ParsingMultipleAssignment,
 +						start_byte = token.start_byte,
@@ -271,13 +254,6 @@
 +				}
 +
  				node, tokens_eaten := parse_statement_assignment(tokens, curr_token)
-+				when ODIN_DEBUG {
-+					log.debugf(
-+						"> AST Node: Assignment (%v := %v)",
-+						token_to_string(tokens[node.destToken], source_text),
-+						token_to_string(tokens[node.sourceToken], source_text),
-+					)
-+				}
  				append_elem(&nodes, node)
  				curr_token += tokens_eaten
  				curr_statement += 1
@@ -289,9 +265,6 @@
  		case .OperatorBinaryAssignment:
 -			unimplemented()
 +			// We can never start with an assignment token
-+			when ODIN_DEBUG {
-+				log.debugf("> Error: ParsingStrayAssignment. Token %v: %v (%v:%v, byte %v)", token.type, token_to_string(token, source_text), token.line_number, token.column_number, token.start_byte)
-+			}
 +			append(&errors, Error {
 +				type = .ParsingStrayAssignment,
 +				start_byte = token.start_byte,
@@ -303,9 +276,6 @@
  		case .ConstantInteger:
 -			unimplemented()
 +			// Can never start with a constant integer
-+			when ODIN_DEBUG {
-+				log.debugf("> Error: ParsingStrayNumber. Token %v: %v (%v:%v, byte %v)", token.type, token_to_string(token, source_text), token.line_number, token.column_number, token.start_byte)
-+			}
 +			append(&errors, Error {
 +				type = .ParsingStrayNumber,
 +				start_byte = token.start_byte,
@@ -322,7 +292,7 @@
  }
  
  // Parse an assignment statement and return an AstNode and the number of tokens it consumed
-@@ -647,10 +773,10 @@
+@@ -647,10 +743,10 @@
  test_tokenize_006 :: proc(t: ^testing.T) {
  	source_text := "1_my_var_ := 1_337\nmy_var_2 := 6^3\n"
  	_, errors := tokenize(source_text, context.temp_allocator)
@@ -335,7 +305,7 @@
  	testing.expect_value(t, errors[1].line_number, 2)
  	testing.expect_value(t, errors[1].column_number, 14)
  }
-@@ -675,9 +801,10 @@
+@@ -675,9 +771,10 @@
  @(test)
  test_parse_011 :: proc(t: ^testing.T) {
  	source_text := "a := 1\nb := 3\nc := b\nd := c\n"
@@ -349,7 +319,7 @@
  	testing.expect_value(t, len(statements), 4)
  	testing.expect_value(t, statements[0].type, AstNodeType.Assignment)
  	testing.expect_value(t, statements[0].destType, ValueType.Variable)
-@@ -732,7 +859,33 @@
+@@ -732,7 +829,33 @@
  	testing.expect_value(t, token_to_string(tokens[5], source_text), "5")
  	testing.expect_value(t, tokens[5].line_number, 6)
  	testing.expect_value(t, tokens[5].column_number, 6)

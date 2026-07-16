@@ -155,17 +155,11 @@ tokenize :: proc(source_text: string, allocator: runtime.Allocator) -> ([dynamic
 				if tokenization_state == .CurrentlyTokenizing {
 					// Allow for a comment to come right after a token. E.g. a := 5// Hi
 					current_token.flags += {.IsStatementEnd}
-					when ODIN_DEBUG {
-						log.debugf("> Adding statement end to current token")
-					}
 					complete_and_append_token(&tokens, &current_token, current_position, source_text)
 				} else {
 					// Mark the last previously-completed token on this line as a statement end. E.g. a := 5 // Hi
 					if len(tokens) > 0 && tokens[len(tokens) - 1].line_number == line_number {
 						tokens[len(tokens) - 1].flags += {.IsStatementEnd}
-						when ODIN_DEBUG {
-							log.debugf("> Adding statement end to previously-completed token")
-						}
 					}
 				}
 
@@ -223,9 +217,6 @@ tokenize :: proc(source_text: string, allocator: runtime.Allocator) -> ([dynamic
 				tokenization_state = .Idle // Reset single-line comment
 				// For the last token in a line, add a 'statement end' flag
 				if finish_token {
-					when ODIN_DEBUG {
-						log.debugf("> Adding statement end")
-					}
 					current_token.flags += {.IsStatementEnd}
 				}
 			}
@@ -464,9 +455,6 @@ parse :: proc(tokens: [dynamic]Token, source_text: string, allocator: runtime.Al
 			unimplemented()
 		case .IdentifierVariable:
 			if TokenFlag.IsStatementEnd in token.flags {
-				when ODIN_DEBUG {
-					log.debugf("> Error: ParsingStrayIdentifier. Token %v: %v (%v:%v, byte %v)", token.type, token_to_string(token, source_text), token.line_number, token.column_number, token.start_byte)
-				}
 				append(&errors, Error {
 					type = .ParsingStrayIdentifier,
 					start_byte = token.start_byte,
@@ -479,18 +467,13 @@ parse :: proc(tokens: [dynamic]Token, source_text: string, allocator: runtime.Al
 			}
 
 			if curr_token + 1 >= total_tokens {
-				when ODIN_DEBUG {
-						log.debugf("> Error: Not enough tokens left to finish assignment")
-				}
+				// Not enough tokens left to finish assignment
 				continue
 			}
 			next_token := tokens[curr_token + 1]
 
 			if next_token.type == .OperatorBinaryAssignment {
 				if next_token.line_number == last_assignment_line {
-					when ODIN_DEBUG {
-						log.debugf("> Error: ParsingMultipleAssignment. Token %v: %v (%v:%v, byte %v)", token.type, token_to_string(token, source_text), token.line_number, token.column_number, token.start_byte)
-					}
 					append(&errors, Error {
 						type = .ParsingMultipleAssignment,
 						start_byte = token.start_byte,
@@ -511,13 +494,6 @@ parse :: proc(tokens: [dynamic]Token, source_text: string, allocator: runtime.Al
 				}
 
 				node, tokens_eaten := parse_statement_assignment(tokens, curr_token)
-				when ODIN_DEBUG {
-					log.debugf(
-						"> AST Node: Assignment (%v := %v)",
-						token_to_string(tokens[node.destToken], source_text),
-						token_to_string(tokens[node.sourceToken], source_text),
-					)
-				}
 				append_elem(&nodes, node)
 				curr_token += tokens_eaten
 				curr_statement += 1
@@ -528,9 +504,6 @@ parse :: proc(tokens: [dynamic]Token, source_text: string, allocator: runtime.Al
 			}
 		case .OperatorBinaryAssignment:
 			// We can never start with an assignment token
-			when ODIN_DEBUG {
-				log.debugf("> Error: ParsingStrayAssignment. Token %v: %v (%v:%v, byte %v)", token.type, token_to_string(token, source_text), token.line_number, token.column_number, token.start_byte)
-			}
 			append(&errors, Error {
 				type = .ParsingStrayAssignment,
 				start_byte = token.start_byte,
@@ -541,9 +514,6 @@ parse :: proc(tokens: [dynamic]Token, source_text: string, allocator: runtime.Al
 			curr_token += 1
 		case .ConstantInteger:
 			// Can never start with a constant integer
-			when ODIN_DEBUG {
-				log.debugf("> Error: ParsingStrayNumber. Token %v: %v (%v:%v, byte %v)", token.type, token_to_string(token, source_text), token.line_number, token.column_number, token.start_byte)
-			}
 			append(&errors, Error {
 				type = .ParsingStrayNumber,
 				start_byte = token.start_byte,
