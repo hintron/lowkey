@@ -137,7 +137,7 @@
  parse :: proc(tokens: [dynamic]Token, source_text: string, allocator: runtime.Allocator) -> ([dynamic]AstNode) {
  	nodes := make([dynamic]AstNode, allocator)
  
-@@ -649,3 +704,39 @@
+@@ -650,3 +705,39 @@
  	testing.expect_value(t, statements[3].sourceType, ValueType.Variable)
  	testing.expect_value(t, token_index_to_string(statements[3].sourceToken, tokens, source_text), "c")
  }

@@ -11,7 +11,7 @@
  token_to_string :: proc(token: Token, source_text: string) -> string {
  	return source_text[token.start_byte:(token.start_byte + token.length)]
  }
-@@ -320,6 +324,102 @@
+@@ -320,6 +324,103 @@
  }
  
  ////////////////////////////////////////////////////////////////////////////////
@@ -51,7 +51,8 @@
 +			unimplemented()
 +		case .IdentifierVariable:
 +			if curr_token + 1 >= total_tokens {
-+				break
++				// Not enough tokens left to finish assignment
++				continue
 +			}
 +			next_token := tokens[curr_token + 1]
 +			if next_token.type == .OperatorBinaryAssignment {
@@ -114,7 +115,7 @@
  // Execution
  ////////////////////////////////////////////////////////////////////////////////
  
-@@ -422,7 +522,6 @@
+@@ -422,7 +523,6 @@
  // Tests
  ////////////////////////////////////////////////////////////////////////////////
  // odin test . -debug -define:ODIN_TEST_SHORT_LOGS=true -define:ODIN_TEST_THREADS=1
@@ -122,7 +123,7 @@
  import "core:testing"
  
  @(test)
-@@ -521,3 +620,32 @@
+@@ -521,3 +621,32 @@
  	testing.expect_value(t, state.var_names[3], "d")
  	testing.expect_value(t, state.var_values[state.var_names[3]], 3)
  }

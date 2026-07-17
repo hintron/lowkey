@@ -125,7 +125,7 @@
  
  	curr_token := 0
  	curr_statement := 0
-@@ -414,26 +454,78 @@
+@@ -414,27 +454,78 @@
  		case .Nil:
  			unimplemented()
  		case .IdentifierVariable:
@@ -142,9 +142,8 @@
 +			}
 +
  			if curr_token + 1 >= total_tokens {
--				break
-+				// Not enough tokens left to finish assignment
-+				continue
+ 				// Not enough tokens left to finish assignment
+ 				continue
  			}
  			next_token := tokens[curr_token + 1]
 +
@@ -208,7 +207,7 @@
  }
  
  // Parse an assignment statement and return an AstNode and the number of tokens it consumed
-@@ -681,7 +773,8 @@
+@@ -682,7 +773,8 @@
  	source_text := "a := 1\nb := 3\nc := b\nd := c\n"
  	tokens, tokenization_errors := tokenize(source_text, context.temp_allocator)
  	testing.expect_value(t, len(tokenization_errors), 0)
@@ -218,7 +217,7 @@
  	testing.expect_value(t, len(statements), 4)
  	testing.expect_value(t, statements[0].type, AstNodeType.Assignment)
  	testing.expect_value(t, statements[0].destType, ValueType.Variable)
-@@ -740,3 +833,29 @@
+@@ -741,3 +833,29 @@
  	testing.expect_value(t, errors[0].line_number, 9)
  	testing.expect_value(t, errors[0].column_number, 1)
  }

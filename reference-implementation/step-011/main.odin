@@ -360,7 +360,8 @@ parse :: proc(tokens: [dynamic]Token, source_text: string, allocator: runtime.Al
 			unimplemented()
 		case .IdentifierVariable:
 			if curr_token + 1 >= total_tokens {
-				break
+				// Not enough tokens left to finish assignment
+				continue
 			}
 			next_token := tokens[curr_token + 1]
 			if next_token.type == .OperatorBinaryAssignment {
