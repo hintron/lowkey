@@ -255,14 +255,15 @@ generate_error_message :: proc(error: Error, source_text: string) -> string {
 	// Print out the error information
 	switch (error.type) {
 	case .TokenizationInvalidNumber:
-		strings.write_string(&builder, "Tokenization: Invalid Number (")
-		strings.write_int(&builder, error.line_number)
-		strings.write_rune(&builder, ':')
-		strings.write_int(&builder, error.column_number)
-		strings.write_string(&builder, "; byte ")
-		strings.write_int(&builder, error.start_byte)
-		strings.write_string(&builder, ")\n")
+		strings.write_string(&builder, "Tokenization: Invalid Number")
 	}
+	strings.write_string(&builder, " (")
+	strings.write_int(&builder, error.line_number)
+	strings.write_rune(&builder, ':')
+	strings.write_int(&builder, error.column_number)
+	strings.write_string(&builder, "; byte ")
+	strings.write_int(&builder, error.start_byte)
+	strings.write_string(&builder, ")\n")
 
 	// Get the byte location for the end of the line
 	line_end_byte := error.line_start_byte

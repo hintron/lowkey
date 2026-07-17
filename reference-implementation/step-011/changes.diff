@@ -11,7 +11,7 @@
  token_to_string :: proc(token: Token, source_text: string) -> string {
  	return source_text[token.start_byte:(token.start_byte + token.length)]
  }
-@@ -319,6 +323,102 @@
+@@ -320,6 +324,102 @@
  }
  
  ////////////////////////////////////////////////////////////////////////////////
@@ -114,7 +114,7 @@
  // Execution
  ////////////////////////////////////////////////////////////////////////////////
  
-@@ -421,7 +521,6 @@
+@@ -422,7 +522,6 @@
  // Tests
  ////////////////////////////////////////////////////////////////////////////////
  // odin test . -debug -define:ODIN_TEST_SHORT_LOGS=true -define:ODIN_TEST_THREADS=1
@@ -122,7 +122,7 @@
  import "core:testing"
  
  @(test)
-@@ -520,3 +619,32 @@
+@@ -521,3 +620,32 @@
  	testing.expect_value(t, state.var_names[3], "d")
  	testing.expect_value(t, state.var_values[state.var_names[3]], 3)
  }

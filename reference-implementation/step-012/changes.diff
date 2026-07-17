@@ -120,33 +120,16 @@
  }
  
  Error :: struct {
-@@ -284,14 +338,17 @@
- 	// Print out the error information
+@@ -285,6 +339,8 @@
  	switch (error.type) {
  	case .TokenizationInvalidNumber:
--		strings.write_string(&builder, "Tokenization: Invalid Number (")
--		strings.write_int(&builder, error.line_number)
--		strings.write_rune(&builder, ':')
--		strings.write_int(&builder, error.column_number)
--		strings.write_string(&builder, "; byte ")
--		strings.write_int(&builder, error.start_byte)
--		strings.write_string(&builder, ")\n")
--	}
-+		strings.write_string(&builder, "Tokenization: Invalid Number")
+ 		strings.write_string(&builder, "Tokenization: Invalid Number")
 +	case .TokenizationStraySlash:
 +		strings.write_string(&builder, "Tokenization: Stray Slash")
-+	}
-+	strings.write_string(&builder, " (")
-+	strings.write_int(&builder, error.line_number)
-+	strings.write_rune(&builder, ':')
-+	strings.write_int(&builder, error.column_number)
-+	strings.write_string(&builder, "; byte ")
-+	strings.write_int(&builder, error.start_byte)
-+	strings.write_string(&builder, ")\n")
- 
- 	// Get the byte location for the end of the line
- 	line_end_byte := error.line_start_byte
-@@ -345,7 +402,6 @@
+ 	}
+ 	strings.write_string(&builder, " (")
+ 	strings.write_int(&builder, error.line_number)
+@@ -346,7 +402,6 @@
  	NumberConstant
  }
  
@@ -154,7 +137,7 @@
  parse :: proc(tokens: [dynamic]Token, source_text: string, allocator: runtime.Allocator) -> ([dynamic]AstNode) {
  	nodes := make([dynamic]AstNode, allocator)
  
-@@ -648,3 +704,39 @@
+@@ -649,3 +704,39 @@
  	testing.expect_value(t, statements[3].sourceType, ValueType.Variable)
  	testing.expect_value(t, token_index_to_string(statements[3].sourceToken, tokens, source_text), "c")
  }
