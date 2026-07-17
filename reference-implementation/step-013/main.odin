@@ -355,7 +355,7 @@ Error :: struct {
 // Allocates using context's temporary allocator; free using `free_all(context.temp_allocator)`
 //
 // Example output:
-//   Tokenization Error: Invalid Number (1:12; byte 11)
+//   Error: Tokenization: Invalid Number (1:12; byte 11)
 //       a := 234234h //extra line context
 //       -----------^
 generate_error_message :: proc(error: Error, source_text: string) -> string {

@@ -15,7 +15,7 @@ In the REPL, print nice-looking error messages from the error list returned by `
 
   Example output:
   ```
-  Tokenization Error: Invalid Number (1:12; byte 11)
+   Error: Tokenization: Invalid Number (1:12; byte 11)
       a := 234234h //extra line context
       -----------^
   ```

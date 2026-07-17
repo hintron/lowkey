@@ -33,7 +33,7 @@ main :: proc() {
 		// Print out any errors
 		if len(errors) > 0 {
 			for error in errors {
-				fmt.eprintln("Tokenization error: ", error)
+				fmt.eprintln("Error: ", error)
 			}
 			continue
 		}

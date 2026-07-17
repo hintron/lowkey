@@ -241,18 +241,18 @@ Error :: struct {
 // Allocates using context's temporary allocator; free using `free_all(context.temp_allocator)`
 //
 // Example output:
-//   Tokenization Error: Invalid Number (1:12; byte 11)
+//   Error: Tokenization: Invalid Number (1:12; byte 11)
 //       a := 234234h //extra line context
 //       -----------^
 generate_error_message :: proc(error: Error, source_text: string) -> string {
 	// Use a string builder to generate a string with multiple lines
 	builder := strings.builder_make(context.temp_allocator)
-	strings.write_string(&builder, "Tokenization Error: ")
+	strings.write_string(&builder, "Error: ")
 
 	// Print out the error information
 	switch (error.type) {
 	case .TokenizationInvalidNumber:
-		strings.write_string(&builder, "Invalid Number (")
+		strings.write_string(&builder, "Tokenization: Invalid Number (")
 		strings.write_int(&builder, error.line_number)
 		strings.write_rune(&builder, ':')
 		strings.write_int(&builder, error.column_number)

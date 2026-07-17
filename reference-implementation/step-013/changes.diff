@@ -96,21 +96,10 @@
  }
  
  Error :: struct {
-@@ -333,14 +361,22 @@
- generate_error_message :: proc(error: Error, source_text: string) -> string {
- 	// Use a string builder to generate a string with multiple lines
- 	builder := strings.builder_make(context.temp_allocator)
--	strings.write_string(&builder, "Tokenization Error: ")
-+	strings.write_string(&builder, "Error: ")
- 
- 	// Print out the error information
- 	switch (error.type) {
- 	case .TokenizationInvalidNumber:
--		strings.write_string(&builder, "Invalid Number")
-+		strings.write_string(&builder, "Tokenization: Invalid Number")
+@@ -341,6 +369,14 @@
+ 		strings.write_string(&builder, "Tokenization: Invalid Number")
  	case .TokenizationStraySlash:
--		strings.write_string(&builder, "Stray Slash")
-+		strings.write_string(&builder, "Tokenization: Stray Slash")
+ 		strings.write_string(&builder, "Tokenization: Stray Slash")
 +	case .ParsingStrayNumber:
 +		strings.write_string(&builder, "Parsing: Stray Number")
 +	case .ParsingStrayIdentifier:
