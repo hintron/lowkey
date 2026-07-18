@@ -314,6 +314,7 @@ ErrorType :: enum {
 	ParsingStrayNumber,
 	ParsingStrayIdentifier,
 	ParsingStrayAssignment,
+	ParsingMultipleAssignment,
 }
 
 Error :: struct {
@@ -348,6 +349,8 @@ generate_error_message :: proc(error: Error, source_text: string) -> string {
 		strings.write_string(&builder, "Parsing: Stray Identifier")
 	case .ParsingStrayAssignment:
 		strings.write_string(&builder, "Parsing: Stray Assignment")
+	case .ParsingMultipleAssignment:
+		strings.write_string(&builder, "Parsing: Multiple Assignments on same line")
 	}
 	strings.write_string(&builder, " (")
 	strings.write_int(&builder, error.line_number)
@@ -413,6 +416,9 @@ parse :: proc(tokens: [dynamic]Token, source_text: string, allocator: runtime.Al
 	nodes := make([dynamic]AstNode, allocator)
 	errors := make([dynamic]Error, allocator)
 
+	// Simple parsing state
+	last_assignment_line : int
+
 	curr_token := 0
 	curr_statement := 0
 	total_tokens := len(tokens)
@@ -441,10 +447,32 @@ parse :: proc(tokens: [dynamic]Token, source_text: string, allocator: runtime.Al
 			next_token := tokens[curr_token + 1]
 
 			if next_token.type == .OperatorBinaryAssignment {
+				if next_token.line_number == last_assignment_line {
+					append(&errors, Error {
+						type = .ParsingMultipleAssignment,
+						start_byte = token.start_byte,
+						line_start_byte = token.line_start_byte,
+						line_number = token.line_number,
+						column_number = token.column_number,
+					})
+
+					// Advance tokens forward until a "end statement" token is found
+					for curr_token < total_tokens {
+						if tokens[curr_token].flags == {.IsStatementEnd} {
+							curr_token += 1
+							break
+						}
+						curr_token += 1
+					}
+					continue
+				}
+
 				node, tokens_eaten := parse_statement_assignment(tokens, curr_token)
 				append_elem(&nodes, node)
 				curr_token += tokens_eaten
 				curr_statement += 1
+				// Make sure multiple assignments are never done on the same line
+				last_assignment_line = next_token.line_number
 			} else {
 				unimplemented()
 			}
@@ -787,11 +815,13 @@ test_parse_013 :: proc(t: ^testing.T) {
 1 // Can't have a constant number by itself
 := // Can't have an assignment by itself
 a // Can't have a variable by itself
+a := b c := d // Can't have multiple assignments on the same line
+e := f := g // Can't have an assignment that starts with nothing
 `
 	tokens, tokenization_errors := tokenize(source_text, context.temp_allocator)
 	testing.expect_value(t, len(tokenization_errors), 0)
 	statements, parsing_errors := parse(tokens, source_text, context.temp_allocator)
-	testing.expect_value(t, len(statements), 1)
+	testing.expect_value(t, len(statements), 3)
 	testing.expect_value(t, statements[0].type, AstNodeType.Assignment)
 	testing.expect_value(t, statements[0].destType, ValueType.Variable)
 	testing.expect_value(t, token_index_to_string(statements[0].destToken, tokens, source_text), "a")
@@ -800,4 +830,6 @@ a // Can't have a variable by itself
 	testing.expect_value(t, parsing_errors[0].type, ErrorType.ParsingStrayNumber)
 	testing.expect_value(t, parsing_errors[1].type, ErrorType.ParsingStrayAssignment)
 	testing.expect_value(t, parsing_errors[2].type, ErrorType.ParsingStrayIdentifier)
+	testing.expect_value(t, parsing_errors[3].type, ErrorType.ParsingMultipleAssignment)
+	testing.expect_value(t, parsing_errors[4].type, ErrorType.ParsingStrayAssignment)
 }

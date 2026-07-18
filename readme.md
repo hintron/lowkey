@@ -31,7 +31,8 @@ The compiler will be implemented incrementally, step by step, in 30 minute sitdo
 * [`step-010.md`](steps/step-010/step-010.md) : In the REPL, add a `state` command to print out the program state.
 * [`step-011.md`](steps/step-011/step-011.md) : Create a `parse()` function that takes in a token list and outputs an array of simple assignment statement AST nodes.
 * [`step-012.md`](steps/step-012/step-012.md) : Implement `//` as a single line comment.
-* [`step-013.md`](steps/step-013/step-013.md) : Return parsing errors from `parse()`.
+* [`step-013.md`](steps/step-013/step-013.md) : Return some simple parsing errors from `parse()`.
+* [`step-014.md`](steps/step-014/step-014.md) : Disallow multiple assignments on the same line.
 
 
 #### Unimplemented steps and step ideas

@@ -1,12 +1,8 @@
-[Previous Step](../step-012/step-012.md) <-- [[Step Schedule](../../readme.md#step-schedule)] --> [Next Step](../step-XXX/step-XXX.md)
+[Previous Step](../step-012/step-012.md) <-- [[Step Schedule](../../readme.md#step-schedule)] --> [Next Step](../step-014/step-014.md)
 
 # Task
 
-Return parsing errors from `parse()`.
-
-
-# Background
-
+Return some simple parsing errors from `parse()`.
 
 # Tests
 
@@ -16,7 +12,6 @@ Return parsing errors from `parse()`.
   1 // Can't have a constant number by itself
   := // Can't have an assignment by itself
   a // Can't have a variable by itself
-  a := b := c // Can't have multiple assignments on the same line
   ```
 
   Result:
@@ -37,6 +32,19 @@ In the tokenizer, you need to start inserting "end statement" tokens on a newlin
 
 
 
+### When creating a parsing error, how do I know what line/column/byte the error occurs on?
+<details>
+<summary>Show Hint</summary>
+
+Use the data in the `Token` struct, and add a `line_start_byte` field if you haven't already.
+
+Since the parser iterates through tokens, not lines of text, by default you don't know what the current line is that is being evaluated. But you *do* know what the current token is, and that has the data you need.
+
+</details>
+
+
+
+
 ### Solution in Odin (Reference Implementation)
 
 If you are still stuck, see my [step 13 reference implementation code](../../reference-implementation/step-013/main.odin) ([diff from step 013](../../reference-implementation/step-013/changes.diff)).
@@ -44,6 +52,6 @@ If you are still stuck, see my [step 13 reference implementation code](../../ref
 
 # Finished?
 
-Congratulations! Copy your code into the next step's directory and [read the task description at `step-XXX.md (The next step is currently under construction.)`](../step-XXX/step-XXX.md).
+Congratulations! Copy your code into the next step's directory and [read the task description at `step-014.md`](../step-014/step-014.md).
 
-[Previous Step](../step-012/step-012.md) <-- [[Step Schedule](../../readme.md#step-schedule)] --> [Next Step](../step-XXX/step-XXX.md)
+[Previous Step](../step-012/step-012.md) <-- [[Step Schedule](../../readme.md#step-schedule)] --> [Next Step](../step-014/step-014.md)
