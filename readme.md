@@ -129,7 +129,7 @@ I have a few opinionated suggestions for you, before you get started:
 
   * The thing I dislike about methods on objects is that it's a lie. To the CPU, there is no such thing as a self-contained object that has code and data bundled together. Code actually lives in one spot, while the data lives in another, and the CPU even caches them separately at the lowest level of the memory hierarchy.
 
-  * It's a subtle shift in thinking, but I think it's important, especially coming from higher-level languages that only deal with objects, methods, and closures.
+  * It's a subtle shift in thinking, but I think it's important, especially coming from higher-level languages that heavily use objects, methods, and closures.
 
   * To remember what functions work on what data objects, you can do a naming convention like `object_action()` and make the first argument a pointer to the data object (this is all that methods do under the hood).
 
@@ -144,21 +144,21 @@ I have a few opinionated suggestions for you, before you get started:
 
 # Resources on compilers, tokenization/lexing/scanning, and parsing
 
-* [Crafting Interpreters](https://craftinginterpreters.com/contents.html) by Robert Nystrom ([Chapter 2](https://craftinginterpreters.com/a-map-of-the-territory.html) is a great introduction!)
+* [Crafting Interpreters](https://craftinginterpreters.com/contents.html) by Robert Nystrom ([Chapter 2](https://craftinginterpreters.com/a-map-of-the-territory.html) is a great introduction!).
 
-* [Discussion: Making Programming Language Parsers, etc](https://youtu.be/MnctEW1oL-E?si=9zwTX3mWbQGeJ0hx) by Jonathan Blow and Casey Muratori (the first 25 minutes or so is a great introduction to how to go about doing tokenization and parsing)
+* [Discussion: Making Programming Language Parsers, etc](https://youtu.be/MnctEW1oL-E?si=9zwTX3mWbQGeJ0hx) by Jonathan Blow and Casey Muratori (the first 25 minutes or so is a great introduction to how to go about doing tokenization and parsing).
 
-* [Discussion with Casey Muratori about how easy precedence is...](https://youtu.be/fIPO4G42wYE?si=MaMlMQjjCxqD0rUE) by Jonathan Blow and Casey Muratori
+* [Discussion with Casey Muratori about how easy precedence is...](https://youtu.be/fIPO4G42wYE?si=MaMlMQjjCxqD0rUE) by Jonathan Blow and Casey Muratori.
 
-* [Compiler Construction](https://people.inf.ethz.ch/wirth/CompilerConstruction/index.html) by Niklaus Wirth
+* [Zig Tokenizer](https://mitchellh.com/zig/tokenizer) and [Zig Parser](https://mitchellh.com/zig/parser) by Mitchell Hashimoto.
 
-* [An Incremental Approach to Compiler Construction](http://scheme2006.cs.uchicago.edu/11-ghuloum.pdf) by Abdulaziz Ghuloum
+* [Compiler Construction](https://people.inf.ethz.ch/wirth/CompilerConstruction/index.html) by Niklaus Wirth.
 
-* [Zig Tokenizer](https://mitchellh.com/zig/tokenizer) and [Zig Parser](https://mitchellh.com/zig/parser) by Mitchell Hashimoto
+* [An Incremental Approach to Compiler Construction](http://scheme2006.cs.uchicago.edu/11-ghuloum.pdf) by Abdulaziz Ghuloum.
 
-* [Lexing](https://interpreterbook.com/sample.pdf) by Thorsten Ball
+* [Lexing](https://interpreterbook.com/sample.pdf) by Thorsten Ball.
 
-* [Blaise](https://github.com/gingerBill/blaise) by Ginger Bill. It's an educational compiler implementation to teach people how to make a compiler from scratch and all of the minimal stages to produce an executable.
+* [Blaise](https://github.com/gingerBill/blaise) by Ginger Bill. It's an educational compiler implementation to teach people how to make a compiler from scratch and all of the minimal stages to produce an executable (I haven't looked at it yet).
 
 
 # Notable incremental tutorials
@@ -169,11 +169,11 @@ I have a few opinionated suggestions for you, before you get started:
 
 * [Computer Enhance](https://www.computerenhance.com/) by Casey Muratori (15$/mo subscription) - Learn 8086 assembly and incrementally implement a complete 8086 emulator from scratch in part 1; learn how the CPU works from the perspective of a programmer in the other parts.
 
-* [Writing an OS in Rust](https://os.phil-opp.com/) by Phil Opperman and [Intermezzos](https://intermezzos.github.io/book/first-edition/) by Steve Klabnik - Write the very beginnings of your own x64 OS in Rust
+* [Writing an OS in Rust](https://os.phil-opp.com/) by Phil Opperman and [Intermezzos](https://intermezzos.github.io/book/first-edition/) by Steve Klabnik - Write the very beginnings of your own x64 OS in Rust.
 
-* [Handmade Hero](https://guide.handmadehero.org/code/day001/) by Casey Murator - Write a computer game from scratch, in 1 hour sessions (the consensus is to follow along for the first 30 days, and then as needed after that).
+* [Handmade Hero](https://guide.handmadehero.org/code/day001/) by Casey Muratori - Write a computer game from scratch, in 1 hour sessions (it is recommended to follow along for the first 30 days, and then as needed after that).
 
 
 [^1]: https://mitchellh.com/writing/building-large-technical-projects
 [^2]: http://scheme2006.cs.uchicago.edu/11-ghuloum.pdf
-[^3]: Recommended languages: Odin, Zig, C. Rust may not be a good idea because implementing an Abstract Syntax Tree and other data structures might be more painful than it's worth, and may require learning how to write unsafe code. Python, JavaScript, and other non-systems programming languages might be able to work, but accessing the low-level bytes and controlling the memory layout might also be difficult.
+[^3]: Recommended languages: Odin, Zig, and C. Rust could work, but I'm not sure how much trouble it will give us to implement the data structures we want. Python, JavaScript, and other non-systems programming languages make accessing low-level bytes and controlling memory layout difficult.

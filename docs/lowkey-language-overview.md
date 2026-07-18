@@ -106,8 +106,3 @@ Lowkey has some experimental language features that I want to try out, that are 
 * Arena-based automatic destruction.
 
 * Allocator-aware pointers, using upper bits of a 64-bit pointer.
-
-
-# Background
-
-The approach to this interpreter was inspired by the video "[Discussion with Casey Muratori about how easy precedence is...][1]" by Jonathan Blow. That video emphasized that parsing doesn't need to be complicated. It showed how to properly parse the expression `a > b + c * d + e` with proper precedence without having to "fix it in post" and go back and rewrite the AST with correct precedence after the fact.
