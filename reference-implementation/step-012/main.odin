@@ -141,11 +141,8 @@ tokenize :: proc(source_text: string, allocator: runtime.Allocator) -> ([dynamic
 
 		// Skip all single-line comments
 		if character == '/' && tokenization_state != .CurrentlyComment {
+			// Slash encountered
 			if tokenization_state != .PreviousSlash {
-				when ODIN_DEBUG {
-					log.debugf("> Slash encountered")
-				}
-
 				if tokenization_state == .CurrentlyTokenizing {
 					// Allow for a comment to come right after a token. E.g. a := 5// Hi
 					complete_and_append_token(&tokens, &current_token, current_position, source_text)
@@ -153,19 +150,13 @@ tokenize :: proc(source_text: string, allocator: runtime.Allocator) -> ([dynamic
 
 				tokenization_state = .PreviousSlash
 			} else {
-				when ODIN_DEBUG {
-					log.debugf("> Single-line comment encountered")
-				}
+				// Single-line comment encountered
 				tokenization_state = .CurrentlyComment
 			}
 			continue
 		}
 
 		if tokenization_state == .PreviousSlash {
-			when ODIN_DEBUG {
-				log.debugf("> Stray slash encountered")
-			}
-
 			// After looking at the next character, we realized that the
 			// previous character was a stray single `/`! We only support //
 			error := Error {

@@ -9,17 +9,14 @@
  }
  
  tokenize :: proc(source_text: string, allocator: runtime.Allocator) -> ([dynamic]Token, [dynamic]Error) {
-@@ -137,24 +139,57 @@
+@@ -137,24 +139,48 @@
  
  		character := source_text[current_position]
  
 +		// Skip all single-line comments
 +		if character == '/' && tokenization_state != .CurrentlyComment {
++			// Slash encountered
 +			if tokenization_state != .PreviousSlash {
-+				when ODIN_DEBUG {
-+					log.debugf("> Slash encountered")
-+				}
-+
 +				if tokenization_state == .CurrentlyTokenizing {
 +					// Allow for a comment to come right after a token. E.g. a := 5// Hi
 +					complete_and_append_token(&tokens, &current_token, current_position, source_text)
@@ -27,19 +24,13 @@
 +
 +				tokenization_state = .PreviousSlash
 +			} else {
-+				when ODIN_DEBUG {
-+					log.debugf("> Single-line comment encountered")
-+				}
++				// Single-line comment encountered
 +				tokenization_state = .CurrentlyComment
 +			}
 +			continue
 +		}
 +
 +		if tokenization_state == .PreviousSlash {
-+			when ODIN_DEBUG {
-+				log.debugf("> Stray slash encountered")
-+			}
-+
 +			// After looking at the next character, we realized that the
 +			// previous character was a stray single `/`! We only support //
 +			error := Error {
@@ -80,7 +71,7 @@
  				tokenization_state = .Idle
  			} else if tokenization_state == .CurrentlyError {
  				// Reset now that we are going to next token
-@@ -166,6 +201,7 @@
+@@ -166,6 +192,7 @@
  				line_number += 1
  				column_number = 0
  				line_start_byte = current_position + 1
@@ -88,7 +79,7 @@
  			}
  
  			when ODIN_DEBUG {
-@@ -226,6 +262,23 @@
+@@ -226,6 +253,23 @@
  	return tokens, errors
  }
  
@@ -112,7 +103,7 @@
  token_index_to_string :: proc(token_idx: int, tokens: [dynamic]Token, source_text: string) -> string {
  	return token_to_string(tokens[token_idx], source_text)
  }
-@@ -244,6 +297,7 @@
+@@ -244,6 +288,7 @@
  
  ErrorType :: enum {
  	TokenizationInvalidNumber,
@@ -120,7 +111,7 @@
  }
  
  Error :: struct {
-@@ -270,6 +324,8 @@
+@@ -270,6 +315,8 @@
  	switch (error.type) {
  	case .TokenizationInvalidNumber:
  		strings.write_string(&builder, "Tokenization: Invalid Number")
@@ -129,7 +120,7 @@
  	}
  	strings.write_string(&builder, " (")
  	strings.write_int(&builder, error.line_number)
-@@ -331,7 +387,6 @@
+@@ -331,7 +378,6 @@
  	NumberConstant
  }
  
@@ -137,7 +128,7 @@
  parse :: proc(tokens: [dynamic]Token, source_text: string, allocator: runtime.Allocator) -> ([dynamic]AstNode) {
  	nodes := make([dynamic]AstNode, allocator)
  
-@@ -635,3 +690,39 @@
+@@ -635,3 +681,39 @@
  	testing.expect_value(t, statements[3].sourceType, ValueType.Variable)
  	testing.expect_value(t, token_index_to_string(statements[3].sourceToken, tokens, source_text), "c")
  }
