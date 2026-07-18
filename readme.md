@@ -24,7 +24,7 @@ The compiler will be implemented incrementally, step by step, in 30 minute sitdo
 * [`step-003.md`](steps/step-003/step-003.md) : Have `tokenize()` return a dynamic array of `Token`s with token type, start byte, and length. Check that start byte and length produce the expected values from the source text.
 * [`step-004.md`](steps/step-004/step-004.md) : Add line number, column number, and token index to the `Token` struct, as well as some debugging output.
 * [`step-005.md`](steps/step-005/step-005.md) : Tokenize variables (`my_var_1`), multi-digit integer constants (`1_337`), and the assignment operator (`:=`)
-* [`step-006.md`](steps/step-006/step-006.md) : Return a list of Error structs from `tokenize()` whenever an invalid integer is encountered during tokenization.
+* [`step-006.md`](steps/step-006/step-006.md) : Return a list of `Error` structs from `tokenize()` whenever an invalid integer is encountered during tokenization.
 * [`step-007.md`](steps/step-007/step-007.md) : Create the beginnings of a REPL (read execute print loop) - i.e. an interactive prompt.
 * [`step-008.md`](steps/step-008/step-008.md) : In the REPL, print nice-looking error messages from the error list returned by `tokenize()`.
 * [`step-009.md`](steps/step-009/step-009.md) : Build a simple intepreter by creating an `execute()` function to "execute" tokens and return the final state.
