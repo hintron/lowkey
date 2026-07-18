@@ -125,7 +125,7 @@
  }
  
 -
- parse :: proc(tokens: [dynamic]Token, source_text: string, allocator: runtime.Allocator) -> ([dynamic]AstNode) {
+ parse :: proc(tokens: [dynamic]Token, allocator: runtime.Allocator) -> ([dynamic]AstNode) {
  	nodes := make([dynamic]AstNode, allocator)
  
 @@ -635,3 +679,39 @@

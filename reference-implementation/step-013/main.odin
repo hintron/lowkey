@@ -409,7 +409,7 @@ ValueType :: enum {
 	NumberConstant
 }
 
-parse :: proc(tokens: [dynamic]Token, source_text: string, allocator: runtime.Allocator) -> ([dynamic]AstNode, [dynamic]Error) {
+parse :: proc(tokens: [dynamic]Token, allocator: runtime.Allocator) -> ([dynamic]AstNode, [dynamic]Error) {
 	nodes := make([dynamic]AstNode, allocator)
 	errors := make([dynamic]Error, allocator)
 
@@ -719,7 +719,7 @@ test_parse_011 :: proc(t: ^testing.T) {
 	source_text := "a := 1\nb := 3\nc := b\nd := c\n"
 	tokens, tokenization_errors := tokenize(source_text, context.temp_allocator)
 	testing.expect_value(t, len(tokenization_errors), 0)
-	statements, parsing_errors := parse(tokens, source_text, context.temp_allocator)
+	statements, parsing_errors := parse(tokens, context.temp_allocator)
 	testing.expect_value(t, len(parsing_errors), 0)
 	testing.expect_value(t, len(statements), 4)
 	testing.expect_value(t, statements[0].type, AstNodeType.Assignment)
@@ -790,7 +790,7 @@ a // Can't have a variable by itself
 `
 	tokens, tokenization_errors := tokenize(source_text, context.temp_allocator)
 	testing.expect_value(t, len(tokenization_errors), 0)
-	statements, parsing_errors := parse(tokens, source_text, context.temp_allocator)
+	statements, parsing_errors := parse(tokens, context.temp_allocator)
 	testing.expect_value(t, len(statements), 1)
 	testing.expect_value(t, statements[0].type, AstNodeType.Assignment)
 	testing.expect_value(t, statements[0].destType, ValueType.Variable)
