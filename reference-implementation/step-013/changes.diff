@@ -34,18 +34,16 @@
  				}
  
  				tokenization_state = .PreviousSlash
-@@ -173,6 +185,7 @@
+@@ -173,24 +185,33 @@
  
  		// Skip all whitespace
  		if is_whitespace(character) {
 +			finish_token := false
- 			// If we hit whitespace after an identifier, append token to output!
  			if tokenization_state == .CurrentlyComment {
- 				when ODIN_DEBUG {
-@@ -180,19 +193,27 @@
- 				}
+ 				// Whitespace encountered during comment
  				// Don't do anything until newline is hit
  			} else if tokenization_state == .CurrentlyTokenizing {
+ 				// If we hit whitespace after an identifier, append token to output!
 -				complete_and_append_token(&tokens, &current_token, current_position, source_text)
 +				finish_token = true
  				tokenization_state = .Idle
@@ -72,7 +70,7 @@
  			}
  
  			when ODIN_DEBUG {
-@@ -213,6 +234,7 @@
+@@ -211,6 +232,7 @@
  				// We will fill in length at end of parsing token
  				line_number = line_number,
  				column_number = column_number,
@@ -80,7 +78,7 @@
  				token_index = token_index,
  			}
  
-@@ -286,9 +308,15 @@
+@@ -284,9 +306,15 @@
  // Errors
  ////////////////////////////////////////////////////////////////////////////////
  
@@ -96,7 +94,7 @@
  }
  
  Error :: struct {
-@@ -317,6 +345,14 @@
+@@ -315,6 +343,14 @@
  		strings.write_string(&builder, "Tokenization: Invalid Number")
  	case .TokenizationStraySlash:
  		strings.write_string(&builder, "Tokenization: Stray Slash")
@@ -111,7 +109,7 @@
  	}
  	strings.write_string(&builder, " (")
  	strings.write_int(&builder, error.line_number)
-@@ -378,8 +414,12 @@
+@@ -376,8 +412,12 @@
  	NumberConstant
  }
  
@@ -125,7 +123,7 @@
  
  	curr_token := 0
  	curr_statement := 0
-@@ -390,27 +430,78 @@
+@@ -388,27 +428,78 @@
  		case .Nil:
  			unimplemented()
  		case .IdentifierVariable:
@@ -207,7 +205,7 @@
  }
  
  // Parse an assignment statement and return an AstNode and the number of tokens it consumed
-@@ -658,7 +749,8 @@
+@@ -656,7 +747,8 @@
  	source_text := "a := 1\nb := 3\nc := b\nd := c\n"
  	tokens, tokenization_errors := tokenize(source_text, context.temp_allocator)
  	testing.expect_value(t, len(tokenization_errors), 0)
@@ -217,7 +215,7 @@
  	testing.expect_value(t, len(statements), 4)
  	testing.expect_value(t, statements[0].type, AstNodeType.Assignment)
  	testing.expect_value(t, statements[0].destType, ValueType.Variable)
-@@ -717,3 +809,29 @@
+@@ -715,3 +807,29 @@
  	testing.expect_value(t, errors[0].line_number, 9)
  	testing.expect_value(t, errors[0].column_number, 1)
  }

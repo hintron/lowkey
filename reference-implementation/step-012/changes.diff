@@ -9,7 +9,7 @@
  }
  
  tokenize :: proc(source_text: string, allocator: runtime.Allocator) -> ([dynamic]Token, [dynamic]Error) {
-@@ -137,24 +139,48 @@
+@@ -137,24 +139,46 @@
  
  		character := source_text[current_position]
  
@@ -47,11 +47,10 @@
 +
  		// Skip all whitespace
  		if is_whitespace(character) {
- 			// If we hit whitespace after an identifier, append token to output!
+-			// If we hit whitespace after an identifier, append token to output!
 -			if tokenization_state == .CurrentlyTokenizing {
 -				current_token.length = current_position - current_token.start_byte
-+			if tokenization_state == .CurrentlyComment {
- 				when ODIN_DEBUG {
+-				when ODIN_DEBUG {
 -					log.debugf(
 -						"> Token %v: %v (%v:%v, byte %v) (%v)",
 -						current_token.token_index,
@@ -61,17 +60,19 @@
 -						current_token.start_byte,
 -						current_token.type
 -					)
-+					log.debugf("> Whitespace encountered during comment")
- 				}
+-				}
 -				append(&tokens, current_token)
 -				current_token = {}
++			if tokenization_state == .CurrentlyComment {
++				// Whitespace encountered during comment
 +				// Don't do anything until newline is hit
 +			} else if tokenization_state == .CurrentlyTokenizing {
++				// If we hit whitespace after an identifier, append token to output!
 +				complete_and_append_token(&tokens, &current_token, current_position, source_text)
  				tokenization_state = .Idle
  			} else if tokenization_state == .CurrentlyError {
  				// Reset now that we are going to next token
-@@ -166,6 +192,7 @@
+@@ -166,6 +190,7 @@
  				line_number += 1
  				column_number = 0
  				line_start_byte = current_position + 1
@@ -79,7 +80,7 @@
  			}
  
  			when ODIN_DEBUG {
-@@ -226,6 +253,23 @@
+@@ -226,6 +251,23 @@
  	return tokens, errors
  }
  
@@ -103,7 +104,7 @@
  token_index_to_string :: proc(token_idx: int, tokens: [dynamic]Token, source_text: string) -> string {
  	return token_to_string(tokens[token_idx], source_text)
  }
-@@ -244,6 +288,7 @@
+@@ -244,6 +286,7 @@
  
  ErrorType :: enum {
  	TokenizationInvalidNumber,
@@ -111,7 +112,7 @@
  }
  
  Error :: struct {
-@@ -270,6 +315,8 @@
+@@ -270,6 +313,8 @@
  	switch (error.type) {
  	case .TokenizationInvalidNumber:
  		strings.write_string(&builder, "Tokenization: Invalid Number")
@@ -120,7 +121,7 @@
  	}
  	strings.write_string(&builder, " (")
  	strings.write_int(&builder, error.line_number)
-@@ -331,7 +378,6 @@
+@@ -331,7 +376,6 @@
  	NumberConstant
  }
  
@@ -128,7 +129,7 @@
  parse :: proc(tokens: [dynamic]Token, source_text: string, allocator: runtime.Allocator) -> ([dynamic]AstNode) {
  	nodes := make([dynamic]AstNode, allocator)
  
-@@ -635,3 +681,39 @@
+@@ -635,3 +679,39 @@
  	testing.expect_value(t, statements[3].sourceType, ValueType.Variable)
  	testing.expect_value(t, token_index_to_string(statements[3].sourceToken, tokens, source_text), "c")
  }

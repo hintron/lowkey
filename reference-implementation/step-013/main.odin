@@ -186,13 +186,11 @@ tokenize :: proc(source_text: string, allocator: runtime.Allocator) -> ([dynamic
 		// Skip all whitespace
 		if is_whitespace(character) {
 			finish_token := false
-			// If we hit whitespace after an identifier, append token to output!
 			if tokenization_state == .CurrentlyComment {
-				when ODIN_DEBUG {
-					log.debugf("> Whitespace encountered during comment")
-				}
+				// Whitespace encountered during comment
 				// Don't do anything until newline is hit
 			} else if tokenization_state == .CurrentlyTokenizing {
+				// If we hit whitespace after an identifier, append token to output!
 				finish_token = true
 				tokenization_state = .Idle
 			} else if tokenization_state == .CurrentlyError {
