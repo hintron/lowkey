@@ -132,7 +132,9 @@ I have a few opinionated suggestions for you, before you get started:
 
 * If you are looking for a good programming language to use that is fast, powerful, and nudges you towards all the things I've mentioned above, [give Odin a try!](https://odin-lang.org/) It's a C alternative that is a joy to program in.
 
-  * Start with [Introduction to the Odin Programming Language](https://zylinski.se/posts/introduction-to-odin/) by Karl Zylinski.
+  * Odin a systems programming language, so it's lower level than Python, JavaScript, PHP, etc. There is no gargage collection, so you have to manage memory yourself. But it's actually not that bad, and gives you much more control over the performance of your program.
+
+  * Start with [Introduction to the Odin Programming Language](https://zylinski.se/posts/introduction-to-odin/) by Karl Zylinski. [His book is also really good](https://odinbook.com), if you want to buy it.
 
 
 # Resources on compilers, tokenization/lexing/scanning, and parsing
