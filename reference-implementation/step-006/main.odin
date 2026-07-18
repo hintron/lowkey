@@ -70,8 +70,8 @@ tokenize :: proc(source_text: string, allocator: runtime.Allocator) -> ([dynamic
 
 		// Skip all whitespace
 		if is_whitespace(character) {
-			// If we hit whitespace after an identifier, append token to output!
 			if tokenization_state == .CurrentlyTokenizing {
+				// If we hit whitespace after an identifier, append token to output!
 				current_token.length = current_position - current_token.start_byte
 				when ODIN_DEBUG {
 					log.debugf(
