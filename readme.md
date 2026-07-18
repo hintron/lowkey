@@ -134,7 +134,7 @@ I have a few opinionated suggestions for you, before you get started:
 
   * Odin a systems programming language, so it's lower level than Python, JavaScript, PHP, etc. There is no gargage collection, so you have to manage memory yourself. But it's actually not that bad, and gives you much more control over the performance of your program.
 
-  * Start with [Introduction to the Odin Programming Language](https://zylinski.se/posts/introduction-to-odin/) by Karl Zylinski. [His book is also really good](https://odinbook.com), if you want to buy it.
+  * Start with [Introduction to the Odin Programming Language](https://zylinski.se/posts/introduction-to-odin/) by Karl Zylinski. [His book is also really good](https://odinbook.com), if you want to buy it (20$, PDF only).
 
 
 # Resources on compilers, tokenization/lexing/scanning, and parsing
@@ -147,11 +147,11 @@ I have a few opinionated suggestions for you, before you get started:
 
 * [Zig Tokenizer](https://mitchellh.com/zig/tokenizer) and [Zig Parser](https://mitchellh.com/zig/parser) by Mitchell Hashimoto.
 
+* [Writing an Interpreter in Go](https://interpreterbook.com/) by Thorsten Ball ($30). See also the free sample on [Lexing](https://interpreterbook.com/sample.pdf).
+
 * [Compiler Construction](https://people.inf.ethz.ch/wirth/CompilerConstruction/index.html) by Niklaus Wirth.
 
 * [An Incremental Approach to Compiler Construction](http://scheme2006.cs.uchicago.edu/11-ghuloum.pdf) by Abdulaziz Ghuloum.
-
-* [Lexing](https://interpreterbook.com/sample.pdf) by Thorsten Ball.
 
 * [Blaise](https://github.com/gingerBill/blaise) by Ginger Bill. It's an educational compiler implementation to teach people how to make a compiler from scratch and all of the minimal stages to produce an executable (I haven't looked at it yet).
 
