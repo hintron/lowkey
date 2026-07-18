@@ -88,7 +88,7 @@
  			}
  
  			when ODIN_DEBUG {
-@@ -241,6 +277,23 @@
+@@ -226,6 +262,23 @@
  	return tokens, errors
  }
  
@@ -112,7 +112,7 @@
  token_index_to_string :: proc(token_idx: int, tokens: [dynamic]Token, source_text: string) -> string {
  	return token_to_string(tokens[token_idx], source_text)
  }
-@@ -259,6 +312,7 @@
+@@ -244,6 +297,7 @@
  
  ErrorType :: enum {
  	TokenizationInvalidNumber,
@@ -120,7 +120,7 @@
  }
  
  Error :: struct {
-@@ -285,6 +339,8 @@
+@@ -270,6 +324,8 @@
  	switch (error.type) {
  	case .TokenizationInvalidNumber:
  		strings.write_string(&builder, "Tokenization: Invalid Number")
@@ -129,7 +129,7 @@
  	}
  	strings.write_string(&builder, " (")
  	strings.write_int(&builder, error.line_number)
-@@ -346,7 +402,6 @@
+@@ -331,7 +387,6 @@
  	NumberConstant
  }
  
@@ -137,7 +137,7 @@
  parse :: proc(tokens: [dynamic]Token, source_text: string, allocator: runtime.Allocator) -> ([dynamic]AstNode) {
  	nodes := make([dynamic]AstNode, allocator)
  
-@@ -650,3 +705,39 @@
+@@ -635,3 +690,39 @@
  	testing.expect_value(t, statements[3].sourceType, ValueType.Variable)
  	testing.expect_value(t, token_index_to_string(statements[3].sourceToken, tokens, source_text), "c")
  }

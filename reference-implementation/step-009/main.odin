@@ -194,21 +194,6 @@ tokenize :: proc(source_text: string, allocator: runtime.Allocator) -> ([dynamic
 			tokenization_state = .CurrentlyError
 			current_token = {}
 			token_index -= 1
-
-			when ODIN_DEBUG {
-				end := line_start_byte;
-				for end < len(source_text) && source_text[end] != '\n'{
-					end += 1
-				}
-				log.debugf(
-					"> Token Error: %v (%v:%v, byte %v) (%v)",
-					source_text[error.line_start_byte:end],
-					error.line_number,
-					error.column_number,
-					error.start_byte,
-					error.type
-				)
-			}
 		}
 	}
 

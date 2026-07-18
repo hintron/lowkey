@@ -80,7 +80,7 @@
  			// Append byte position of new word to output
  			current_token = Token {
  				start_byte = current_position,
-@@ -115,12 +130,46 @@
+@@ -115,12 +130,31 @@
  			}
  
  			token_index += 1
@@ -105,21 +105,6 @@
 +			tokenization_state = .CurrentlyError
 +			current_token = {}
 +			token_index -= 1
-+
-+			when ODIN_DEBUG {
-+				end := line_start_byte;
-+				for end < len(source_text) && source_text[end] != '\n'{
-+					end += 1
-+				}
-+				log.debugf(
-+					"> Token Error: %v (%v:%v, byte %v) (%v)",
-+					source_text[error.line_start_byte:end],
-+					error.line_number,
-+					error.column_number,
-+					error.start_byte,
-+					error.type
-+				)
-+			}
  		}
  	}
  
@@ -129,7 +114,7 @@
  }
  
  token_to_string :: proc(token: Token, source_text: string) -> string {
-@@ -132,6 +181,22 @@
+@@ -132,6 +166,22 @@
  }
  
  ////////////////////////////////////////////////////////////////////////////////
@@ -152,7 +137,7 @@
  // Tests
  ////////////////////////////////////////////////////////////////////////////////
  // odin test . -debug -define:ODIN_TEST_SHORT_LOGS=true -define:ODIN_TEST_THREADS=1
-@@ -141,7 +206,7 @@
+@@ -141,7 +191,7 @@
  @(test)
  test_tokenize :: proc(t: ^testing.T) {
  	source_text := "This   is my program\nLine two\n Line  three \n"
@@ -161,7 +146,7 @@
  	testing.expect_value(t, token_to_string(tokens[0], source_text), "This")
  	testing.expect_value(t, tokens[0].line_number, 1)
  	testing.expect_value(t, tokens[0].column_number, 1)
-@@ -179,7 +244,7 @@
+@@ -179,7 +229,7 @@
  @(test)
  test_tokenize_005 :: proc(t: ^testing.T) {
  	source_text := "my_var_1 := 1_337\nmy_var_2 := 663\n"
@@ -170,7 +155,7 @@
  	testing.expect_value(t, token_to_string(tokens[0], source_text), "my_var_1")
  	testing.expect_value(t, tokens[0].line_number, 1)
  	testing.expect_value(t, tokens[0].column_number, 1)
-@@ -205,3 +270,15 @@
+@@ -205,3 +255,15 @@
  	testing.expect_value(t, tokens[5].column_number, 13)
  	testing.expect_value(t, tokens[5].token_index, 5)
  }

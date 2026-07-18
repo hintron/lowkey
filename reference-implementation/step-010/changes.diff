@@ -64,7 +64,7 @@
  	}
  }
  
-@@ -298,11 +323,23 @@
+@@ -283,11 +308,23 @@
  // Execution
  ////////////////////////////////////////////////////////////////////////////////
  
@@ -92,7 +92,7 @@
  	// Execution state
  	is_doing_assignment : bool
  	lefthand_identifier : Token
-@@ -331,13 +368,17 @@
+@@ -316,13 +353,17 @@
  		// We have enough context to do an assignment operation!:
  		//     lefthand := righthand
  		if lefthand_identifier.type != .Nil && is_doing_assignment && righthand_token.type != .Nil {
@@ -112,7 +112,7 @@
  					unimplemented("Tried to read from variable before it had a value!")
  				}
  			case .ConstantInteger:
-@@ -352,7 +393,7 @@
+@@ -337,7 +378,7 @@
  			}
  
  			// Do the actual assignment, overwriting anything already there
@@ -121,7 +121,7 @@
  
  			// Reset for next assignment operation
  			is_doing_assignment = false
-@@ -360,10 +401,23 @@
+@@ -345,10 +386,23 @@
  			righthand_token = {}
  		}
  	}
@@ -146,7 +146,7 @@
  ////////////////////////////////////////////////////////////////////////////////
  // Tests
  ////////////////////////////////////////////////////////////////////////////////
-@@ -456,9 +510,14 @@
+@@ -441,9 +495,14 @@
  	source_text := "a := 1\nb := 3\nc := b\nd := c\n"
  	tokens, errors := tokenize(source_text, context.temp_allocator)
  	testing.expect_value(t, len(errors), 0)

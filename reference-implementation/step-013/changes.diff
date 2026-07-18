@@ -80,7 +80,7 @@
  				token_index = token_index,
  			}
  
-@@ -310,9 +332,15 @@
+@@ -295,9 +317,15 @@
  // Errors
  ////////////////////////////////////////////////////////////////////////////////
  
@@ -96,7 +96,7 @@
  }
  
  Error :: struct {
-@@ -341,6 +369,14 @@
+@@ -326,6 +354,14 @@
  		strings.write_string(&builder, "Tokenization: Invalid Number")
  	case .TokenizationStraySlash:
  		strings.write_string(&builder, "Tokenization: Stray Slash")
@@ -111,7 +111,7 @@
  	}
  	strings.write_string(&builder, " (")
  	strings.write_int(&builder, error.line_number)
-@@ -402,8 +438,12 @@
+@@ -387,8 +423,12 @@
  	NumberConstant
  }
  
@@ -125,7 +125,7 @@
  
  	curr_token := 0
  	curr_statement := 0
-@@ -414,27 +454,78 @@
+@@ -399,27 +439,78 @@
  		case .Nil:
  			unimplemented()
  		case .IdentifierVariable:
@@ -207,7 +207,7 @@
  }
  
  // Parse an assignment statement and return an AstNode and the number of tokens it consumed
-@@ -682,7 +773,8 @@
+@@ -667,7 +758,8 @@
  	source_text := "a := 1\nb := 3\nc := b\nd := c\n"
  	tokens, tokenization_errors := tokenize(source_text, context.temp_allocator)
  	testing.expect_value(t, len(tokenization_errors), 0)
@@ -217,7 +217,7 @@
  	testing.expect_value(t, len(statements), 4)
  	testing.expect_value(t, statements[0].type, AstNodeType.Assignment)
  	testing.expect_value(t, statements[0].destType, ValueType.Variable)
-@@ -741,3 +833,29 @@
+@@ -726,3 +818,29 @@
  	testing.expect_value(t, errors[0].line_number, 9)
  	testing.expect_value(t, errors[0].column_number, 1)
  }
