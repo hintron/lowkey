@@ -122,9 +122,11 @@ I have a few opinionated suggestions for you, before you get started:
 
   * It's a subtle shift in thinking, but I think it's important, especially coming from higher-level languages that heavily use objects, methods, and closures.
 
-  * To remember what functions work on what data objects, you can do a naming convention like `object_action()` and make the first argument a pointer to the data object (this is all that methods do under the hood).
+  * Also, I don't like how objects have this implicit state that's accessible via methods. I much prefer a more functional approach where you explicitly pass in the inputs. I think it makes the code more readible and easier to reason about.
 
-  * For a more in-depth discussion on this, see [How I Program C by Eskil Steinberg](https://youtu.be/443UNeGrFoM?si=ruGUbGQ1RBdhUpD6) from 38:40 - 41:05 and [Why does Odin not have any methods?](https://odin-lang.org/docs/faq/#why-does-odin-not-have-any-methods).
+  * To remember what functions work on what data objects, you can do a naming convention like `object_action()` and make the first argument a pointer to the data object (this is basically what methods do under the hood).
+
+  * For a more in-depth discussion on this, see [How I Program C by Eskil Steinberg from 38:40](https://youtu.be/443UNeGrFoM?si=OUbbhYZuTEU0ryC3&t=2320) - 41:05 and [Why does Odin not have any methods?](https://odin-lang.org/docs/faq/#why-does-odin-not-have-any-methods).
 
 * ["Code like a 15 year old with 30 years of experience."](https://youtu.be/-m7lhJ_Mzdg?si=Y0BT4VgbpM4egX74&t=118)
 
