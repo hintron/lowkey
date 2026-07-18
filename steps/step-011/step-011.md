@@ -9,11 +9,11 @@ Create a `parse()` function that takes in a token list and outputs an array of s
 
 You can think of every program as an array of statements. A *statement* is a piece of code that does something. For example, in Lowkey, `a := 10` is an assignment statement. It assigns 10 to the variable `a` and changes the state of the program. That code does not produce a value.
 
-Statements are in contrast to expressions. An *expression* is a piece of code that produces a value that can be used in some other statement or expression. For example, `5 + 5` is an expression - it produces the value of 10, and it could be used in an assignment statement, like `a := 5 + 5`. But `5 + 5` alone does not do anything.
+Statements are in contrast to expressions. An *expression* is a piece of code that produces a value that can be used in some other statement or expression. For example, `5 + 5` is an expression - it produces the value of 10, and it could be used in an assignment statement, like `a := 5 + 5`.
 
 Statements and expressions can have nested expressions. For example, the assignment statement `a := 5 + (5 - 5)` has a nested subtraction expression inside the addition expression.
 
-We will eventually create an *Abstract Syntax Tree* (AST) that will allow for arbitrarily long expressions within statements. But for now, we will simply assume that we can only have a simple array of assignment statement AST nodes (Abstract Syntax Array?). There will be no tree structure to the output (yet).
+We will eventually create an *Abstract Syntax Tree* (AST) that will allow for arbitrarily long expressions within statements. But for now, we will simply assume that we can only have a simple array of assignment statement AST nodes (Abstract Syntax Array?). The output will not yet be a tree structure.
 
 Why do we care about statements vs. expressions? Because it helps catch syntax errors. E.g. `a := (b := 5 + 5)` would cause a syntax error in Lowkey, because assignments are statements and can't be used in a spot that expects an expression. However, in C, `a = b = 5 + 5` is valid because assignments are expressions (i.e. assignments produce values).
 
