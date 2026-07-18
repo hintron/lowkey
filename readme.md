@@ -87,15 +87,6 @@ The compiler will be implemented incrementally, step by step, in 30 minute sitdo
 See the [reference-implementation](reference-implementation/readme.md) for example code for all the steps, written in [Odin](https://odin-lang.org). Please don't look at this unless you get stuck and have already looked at the hints in that step's readme.
 
 
-# What's in a Language?
-
-I recommend watching these videos by Brian Will to get a sense for what is common between most programming languages:
-
-* [Every Programming Language in 15 Minutes](https://youtu.be/duhDovqHbEs?si=fVAROzLUS9sFNNIn)
-
-* [Every programming language in (another) 15 minutes: data types](https://youtu.be/QI-ktlf7qFU?si=2hZ-YxGyjBXjM-LQ)
-
-
 # Language Overview
 
 See the [Lowkey language overview](docs/lowkey-language-overview.md) (WIP!) for more information about Lowkey.
@@ -159,6 +150,15 @@ I have a few opinionated suggestions for you, before you get started:
 * [Lexing](https://interpreterbook.com/sample.pdf) by Thorsten Ball.
 
 * [Blaise](https://github.com/gingerBill/blaise) by Ginger Bill. It's an educational compiler implementation to teach people how to make a compiler from scratch and all of the minimal stages to produce an executable (I haven't looked at it yet).
+
+
+# What's in a Language?
+
+I recommend watching these videos by Brian Will to get a sense for what is common between most programming languages:
+
+* [Every Programming Language in 15 Minutes](https://youtu.be/duhDovqHbEs?si=fVAROzLUS9sFNNIn)
+
+* [Every programming language in (another) 15 minutes: data types](https://youtu.be/QI-ktlf7qFU?si=2hZ-YxGyjBXjM-LQ)
 
 
 # Notable incremental tutorials
