@@ -17,20 +17,11 @@ Disallow multiple assignments on the same line.
   ```
 
   Result:
-  There should be separate parse errors for the last four lines.
+  There should be separate parse errors generated for each of the last five lines. Also, `a := b` and `e := f` should still go through as valid statements.
 
 # Hints
 
 NOTE: View this on a web browser in GitHub or in a markdown viewer to avoid spoilers! -->
-
-
-###
-<details>
-<summary>Show Hint</summary>
-
-
-</details>
-
 
 
 ### Solution in Odin (Reference Implementation)

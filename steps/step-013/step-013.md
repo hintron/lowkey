@@ -15,7 +15,7 @@ Return some simple parsing errors from `parse()`.
   ```
 
   Result:
-  There should be separate parse errors for the last four lines.
+  There should be separate parse errors generated for each of the last three lines.
 
 # Hints
 
