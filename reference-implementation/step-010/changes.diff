@@ -109,7 +109,7 @@
  				source_var_name := source_text[source_token.start_byte:][:source_token.length]
 -				if source_value, ok = var_values[source_var_name]; !ok {
 +				if source_value, ok = state.var_values[source_var_name]; !ok {
- 					unimplemented("Tried to read from variable before it had a value!")
+ 					unimplemented(fmt.tprintfln("Tried to read from variable '%v' before it had a value!", source_var_name))
  				}
  			case .ConstantInteger:
 @@ -337,7 +378,7 @@

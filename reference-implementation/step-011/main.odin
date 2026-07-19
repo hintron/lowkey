@@ -465,7 +465,7 @@ execute :: proc(tokens: [dynamic]Token, source_text: string, state: ^Interpreter
 			case .IdentifierVariable:
 				source_var_name := source_text[source_token.start_byte:][:source_token.length]
 				if source_value, ok = state.var_values[source_var_name]; !ok {
-					unimplemented("Tried to read from variable before it had a value!")
+					unimplemented(fmt.tprintfln("Tried to read from variable '%v' before it had a value!", source_var_name))
 				}
 			case .ConstantInteger:
 				source_value_string := source_text[source_token.start_byte:][:source_token.length]
