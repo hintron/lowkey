@@ -2,7 +2,7 @@
 
 Lowkey is an educational language, interpreter, and compiler that novice programmers can incrementally write from scratch, step by step!
 
-The goal is to iteratively write a compiler from scratch for a simple statically typed language, with visible progress and feedback [^1] [^2]. Each step aims to be 30 minutes or less. You may use any systems programming language you want, as long as it allows you to low-level access to memory and empowers you to build arbitrary data structures [^3].
+The goal is to iteratively write a compiler from scratch for a simple statically typed language, with visible progress and feedback [^1] [^2] [^4]. Each step aims to be 30 minutes or less. You may use any systems programming language you want, as long as it allows you to low-level access to memory and empowers you to build arbitrary data structures [^3].
 
 Lowkey is loosely based on the [Odin programming language](https://odin-lang.org/) and is meant to only implement those language features that are common to most programming languages.
 
@@ -182,3 +182,4 @@ I recommend watching these videos by Brian Will to get a sense for what is commo
 [^1]: https://mitchellh.com/writing/building-large-technical-projects
 [^2]: http://scheme2006.cs.uchicago.edu/11-ghuloum.pdf
 [^3]: Recommended languages: Odin, Zig, and C. Rust could work, but I'm not sure how much trouble it will give us to implement the data structures we want. Python, JavaScript, and other non-systems programming languages make accessing low-level bytes and controlling memory layout difficult.
+[^4]: [Step-by-step: Programming incrementally - Our Machinery](https://ruby0x1.github.io/machinery_blog_archive/post/step-by-step-programming-incrementally/index.html)
