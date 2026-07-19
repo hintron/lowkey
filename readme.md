@@ -179,7 +179,7 @@ I recommend watching these videos by Brian Will to get a sense for what is commo
 * [Handmade Hero](https://guide.handmadehero.org/code/day001/) by Casey Muratori - Write a computer game from scratch, in 1 hour sessions (it is recommended to follow along for the first 30 days, and then as needed after that).
 
 
-[^1]: https://mitchellh.com/writing/building-large-technical-projects
-[^2]: http://scheme2006.cs.uchicago.edu/11-ghuloum.pdf
+[^1]: [My Approach to Building Large Technical Projects - Mitchell Hashimoto](https://mitchellh.com/writing/building-large-technical-projects)
+[^2]: [An Incremental Approach to Compiler Construction - Abdulaziz Ghuloum](http://scheme2006.cs.uchicago.edu/11-ghuloum.pdf)
 [^3]: Recommended languages: Odin, Zig, and C. Rust could work, but I'm not sure how much trouble it will give us to implement the data structures we want. Python, JavaScript, and other non-systems programming languages make accessing low-level bytes and controlling memory layout difficult.
 [^4]: [Step-by-step: Programming incrementally - Our Machinery](https://ruby0x1.github.io/machinery_blog_archive/post/step-by-step-programming-incrementally/index.html)
