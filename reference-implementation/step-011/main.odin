@@ -368,7 +368,7 @@ parse :: proc(tokens: [dynamic]Token, allocator: runtime.Allocator) -> ([dynamic
 }
 
 // Parse an assignment statement and return an AstNode and the number of tokens it consumed
-// The assignment statement expects a left side, an assigment operator, and a right side
+// The assignment statement expects a left side, an assignment operator, and a right side
 parse_statement_assignment :: proc(tokens: [dynamic]Token, current_token_idx: int) -> (AstNode, int) {
 	next_token_idx := current_token_idx
 	node := AstNode {
