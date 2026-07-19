@@ -33,11 +33,11 @@ The compiler will be implemented incrementally, step by step, in 30 minute sitdo
 * [`step-012.md`](steps/step-012/step-012.md) : Implement `//` as a single line comment.
 * [`step-013.md`](steps/step-013/step-013.md) : Return some simple parsing errors from `parse()`.
 * [`step-014.md`](steps/step-014/step-014.md) : Disallow multiple assignments on the same line.
+* [`step-015.md`](steps/step-015/step-015.md) : Make `execute()` execute a list of AST nodes instead of a list of tokens.
 
 
 #### Unimplemented steps and step ideas
 
-* [`step-XXX.md`](steps/step-XXX/step-XXX.md) : Have the `execute()` function execute a list of AST nodes instead of a list of tokens.
 * [`step-XXX.md`](steps/step-XXX/step-XXX.md) : Change the AST node structure to be an intrusive list/graph with a parent-child-sibling hierachy and handles.
 * [`step-XXX.md`](steps/step-XXX/step-XXX.md) : Implement simple expressions for the right side of the assignment statement.
 * [`step-XXX.md`](steps/step-XXX/step-XXX.md) : Make the tokenizer and the parser handle UTF-8.
