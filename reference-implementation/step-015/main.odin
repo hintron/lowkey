@@ -589,8 +589,8 @@ execute :: proc(ast_nodes: [dynamic]AstNode, tokens: [dynamic]Token, source_text
 			ok : bool
 			switch source_token.type {
 			case .IdentifierVariable:
-				righthand_var_name := source_text[source_token.start_byte:][:source_token.length]
-				if source_value, ok = state.var_values[righthand_var_name]; !ok {
+				source_var_name := source_text[source_token.start_byte:][:source_token.length]
+				if source_value, ok = state.var_values[source_var_name]; !ok {
 					unimplemented("Tried to read from variable before it had a value!")
 				}
 			case .ConstantInteger:
@@ -601,7 +601,7 @@ execute :: proc(ast_nodes: [dynamic]AstNode, tokens: [dynamic]Token, source_text
 			case .Nil:
 				fallthrough
 			case .OperatorBinaryAssignment:
-				unimplemented(fmt.tprintfln("Can't assign a right hand value for token type %v", source_token.type))
+				unimplemented(fmt.tprintfln("Can't assign a source/righthand value for token type %v", source_token.type))
 			}
 
 			// Do the actual assignment, overwriting anything already there

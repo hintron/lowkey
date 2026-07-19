@@ -38,7 +38,7 @@ NOTE: View this on a web browser in GitHub or in a markdown viewer to avoid spoi
 <details>
 <summary>Show Hint</summary>
 
-For now, just assume that the source text will be of the form `lefthand := righthand`. Always keep track of the previous token, and when you see `:=`, then set a `lefthand_token` to be the previous token and toggle a bool that says you are currently executing an assignment operation. That way, you know that the next token will be `righthand`.
+For now, just assume that the source text will be of the form `destination := source`. Always keep track of the previous token, and when you see `:=`, then set a `lefthand_token` to be the previous token and toggle a bool that says you are currently executing an assignment operation. That way, you know that the next token will be `righthand`.
 Once you have all three, you have enough information to execute the assignment. Store the result in a variable name to value (`string`-to-`int`) map.
 
 </details>

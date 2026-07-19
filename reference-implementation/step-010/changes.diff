@@ -91,24 +91,24 @@
 +execute :: proc(tokens: [dynamic]Token, source_text: string, state: ^InterpreterState, allocator: runtime.Allocator) {
  	// Execution state
  	is_doing_assignment : bool
- 	lefthand_identifier : Token
+ 	dest_identifier : Token
 @@ -316,13 +353,17 @@
  		// We have enough context to do an assignment operation!:
- 		//     lefthand := righthand
- 		if lefthand_identifier.type != .Nil && is_doing_assignment && righthand_token.type != .Nil {
--			lefthand_var_name := source_text[lefthand_identifier.start_byte:][:lefthand_identifier.length]
-+			lefthand_var_name := strings.clone(source_text[lefthand_identifier.start_byte:][:lefthand_identifier.length], allocator)
-+			if !(lefthand_var_name in state.var_values) {
+ 		// destination := source
+ 		if dest_identifier.type != .Nil && is_doing_assignment && source_token.type != .Nil {
+-			dest_var_name := source_text[dest_identifier.start_byte:][:dest_identifier.length]
++			dest_var_name := strings.clone(source_text[dest_identifier.start_byte:][:dest_identifier.length], allocator)
++			if !(dest_var_name in state.var_values) {
 +				// First time we've seen this variable! Create it
-+				append_elem(&state.var_names, lefthand_var_name)
++				append_elem(&state.var_names, dest_var_name)
 +			}
- 			righthand_value : int
+ 			source_value : int
  			ok : bool
- 			switch righthand_token.type {
+ 			switch source_token.type {
  			case .IdentifierVariable:
- 				righthand_var_name := source_text[righthand_token.start_byte:][:righthand_token.length]
--				if righthand_value, ok = var_values[righthand_var_name]; !ok {
-+				if righthand_value, ok = state.var_values[righthand_var_name]; !ok {
+ 				source_var_name := source_text[source_token.start_byte:][:source_token.length]
+-				if source_value, ok = var_values[source_var_name]; !ok {
++				if source_value, ok = state.var_values[source_var_name]; !ok {
  					unimplemented("Tried to read from variable before it had a value!")
  				}
  			case .ConstantInteger:
@@ -116,13 +116,13 @@
  			}
  
  			// Do the actual assignment, overwriting anything already there
--			var_values[lefthand_var_name] = righthand_value
-+			state.var_values[lefthand_var_name] = righthand_value
+-			var_values[dest_var_name] = source_value
++			state.var_values[dest_var_name] = source_value
  
  			// Reset for next assignment operation
  			is_doing_assignment = false
 @@ -345,10 +386,23 @@
- 			righthand_token = {}
+ 			source_token = {}
  		}
  	}
 +}

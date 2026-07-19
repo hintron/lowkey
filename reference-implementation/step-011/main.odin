@@ -428,8 +428,8 @@ init_state :: proc(allocator: runtime.Allocator) -> InterpreterState {
 execute :: proc(tokens: [dynamic]Token, source_text: string, state: ^InterpreterState, allocator: runtime.Allocator) {
 	// Execution state
 	is_doing_assignment : bool
-	lefthand_identifier : Token
-	righthand_token : Token
+	dest_identifier : Token
+	source_token : Token
 
 	for token in tokens {
 		switch token.type {
@@ -437,54 +437,54 @@ execute :: proc(tokens: [dynamic]Token, source_text: string, state: ^Interpreter
 			continue
 		case .IdentifierVariable:
 			if is_doing_assignment {
-				righthand_token = token
+				source_token = token
 			} else {
-				lefthand_identifier = token
+				dest_identifier = token
 			}
 		case .OperatorBinaryAssignment:
 			is_doing_assignment = true
-			// clear any righthand tokens
-			righthand_token = {}
+			// clear any source tokens
+			source_token = {}
 		case .ConstantInteger:
 			if is_doing_assignment {
-				righthand_token = token
+				source_token = token
 			}
 		}
 
 		// We have enough context to do an assignment operation!:
-		//     lefthand := righthand
-		if lefthand_identifier.type != .Nil && is_doing_assignment && righthand_token.type != .Nil {
-			lefthand_var_name := strings.clone(source_text[lefthand_identifier.start_byte:][:lefthand_identifier.length], allocator)
-			if !(lefthand_var_name in state.var_values) {
+		// destination := source
+		if dest_identifier.type != .Nil && is_doing_assignment && source_token.type != .Nil {
+			dest_var_name := strings.clone(source_text[dest_identifier.start_byte:][:dest_identifier.length], allocator)
+			if !(dest_var_name in state.var_values) {
 				// First time we've seen this variable! Create it
-				append_elem(&state.var_names, lefthand_var_name)
+				append_elem(&state.var_names, dest_var_name)
 			}
-			righthand_value : int
+			source_value : int
 			ok : bool
-			switch righthand_token.type {
+			switch source_token.type {
 			case .IdentifierVariable:
-				righthand_var_name := source_text[righthand_token.start_byte:][:righthand_token.length]
-				if righthand_value, ok = state.var_values[righthand_var_name]; !ok {
+				source_var_name := source_text[source_token.start_byte:][:source_token.length]
+				if source_value, ok = state.var_values[source_var_name]; !ok {
 					unimplemented("Tried to read from variable before it had a value!")
 				}
 			case .ConstantInteger:
-				righthand_value_string := source_text[righthand_token.start_byte:][:righthand_token.length]
-				if righthand_value, ok = strconv.parse_int(righthand_value_string); !ok {
-					unimplemented(fmt.tprintfln("Can't parse constant integer %v", righthand_value_string))
+				source_value_string := source_text[source_token.start_byte:][:source_token.length]
+				if source_value, ok = strconv.parse_int(source_value_string); !ok {
+					unimplemented(fmt.tprintfln("Can't parse constant integer %v", source_value_string))
 				}
 			case .Nil:
 				fallthrough
 			case .OperatorBinaryAssignment:
-				unimplemented(fmt.tprintfln("Can't assign a right hand value for token type %v", righthand_token.type))
+				unimplemented(fmt.tprintfln("Can't assign a source/righthand value for token type %v", source_token.type))
 			}
 
 			// Do the actual assignment, overwriting anything already there
-			state.var_values[lefthand_var_name] = righthand_value
+			state.var_values[dest_var_name] = source_value
 
 			// Reset for next assignment operation
 			is_doing_assignment = false
-			lefthand_identifier = {}
-			righthand_token = {}
+			dest_identifier = {}
+			source_token = {}
 		}
 	}
 }
