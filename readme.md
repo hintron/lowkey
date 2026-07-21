@@ -17,7 +17,7 @@ To get started, open [`step-001.md`](steps/step-001/step-001.md) and complete th
 
 # Step Schedule
 
-The compiler will be implemented incrementally, step by step, in 30 minute sitdown sessions. Each step will have a suite of test files to pass. Each step will start with a copy of the source code from the previous step (a la [Handmade Hero](https://guide.handmadehero.org/code/day001/)).
+The compiler will be implemented incrementally, step by step, in 30 minute sitdown sessions. Each step will have a suite of test files to pass. Each step will start with a copy of the source code from the previous step (a la [Handmade Hero](https://guide.handmadehero.org/code/day001/)). (See [`steps.diff`](./docs/steps.diff) to see how many lines each step is in the reference implementation.)
 
 * [`step-001.md`](steps/step-001/step-001.md) : Create a `Hello, world!` program in your chosen language.
 * [`step-002.md`](steps/step-002/step-002.md) : Create a `tokenize()` function and have it find the starting byte positions of words in a sentence.
