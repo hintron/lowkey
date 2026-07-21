@@ -41,6 +41,20 @@ file_line_counts() {
     echo "$total $non_test"
 }
 
+print_header() {
+    if $MARKDOWN; then
+        printf "| %-10s | %11s | %13s | %11s | %13s |\n" \
+            "Step" "Lines Added" "Lines Removed" "Total Lines" "Non-test Lines"
+        printf "|%-12s|%13s:|%15s:|%13s:|%15s:|\n" \
+            "------------" "-------------" "---------------" "-------------" "---------------"
+    else
+        printf "%-12s %12s %14s %12s %14s\n" \
+            "Step" "Lines Added" "Lines Removed" "Total Lines" "Non-test Lines"
+        printf "%-12s %12s %14s %12s %14s\n" \
+            "----" "-----------" "-------------" "-----------" "--------------"
+    fi
+}
+
 print_row() {
     local step="$1" added="$2" removed="$3" total="$4" non_test="$5"
     if $MARKDOWN; then
@@ -52,20 +66,11 @@ print_row() {
     fi
 }
 
-if $MARKDOWN; then
-    printf "| %-10s | %11s | %13s | %11s | %13s |\n" \
-        "Step" "Lines Added" "Lines Removed" "Total Lines" "Non-test Lines"
-    printf "|%-12s|%13s:|%15s:|%13s:|%15s:|\n" \
-        "------------" "-------------" "---------------" "-------------" "---------------"
-else
-    printf "%-12s %12s %14s %12s %14s\n" \
-        "Step" "Lines Added" "Lines Removed" "Total Lines" "Non-test Lines"
-    printf "%-12s %12s %14s %12s %14s\n" \
-        "----" "-----------" "-------------" "-----------" "--------------"
-fi
+print_header
 
 total_added=0
 total_removed=0
+row=0
 
 # Step 001 has no diff; count all lines in main.odin as added
 step001="$REF_DIR/step-001/main.odin"
@@ -73,8 +78,12 @@ added=$(wc -l < "$step001")
 read -r tl nt < <(file_line_counts "$step001")
 print_row "step-001" "$added" "---" "$tl" "$nt"
 total_added=$((total_added + added))
+row=$((row + 1))
 
 for diff_file in "$REF_DIR"/step-*/changes.diff; do
+    if (( row % 10 == 0 )); then
+        print_header
+    fi
     step=$(basename "$(dirname "$diff_file")")
     added=$(grep -c '^+' "$diff_file" || true)
     removed=$(grep -c '^-' "$diff_file" || true)
@@ -86,6 +95,7 @@ for diff_file in "$REF_DIR"/step-*/changes.diff; do
     print_row "$step" "$added" "$removed" "$tl" "$nt"
     total_added=$((total_added + added))
     total_removed=$((total_removed + removed))
+    row=$((row + 1))
 done
 
 if $MARKDOWN; then
