@@ -1,6 +1,6 @@
 --- step-010/main.odin
 +++ step-011/main.odin
-@@ -226,6 +226,10 @@
+@@ -216,6 +216,10 @@
  	return tokens, errors
  }
  
@@ -11,7 +11,7 @@
  token_to_string :: proc(token: Token, source_text: string) -> string {
  	return source_text[token.start_byte:(token.start_byte + token.length)]
  }
-@@ -305,6 +309,103 @@
+@@ -295,6 +299,103 @@
  }
  
  ////////////////////////////////////////////////////////////////////////////////
@@ -115,7 +115,7 @@
  // Execution
  ////////////////////////////////////////////////////////////////////////////////
  
-@@ -407,7 +508,6 @@
+@@ -397,7 +498,6 @@
  // Tests
  ////////////////////////////////////////////////////////////////////////////////
  // odin test . -debug -define:ODIN_TEST_SHORT_LOGS=true -define:ODIN_TEST_THREADS=1
@@ -123,7 +123,7 @@
  import "core:testing"
  
  @(test)
-@@ -506,3 +606,32 @@
+@@ -496,3 +596,32 @@
  	testing.expect_value(t, state.var_names[3], "d")
  	testing.expect_value(t, state.var_values[state.var_names[3]], 3)
  }

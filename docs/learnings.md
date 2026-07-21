@@ -13,7 +13,7 @@ This was surprising to me, because I just assumed that the keys would have been 
 I want to look at the implementation of a map in Odin - I believe that it does NOT allocate keys, so if a string's data was allocated on the stack (not sure if that's even possible) or if it's backed by a buffer that is being reused (my case) then that will cause problems.probably should just look at the map delete procedure to see what it tries to delete. I'm guessing it doesn't delete the keys.
 
 
-## Bug - Don't include newline in source identifier in assignment!
+## (Fixed) Bug - Don't include newline in source identifier in assignment!
 
 This would produce an error:
 
@@ -28,7 +28,7 @@ The reason for this is because `a` would be assigned 5, but then `a\n` would be 
 TODO: Fix this bug!
 
 
-## Two Bugs - Stray identifier token has huge length in REPL mode, and parsing error does not cause REPL to throw away related tokens, causing the error to propagate to subsequent statements
+## (Fixed) Two Bugs - Stray identifier token has huge length in REPL mode, and parsing error does not cause REPL to throw away related tokens, causing the error to propagate to subsequent statements
 
 ```
 Welcome to the Lowkey compiler! Starting REPL mode:

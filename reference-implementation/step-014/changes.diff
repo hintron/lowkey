@@ -1,6 +1,6 @@
 --- step-013/main.odin
 +++ step-014/main.odin
-@@ -314,6 +314,7 @@
+@@ -304,6 +304,7 @@
  	ParsingStrayNumber,
  	ParsingStrayIdentifier,
  	ParsingStrayAssignment,
@@ -8,7 +8,7 @@
  }
  
  Error :: struct {
-@@ -348,6 +349,8 @@
+@@ -338,6 +339,8 @@
  		strings.write_string(&builder, "Parsing: Stray Identifier")
  	case .ParsingStrayAssignment:
  		strings.write_string(&builder, "Parsing: Stray Assignment")
@@ -17,7 +17,7 @@
  	}
  	strings.write_string(&builder, " (")
  	strings.write_int(&builder, error.line_number)
-@@ -413,6 +416,9 @@
+@@ -403,6 +406,9 @@
  	nodes := make([dynamic]AstNode, allocator)
  	errors := make([dynamic]Error, allocator)
  
@@ -27,7 +27,7 @@
  	curr_token := 0
  	curr_statement := 0
  	total_tokens := len(tokens)
-@@ -441,10 +447,32 @@
+@@ -431,10 +437,32 @@
  			next_token := tokens[curr_token + 1]
  
  			if next_token.type == .OperatorBinaryAssignment {
@@ -60,7 +60,7 @@
  			} else {
  				unimplemented()
  			}
-@@ -787,11 +815,13 @@
+@@ -777,11 +805,13 @@
  1 // Can't have a constant number by itself
  := // Can't have an assignment by itself
  a // Can't have a variable by itself
@@ -75,7 +75,7 @@
  	testing.expect_value(t, statements[0].type, AstNodeType.Assignment)
  	testing.expect_value(t, statements[0].destType, ValueType.Variable)
  	testing.expect_value(t, token_index_to_string(statements[0].destToken, tokens, source_text), "a")
-@@ -800,4 +830,6 @@
+@@ -790,4 +820,6 @@
  	testing.expect_value(t, parsing_errors[0].type, ErrorType.ParsingStrayNumber)
  	testing.expect_value(t, parsing_errors[1].type, ErrorType.ParsingStrayAssignment)
  	testing.expect_value(t, parsing_errors[2].type, ErrorType.ParsingStrayIdentifier)

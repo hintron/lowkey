@@ -26,9 +26,10 @@ main :: proc() {
 			fmt.eprintln("Error reading:", err)
 			return
 		}
+		input_string := string(input_buffer[:n])
 
 		// Tokenize input
-		tokens, errors := tokenize(string(input_buffer[:n]), arena_allocator)
+		tokens, errors := tokenize(input_string, arena_allocator)
 
 		// Print out any errors
 		if len(errors) > 0 {

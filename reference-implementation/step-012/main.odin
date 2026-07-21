@@ -26,9 +26,6 @@ main :: proc() {
 	arena_allocator := vmem.arena_allocator(&arena)
 	state := init_state(arena_allocator)
 
-	// Make a source text string builder, and init to large capacity so it doesn't reallocate
-	source_text_builder := strings.builder_make_len_cap(1 * MB, 50 * MB, arena_allocator)
-
 	input_buffer: [1024]byte
 
 	for {
@@ -40,7 +37,6 @@ main :: proc() {
 			fmt.eprintln("Error reading:", err)
 			return
 		}
-
 		input_string := string(input_buffer[:n])
 
 		// Handle any commands (not intended to be part of the source text)
@@ -49,19 +45,13 @@ main :: proc() {
 			continue
 		}
 
-		// Append input string to source text
-		strings.write_string(&source_text_builder, input_string)
-
-		// Get a string view/slice into the source text
-		source_text := strings.to_string(source_text_builder)
-
 		// Tokenize input
-		tokens, errors := tokenize(source_text, arena_allocator)
+		tokens, errors := tokenize(input_string, arena_allocator)
 
 		// Print out any errors
 		if len(errors) > 0 {
 			for error in errors {
-				fmt.eprint(generate_error_message(error, source_text))
+				fmt.eprint(generate_error_message(error, input_string))
 			}
 			continue
 		}
@@ -74,7 +64,7 @@ main :: proc() {
 		}
 
 		// Execute the tokens directly, for now
-		execute(tokens, source_text, &state, arena_allocator)
+		execute(tokens, input_string, &state, arena_allocator)
 	}
 }
 

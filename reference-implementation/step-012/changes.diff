@@ -1,6 +1,6 @@
 --- step-011/main.odin
 +++ step-012/main.odin
-@@ -103,6 +103,8 @@
+@@ -93,6 +93,8 @@
  	Idle,
  	CurrentlyTokenizing, // Currently creating a token
  	CurrentlyError, // We hit an error - skipping to the next token
@@ -9,7 +9,7 @@
  }
  
  tokenize :: proc(source_text: string, allocator: runtime.Allocator) -> ([dynamic]Token, [dynamic]Error) {
-@@ -137,24 +139,46 @@
+@@ -127,24 +129,46 @@
  
  		character := source_text[current_position]
  
@@ -71,7 +71,7 @@
  				tokenization_state = .Idle
  			} else if tokenization_state == .CurrentlyError {
  				// Reset now that we are going to next token
-@@ -166,6 +190,7 @@
+@@ -156,6 +180,7 @@
  				line_number += 1
  				column_number = 0
  				line_start_byte = current_position + 1
@@ -79,7 +79,7 @@
  			}
  
  			when ODIN_DEBUG {
-@@ -226,6 +251,23 @@
+@@ -216,6 +241,23 @@
  	return tokens, errors
  }
  
@@ -103,7 +103,7 @@
  token_index_to_string :: proc(token_idx: int, tokens: [dynamic]Token, source_text: string) -> string {
  	return token_to_string(tokens[token_idx], source_text)
  }
-@@ -244,6 +286,7 @@
+@@ -234,6 +276,7 @@
  
  ErrorType :: enum {
  	TokenizationInvalidNumber,
@@ -111,7 +111,7 @@
  }
  
  Error :: struct {
-@@ -270,6 +313,8 @@
+@@ -260,6 +303,8 @@
  	switch (error.type) {
  	case .TokenizationInvalidNumber:
  		strings.write_string(&builder, "Tokenization: Invalid Number")
@@ -120,7 +120,7 @@
  	}
  	strings.write_string(&builder, " (")
  	strings.write_int(&builder, error.line_number)
-@@ -331,7 +376,6 @@
+@@ -321,7 +366,6 @@
  	NumberConstant
  }
  
@@ -128,7 +128,7 @@
  parse :: proc(tokens: [dynamic]Token, allocator: runtime.Allocator) -> ([dynamic]AstNode) {
  	nodes := make([dynamic]AstNode, allocator)
  
-@@ -635,3 +679,39 @@
+@@ -625,3 +669,39 @@
  	testing.expect_value(t, statements[3].sourceType, ValueType.Variable)
  	testing.expect_value(t, token_index_to_string(statements[3].sourceToken, tokens, source_text), "c")
  }

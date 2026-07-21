@@ -1,6 +1,6 @@
 --- step-012/main.odin
 +++ step-013/main.odin
-@@ -89,13 +89,19 @@
+@@ -79,13 +79,19 @@
  	ConstantInteger,
  }
  
@@ -20,7 +20,7 @@
  }
  
  // The states for the tokenization state machine
-@@ -145,7 +151,13 @@
+@@ -135,7 +141,13 @@
  			if tokenization_state != .PreviousSlash {
  				if tokenization_state == .CurrentlyTokenizing {
  					// Allow for a comment to come right after a token. E.g. a := 5// Hi
@@ -34,7 +34,7 @@
  				}
  
  				tokenization_state = .PreviousSlash
-@@ -173,24 +185,33 @@
+@@ -163,24 +175,33 @@
  
  		// Skip all whitespace
  		if is_whitespace(character) {
@@ -70,7 +70,7 @@
  			}
  
  			when ODIN_DEBUG {
-@@ -211,6 +232,7 @@
+@@ -201,6 +222,7 @@
  				// We will fill in length at end of parsing token
  				line_number = line_number,
  				column_number = column_number,
@@ -78,7 +78,7 @@
  				token_index = token_index,
  			}
  
-@@ -284,9 +306,14 @@
+@@ -274,9 +296,14 @@
  // Errors
  ////////////////////////////////////////////////////////////////////////////////
  
@@ -93,7 +93,7 @@
  }
  
  Error :: struct {
-@@ -315,6 +342,12 @@
+@@ -305,6 +332,12 @@
  		strings.write_string(&builder, "Tokenization: Invalid Number")
  	case .TokenizationStraySlash:
  		strings.write_string(&builder, "Tokenization: Stray Slash")
@@ -106,7 +106,7 @@
  	}
  	strings.write_string(&builder, " (")
  	strings.write_int(&builder, error.line_number)
-@@ -376,8 +409,9 @@
+@@ -366,8 +399,9 @@
  	NumberConstant
  }
  
@@ -117,7 +117,7 @@
  
  	curr_token := 0
  	curr_statement := 0
-@@ -388,11 +422,24 @@
+@@ -378,11 +412,24 @@
  		case .Nil:
  			unimplemented()
  		case .IdentifierVariable:
@@ -142,7 +142,7 @@
  			if next_token.type == .OperatorBinaryAssignment {
  				node, tokens_eaten := parse_statement_assignment(tokens, curr_token)
  				append_elem(&nodes, node)
-@@ -402,13 +449,29 @@
+@@ -392,13 +439,29 @@
  				unimplemented()
  			}
  		case .OperatorBinaryAssignment:
@@ -175,7 +175,7 @@
  }
  
  // Parse an assignment statement and return an AstNode and the number of tokens it consumed
-@@ -656,7 +719,8 @@
+@@ -646,7 +709,8 @@
  	source_text := "a := 1\nb := 3\nc := b\nd := c\n"
  	tokens, tokenization_errors := tokenize(source_text, context.temp_allocator)
  	testing.expect_value(t, len(tokenization_errors), 0)
@@ -185,7 +185,7 @@
  	testing.expect_value(t, len(statements), 4)
  	testing.expect_value(t, statements[0].type, AstNodeType.Assignment)
  	testing.expect_value(t, statements[0].destType, ValueType.Variable)
-@@ -715,3 +779,25 @@
+@@ -705,3 +769,25 @@
  	testing.expect_value(t, errors[0].line_number, 9)
  	testing.expect_value(t, errors[0].column_number, 1)
  }

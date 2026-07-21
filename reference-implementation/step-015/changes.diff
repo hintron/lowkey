@@ -1,6 +1,6 @@
 --- step-014/main.odin
 +++ step-015/main.odin
-@@ -73,8 +73,18 @@
+@@ -63,8 +63,18 @@
  			}
  		}
  
@@ -9,18 +9,18 @@
 +		// Print out any errors
 +		if len(parsing_errors) > 0 {
 +			for error in parsing_errors {
-+				fmt.eprint(generate_error_message(error, source_text))
++				fmt.eprint(generate_error_message(error, input_string))
 +			}
 +			continue
 +		}
 +
  		// Execute the tokens directly, for now
--		execute(tokens, source_text, &state, arena_allocator)
-+		execute(ast_nodes, tokens, source_text, &state, arena_allocator)
+-		execute(tokens, input_string, &state, arena_allocator)
++		execute(ast_nodes, tokens, input_string, &state, arena_allocator)
  	}
  }
  
-@@ -559,41 +569,22 @@
+@@ -549,41 +559,22 @@
  	return state
  }
  
@@ -72,7 +72,7 @@
  			source_value : int
  			ok : bool
  			switch source_token.type {
-@@ -615,11 +606,6 @@
+@@ -605,11 +596,6 @@
  
  			// Do the actual assignment, overwriting anything already there
  			state.var_values[dest_var_name] = source_value
@@ -84,7 +84,7 @@
  		}
  	}
  }
-@@ -730,8 +716,10 @@
+@@ -720,8 +706,10 @@
  	source_text := "a := 1\nb := 3\nc := b\nd := c\n"
  	tokens, errors := tokenize(source_text, context.temp_allocator)
  	testing.expect_value(t, len(errors), 0)

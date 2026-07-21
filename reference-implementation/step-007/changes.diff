@@ -1,6 +1,6 @@
 --- step-006/main.odin
 +++ step-007/main.odin
-@@ -3,11 +3,46 @@
+@@ -3,11 +3,47 @@
  import "base:runtime"
  import "core:fmt"
  import "core:log"
@@ -28,9 +28,10 @@
 +			fmt.eprintln("Error reading:", err)
 +			return
 +		}
++		input_string := string(input_buffer[:n])
 +
 +		// Tokenize input
-+		tokens, errors := tokenize(string(input_buffer[:n]), arena_allocator)
++		tokens, errors := tokenize(input_string, arena_allocator)
 +
 +		// Print out any errors
 +		if len(errors) > 0 {

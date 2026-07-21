@@ -32,16 +32,15 @@ main :: proc() {
 			fmt.eprintln("Error reading:", err)
 			return
 		}
-
-		source_text := string(input_buffer[:n])
+		input_string := string(input_buffer[:n])
 
 		// Tokenize input
-		tokens, errors := tokenize(source_text, arena_allocator)
+		tokens, errors := tokenize(input_string, arena_allocator)
 
 		// Print out any errors
 		if len(errors) > 0 {
 			for error in errors {
-				fmt.eprint(generate_error_message(error, source_text))
+				fmt.eprint(generate_error_message(error, input_string))
 			}
 			continue
 		}

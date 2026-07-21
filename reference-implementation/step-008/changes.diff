@@ -18,25 +18,16 @@
  		fmt.print("> ")
  		n, err := os.read(os.stdin, input_buffer[:])
  		if err != nil {
-@@ -27,13 +31,15 @@
- 			return
- 		}
- 
-+		source_text := string(input_buffer[:n])
-+
- 		// Tokenize input
--		tokens, errors := tokenize(string(input_buffer[:n]), arena_allocator)
-+		tokens, errors := tokenize(source_text, arena_allocator)
- 
+@@ -34,7 +38,7 @@
  		// Print out any errors
  		if len(errors) > 0 {
  			for error in errors {
 -				fmt.eprintln("Error: ", error)
-+				fmt.eprint(generate_error_message(error, source_text))
++				fmt.eprint(generate_error_message(error, input_string))
  			}
  			continue
  		}
-@@ -216,6 +222,60 @@
+@@ -217,6 +221,60 @@
  	column_number: int,
  }
  
