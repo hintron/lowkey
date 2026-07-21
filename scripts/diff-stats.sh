@@ -42,16 +42,24 @@ file_line_counts() {
 }
 
 print_header() {
+    local separator="${1:-true}"
     if $MARKDOWN; then
-        printf "| %-10s | %11s | %13s | %11s | %13s |\n" \
-            "Step" "Lines Added" "Lines Removed" "Total Lines" "Non-test Lines"
-        printf "|%-12s|%13s:|%15s:|%13s:|%15s:|\n" \
-            "------------" "-------------" "---------------" "-------------" "---------------"
+        if [[ "$separator" == "true" ]]; then
+            printf "| %s | %s | %s | %s | %s |\n" \
+                "**Step**" "**Lines Added**" "**Lines Removed**" "**Total Lines**" "**Non-test Lines**"
+            printf "|%-12s|%13s:|%15s:|%13s:|%15s:|\n" \
+                "------------" "-------------" "---------------" "-------------" "---------------"
+        else
+            printf "| %s | %s | %s | %s | %s |\n" \
+                "_Step_" "_Lines Added_" "_Lines Removed_" "_Total Lines_" "_Non-test Lines_"
+        fi
     else
         printf "%-12s %12s %14s %12s %14s\n" \
             "Step" "Lines Added" "Lines Removed" "Total Lines" "Non-test Lines"
-        printf "%-12s %12s %14s %12s %14s\n" \
-            "----" "-----------" "-------------" "-----------" "--------------"
+        if [[ "$separator" == "true" ]]; then
+            printf "%-12s %12s %14s %12s %14s\n" \
+                "----" "-----------" "-------------" "-----------" "--------------"
+        fi
     fi
 }
 
@@ -82,7 +90,7 @@ row=$((row + 1))
 
 for diff_file in "$REF_DIR"/step-*/changes.diff; do
     if (( row % 10 == 0 )); then
-        print_header
+        print_header false
     fi
     step=$(basename "$(dirname "$diff_file")")
     added=$(grep -c '^+' "$diff_file" || true)
@@ -99,7 +107,7 @@ for diff_file in "$REF_DIR"/step-*/changes.diff; do
 done
 
 if $MARKDOWN; then
-    print_row "**TOTAL**" "$total_added" "$total_removed" "---" "---"
+    print_row "_**TOTAL**_" "$total_added" "$total_removed" "---" "---"
 else
     printf "%-12s %12s %14s %12s %14s\n" \
         "----" "-----------" "-------------" "-----------" "--------------"

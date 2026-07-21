@@ -1,6 +1,6 @@
 # Line Diffs
 
-| Step       | Lines Added | Lines Removed | Total Lines | Non-test Lines |
+| **Step** | **Lines Added** | **Lines Removed** | **Total Lines** | **Non-test Lines** |
 |------------|-------------:|---------------:|-------------:|---------------:|
 | step-001   |           7 |           --- |           7 |             7 |
 | step-002   |          53 |             0 |          59 |            44 |
@@ -12,11 +12,10 @@
 | step-008   |          59 |             1 |         363 |           277 |
 | step-009   |          85 |             0 |         448 |           350 |
 | step-010   |          66 |            16 |         498 |           395 |
-| Step       | Lines Added | Lines Removed | Total Lines | Non-test Lines |
-|------------|-------------:|---------------:|-------------:|---------------:|
+| _Step_ | _Lines Added_ | _Lines Removed_ | _Total Lines_ | _Non-test Lines_ |
 | step-011   |         130 |             1 |         627 |           496 |
 | step-012   |          96 |            16 |         707 |           540 |
 | step-013   |          93 |             7 |         793 |           603 |
 | step-014   |          33 |             1 |         825 |           631 |
 | step-015   |          24 |            36 |         813 |           617 |
-| **TOTAL**  |         923 |           110 |         --- |           --- |
+| _**TOTAL**_ |         923 |           110 |         --- |           --- |
