@@ -17,7 +17,7 @@ To get started, open [`step-001.md`](steps/step-001/step-001.md) and complete th
 
 # Step Schedule
 
-The compiler will be implemented incrementally, step by step, in 30 minute sitdown sessions. Each step will have a suite of test files to pass. Each step will start with a copy of the source code from the previous step (a la [Handmade Hero](https://guide.handmadehero.org/code/day001/)). (See [`steps.diff`](./docs/steps.diff) to see how many lines each step is in the reference implementation.)
+The compiler will be implemented incrementally, step by step, in 30 minute sitdown sessions. Each step will have a suite of test files to pass. Each step will start with a copy of the source code from the previous step (a la [Handmade Hero](https://guide.handmadehero.org/code/day001/)).
 
 * [`step-001.md`](steps/step-001/step-001.md) : Create a `Hello, world!` program in your chosen language.
 * [`step-002.md`](steps/step-002/step-002.md) : Create a `tokenize()` function and have it find the starting byte positions of words in a sentence.
@@ -85,7 +85,9 @@ The compiler will be implemented incrementally, step by step, in 30 minute sitdo
 
 # Reference Implementation
 
-See the [reference-implementation](reference-implementation/readme.md) for example code for all the steps, written in [Odin](https://odin-lang.org). Please don't look at this unless you get stuck and have already looked at the hints in that step's readme.
+See the [reference-implementation](reference-implementation/readme.md) for example code for all the steps, written in [Odin](https://odin-lang.org). See also [`line-diffs.md`](./reference-implementation/line-diffs.md) to see how many lines each step took, to get a sense.
+
+If you get stuck, first look at the hints in the step's readme. If you still can't figure it out, take a look at the `changes.diff` file for that step, and then look at the full `main.odin` implementation as a last resort.
 
 
 # Language Overview

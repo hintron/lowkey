@@ -117,6 +117,14 @@ done
 echo "------------------------------"
 echo "Results: $PASS passed, $FAIL failed"
 
+OUT_FILE="$SCRIPT_DIR/../reference-implementation/line-diffs.md"
+echo "Generating $OUT_FILE"
+{
+    echo "# Line Diffs"
+    echo ""
+    bash "$SCRIPT_DIR/diff-stats.sh" --markdown
+} > "$OUT_FILE"
+
 if [[ $FAIL -gt 0 ]]; then
     exit 1
 fi
