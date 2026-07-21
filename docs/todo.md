@@ -18,7 +18,9 @@
 
 * Optional steps for experimental features
 
+* Accumulate input strings into a single cumulative text string, and print that out with the "source" command.
 
+* Figure out how to make a multi-line input into os.read. See if there is a trailing slash (whitespace trimmed), and if so, append string and read again?
 
 
 ## Completed
