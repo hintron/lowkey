@@ -6,7 +6,7 @@ Make `execute()` execute a list of AST nodes instead of a list of tokens.
 
 # Tests
 
-  Simply update the `execute()` test from [Step 009](../step-009/step-009.md) to execute the ast nodes returned by `parse()` instead of the tokens returned by `tokenize()`.
+Simply update the `execute()` test from [Step 009](../step-009/step-009.md) to execute the ast nodes returned by `parse()` instead of the tokens returned by `tokenize()`.
 
 # Hints
 
