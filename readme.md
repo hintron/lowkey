@@ -34,6 +34,7 @@ The compiler will be implemented incrementally, step by step, in 30 minute sitdo
 * [`step-013.md`](steps/step-013/step-013.md) : Return some simple parsing errors from `parse()`.
 * [`step-014.md`](steps/step-014/step-014.md) : Disallow multiple assignments on the same line.
 * [`step-015.md`](steps/step-015/step-015.md) : Make `execute()` execute a list of AST nodes instead of a list of tokens.
+* [`step-016.md`](steps/step-016/step-016.md) : Print out execution errors in the REPL.
 
 
 #### Unimplemented steps and step ideas

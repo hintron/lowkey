@@ -1,0 +1,136 @@
+--- step-015/main.odin
++++ step-016/main.odin
+@@ -74,7 +74,15 @@
+ 		}
+ 
+ 		// Execute the tokens directly, for now
+-		execute(ast_nodes, tokens, input_string, &state, arena_allocator)
++		execution_errors := execute(ast_nodes, tokens, input_string, &state, arena_allocator)
++
++		// Print out any execution errors
++		if len(execution_errors) > 0 {
++			for error in execution_errors {
++				fmt.eprint(generate_error_message(error, input_string))
++			}
++			continue
++		}
+ 	}
+ }
+ 
+@@ -306,15 +314,18 @@
+ // Errors
+ ////////////////////////////////////////////////////////////////////////////////
+ 
+-
+ // ErrorType and Error are shared between the tokenizer and the parser
+ ErrorType :: enum {
++	NoError,
+ 	TokenizationInvalidNumber,
+ 	TokenizationStraySlash,
+ 	ParsingStrayNumber,
+ 	ParsingStrayIdentifier,
+ 	ParsingStrayAssignment,
+ 	ParsingMultipleAssignment,
++	ExecutionUninitializedRead,
++	ExecutionBadNumberParsing,
++	ExecutionInvalidAssignmentSource,
+ }
+ 
+ Error :: struct {
+@@ -339,6 +350,8 @@
+ 
+ 	// Print out the error information
+ 	switch (error.type) {
++	case .NoError:
++		strings.write_string(&builder, "No Error")
+ 	case .TokenizationInvalidNumber:
+ 		strings.write_string(&builder, "Tokenization: Invalid Number")
+ 	case .TokenizationStraySlash:
+@@ -351,6 +364,12 @@
+ 		strings.write_string(&builder, "Parsing: Stray Assignment")
+ 	case .ParsingMultipleAssignment:
+ 		strings.write_string(&builder, "Parsing: Multiple Assignments on same line")
++	case .ExecutionUninitializedRead:
++		strings.write_string(&builder, "Execution: Tried to read from variable before it had a value")
++	case .ExecutionBadNumberParsing:
++		strings.write_string(&builder, "Execution: Failed to parse number")
++	case .ExecutionInvalidAssignmentSource:
++		strings.write_string(&builder, "Execution: Invalid source/righthand value for assignment operator")
+ 	}
+ 	strings.write_string(&builder, " (")
+ 	strings.write_int(&builder, error.line_number)
+@@ -560,7 +579,9 @@
+ }
+ 
+ // Execute the AST
+-execute :: proc(ast_nodes: [dynamic]AstNode, tokens: [dynamic]Token, source_text: string, state: ^InterpreterState, allocator: runtime.Allocator) {
++execute :: proc(ast_nodes: [dynamic]AstNode, tokens: [dynamic]Token, source_text: string, state: ^InterpreterState, allocator: runtime.Allocator) -> [dynamic]Error {
++	errors := make([dynamic]Error, allocator)
++
+ 	// For now, just iterate a linear array of ast nodes
+ 	for ast_node in ast_nodes {
+ 		switch ast_node.type {
+@@ -568,36 +589,54 @@
+ 			continue
+ 		case .Assignment:
+ 			// destination := source
+-			dest_token := tokens[ast_node.destToken]
+-			dest_var_name := strings.clone(source_text[dest_token.line_start_byte:][:dest_token.length], allocator)
+-			if !(dest_var_name in state.var_values) {
+-				// First time we've seen this variable! Create it
+-				append_elem(&state.var_names, dest_var_name)
+-			}
++			// Check source first, in case of errors
+ 			source_token := tokens[ast_node.sourceToken]
+ 			source_value : int
+ 			ok : bool
++			bad_source_err_type : ErrorType = .NoError
+ 			switch source_token.type {
+ 			case .IdentifierVariable:
+ 				source_var_name := source_text[source_token.start_byte:][:source_token.length]
+ 				if source_value, ok = state.var_values[source_var_name]; !ok {
+-					unimplemented(fmt.tprintfln("Tried to read from variable '%v' before it had a value!", source_var_name))
++					bad_source_err_type = .ExecutionUninitializedRead
+ 				}
+ 			case .ConstantInteger:
+ 				source_value_string := source_text[source_token.start_byte:][:source_token.length]
+ 				if source_value, ok = strconv.parse_int(source_value_string); !ok {
+-					unimplemented(fmt.tprintfln("Can't parse constant integer %v", source_value_string))
++					bad_source_err_type = .ExecutionBadNumberParsing
+ 				}
+ 			case .Nil:
+ 				fallthrough
+ 			case .OperatorBinaryAssignment:
+-				unimplemented(fmt.tprintfln("Can't assign a source/righthand value for token type %v", source_token.type))
++				bad_source_err_type = .ExecutionInvalidAssignmentSource
++			}
++
++			if bad_source_err_type != .NoError {
++				// There was an error with the source, so bail
++				append_elem(&errors, Error {
++					type = bad_source_err_type,
++					start_byte = source_token.start_byte,
++					line_start_byte = source_token.line_start_byte,
++					line_number = source_token.line_number,
++					column_number = source_token.column_number,
++				})
++				continue
++			}
++
++			// Now process the destination, since we know the source is good
++			dest_token := tokens[ast_node.destToken]
++			dest_var_name := strings.clone(source_text[dest_token.line_start_byte:][:dest_token.length], allocator)
++			if !(dest_var_name in state.var_values) {
++				// First time we've seen this variable! Create it
++				append_elem(&state.var_names, dest_var_name)
+ 			}
+ 
+ 			// Do the actual assignment, overwriting anything already there
+ 			state.var_values[dest_var_name] = source_value
+ 		}
+ 	}
++
++	return errors
+ }
+ 
+ print_interpreter_state :: proc (state: ^InterpreterState) {
