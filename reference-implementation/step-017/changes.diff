@@ -1,0 +1,245 @@
+--- step-016/main.odin
++++ step-017/main.odin
+@@ -319,10 +319,15 @@
+ 	NoError,
+ 	TokenizationInvalidNumber,
+ 	TokenizationStraySlash,
++	ParsingNilToken,
+ 	ParsingStrayNumber,
+ 	ParsingStrayIdentifier,
+ 	ParsingStrayAssignment,
++	ParsingAssignmentInsufficientTokens,
+ 	ParsingMultipleAssignment,
++	ParsingAssignmentInvalidDestination,
++	ParsingAssignmentInvalidOperator,
++	ParsingAssignmentInvalidSource,
+ 	ExecutionUninitializedRead,
+ 	ExecutionBadNumberParsing,
+ 	ExecutionInvalidAssignmentSource,
+@@ -356,14 +361,24 @@
+ 		strings.write_string(&builder, "Tokenization: Invalid Number")
+ 	case .TokenizationStraySlash:
+ 		strings.write_string(&builder, "Tokenization: Stray Slash")
++	case .ParsingNilToken:
++		strings.write_string(&builder, "Parsing: Encountered a nil token. This shouldn't happen.")
+ 	case .ParsingStrayNumber:
+ 		strings.write_string(&builder, "Parsing: Stray Number")
+ 	case .ParsingStrayIdentifier:
+ 		strings.write_string(&builder, "Parsing: Stray Identifier")
+ 	case .ParsingStrayAssignment:
+ 		strings.write_string(&builder, "Parsing: Stray Assignment")
++	case .ParsingAssignmentInsufficientTokens:
++		strings.write_string(&builder, "Parsing: Not enough tokens left to complete assignment operation")
+ 	case .ParsingMultipleAssignment:
+ 		strings.write_string(&builder, "Parsing: Multiple Assignments on same line")
++	case .ParsingAssignmentInvalidDestination:
++		strings.write_string(&builder, "Parsing: No identifier variable on left side (destination) of assignment")
++	case .ParsingAssignmentInvalidOperator:
++		strings.write_string(&builder, "Parsing: No assignment operator found in assignment statement")
++	case .ParsingAssignmentInvalidSource:
++		strings.write_string(&builder, "Parsing: No variable or number on right side (source) of assignment")
+ 	case .ExecutionUninitializedRead:
+ 		strings.write_string(&builder, "Execution: Tried to read from variable before it had a value")
+ 	case .ExecutionBadNumberParsing:
+@@ -445,7 +460,17 @@
+ 		token := tokens[curr_token]
+ 		switch token.type {
+ 		case .Nil:
+-			unimplemented()
++			if TokenFlag.IsStatementEnd in token.flags {
++				append(&errors, Error {
++					type = .ParsingNilToken,
++					start_byte = token.start_byte,
++					line_start_byte = token.line_start_byte,
++					line_number = token.line_number,
++					column_number = token.column_number,
++				})
++				curr_token = get_token_index_of_next_statement(tokens, curr_token, total_tokens)
++				continue
++			}
+ 		case .IdentifierVariable:
+ 			if TokenFlag.IsStatementEnd in token.flags {
+ 				append(&errors, Error {
+@@ -455,12 +480,18 @@
+ 					line_number = token.line_number,
+ 					column_number = token.column_number,
+ 				})
+-				curr_token += 1
++				curr_token = get_token_index_of_next_statement(tokens, curr_token, total_tokens)
+ 				continue
+ 			}
+ 
+ 			if curr_token + 1 >= total_tokens {
+-				// Not enough tokens left to finish assignment
++				append(&errors, Error {
++					type = .ParsingAssignmentInsufficientTokens,
++					start_byte = token.start_byte,
++					line_start_byte = token.line_start_byte,
++					line_number = token.line_number,
++					column_number = token.column_number,
++				})
+ 				continue
+ 			}
+ 			next_token := tokens[curr_token + 1]
+@@ -475,25 +506,42 @@
+ 						column_number = token.column_number,
+ 					})
+ 
+-					// Advance tokens forward until a "end statement" token is found
+-					for curr_token < total_tokens {
+-						if tokens[curr_token].flags == {.IsStatementEnd} {
+-							curr_token += 1
+-							break
+-						}
+-						curr_token += 1
+-					}
++					curr_token = get_token_index_of_next_statement(tokens, curr_token, total_tokens)
++					continue
++				}
++
++				node, tokens_eaten, error_type := parse_statement_assignment(tokens, curr_token)
++				if error_type != .NoError {
++					append(&errors, Error {
++						type = error_type,
++						start_byte = token.start_byte,
++						line_start_byte = token.line_start_byte,
++						line_number = token.line_number,
++						column_number = token.column_number,
++					})
++
++					curr_token = get_token_index_of_next_statement(tokens, curr_token, total_tokens)
+ 					continue
+ 				}
+ 
+-				node, tokens_eaten := parse_statement_assignment(tokens, curr_token)
+ 				append_elem(&nodes, node)
+ 				curr_token += tokens_eaten
+ 				curr_statement += 1
+ 				// Make sure multiple assignments are never done on the same line
+ 				last_assignment_line = next_token.line_number
+ 			} else {
+-				unimplemented()
++				// For now, just emit an error if a variable is not followed by an :=
++				append(&errors, Error {
++					type = .ParsingAssignmentInvalidOperator,
++					start_byte = token.start_byte,
++					line_start_byte = token.line_start_byte,
++					line_number = token.line_number,
++					column_number = token.column_number,
++				})
++
++				// Advance tokens forward until a "end statement" token is found
++				curr_token = get_token_index_of_next_statement(tokens, curr_token, total_tokens)
++				continue
+ 			}
+ 		case .OperatorBinaryAssignment:
+ 			// We can never start with an assignment token
+@@ -504,7 +552,8 @@
+ 				line_number = token.line_number,
+ 				column_number = token.column_number,
+ 			})
+-			curr_token += 1
++			curr_token = get_token_index_of_next_statement(tokens, curr_token, total_tokens)
++			continue
+ 		case .ConstantInteger:
+ 			// Can never start with a constant integer
+ 			append(&errors, Error {
+@@ -514,7 +563,8 @@
+ 				line_number = token.line_number,
+ 				column_number = token.column_number,
+ 			})
+-			curr_token += 1
++			curr_token = get_token_index_of_next_statement(tokens, curr_token, total_tokens)
++			continue
+ 		}
+ 	}
+ 
+@@ -523,7 +573,7 @@
+ 
+ // Parse an assignment statement and return an AstNode and the number of tokens it consumed
+ // The assignment statement expects a left side, an assignment operator, and a right side
+-parse_statement_assignment :: proc(tokens: [dynamic]Token, current_token_idx: int) -> (AstNode, int) {
++parse_statement_assignment :: proc(tokens: [dynamic]Token, current_token_idx: int) -> (AstNode, int, ErrorType) {
+ 	next_token_idx := current_token_idx
+ 	node := AstNode {
+ 		type = .Assignment
+@@ -531,17 +581,25 @@
+ 
+ 	left_side := tokens[next_token_idx]
+ 	if left_side.type != .IdentifierVariable {
+-		panic("Assignment statement expected identifier variable for left side")
++		return {}, 0, .ParsingAssignmentInvalidDestination
+ 	}
+ 	node.destType = .Variable
+ 	node.destToken = next_token_idx
++
+ 	next_token_idx += 1
++	if next_token_idx >= len(tokens) {
++		return {}, 0, .ParsingAssignmentInsufficientTokens
++	}
+ 
+ 	assignment_operator := tokens[next_token_idx]
+ 	if assignment_operator.type != .OperatorBinaryAssignment {
+-		panic("Assignment statement expected binary assignment operator")
++		return {}, 0, .ParsingAssignmentInvalidOperator
+ 	}
++
+ 	next_token_idx += 1
++	if next_token_idx >= len(tokens) {
++		return {}, 0, .ParsingAssignmentInsufficientTokens
++	}
+ 
+ 	right_side := tokens[next_token_idx]
+ 	if right_side.type == .IdentifierVariable {
+@@ -549,14 +607,31 @@
+ 	} else if right_side.type == .ConstantInteger {
+ 		node.sourceType = .NumberConstant
+ 	} else {
+-		panic("Assignment statement expected variable or constant for right side")
++		return {}, 0, .ParsingAssignmentInvalidSource
+ 	}
+ 	node.sourceToken = next_token_idx
+ 	next_token_idx += 1
+ 
+ 	total_tokens := next_token_idx - current_token_idx
+ 
+-	return node, total_tokens
++	return node, total_tokens, .NoError
++}
++
++// Looks in tokens for the token after the next IsStatementEnd token and returns that token index.
++// If not found, this will return 1 + the length of `tokens`.
++get_token_index_of_next_statement :: proc(tokens: [dynamic]Token, curr_token: int, total_tokens: int) -> int {
++	curr_token := curr_token
++	// Advance tokens forward until a "end statement" token is found (usually the next line)
++	for curr_token < total_tokens {
++		if tokens[curr_token].flags == {.IsStatementEnd} {
++			curr_token += 1
++			return curr_token
++		}
++		curr_token += 1
++	}
++
++	// No further statements were found - let caller deal with it
++	return curr_token
+ }
+ 
+ ////////////////////////////////////////////////////////////////////////////////
+@@ -850,3 +925,17 @@
+ 	testing.expect_value(t, parsing_errors[3].type, ErrorType.ParsingMultipleAssignment)
+ 	testing.expect_value(t, parsing_errors[4].type, ErrorType.ParsingStrayAssignment)
+ }
++
++@(test)
++test_parse_017 :: proc(t: ^testing.T) {
++	source_text :=
++`a 5 // No assignment operator found
++a := // Not enough tokens left for assignment
++`
++	tokens, tokenization_errors := tokenize(source_text, context.temp_allocator)
++	testing.expect_value(t, len(tokenization_errors), 0)
++	statements, parsing_errors := parse(tokens, context.temp_allocator)
++	testing.expect_value(t, len(statements), 0)
++	testing.expect_value(t, parsing_errors[0].type, ErrorType.ParsingAssignmentInvalidOperator)
++	testing.expect_value(t, parsing_errors[1].type, ErrorType.ParsingAssignmentInsufficientTokens)
++}

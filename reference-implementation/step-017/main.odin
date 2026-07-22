@@ -1,0 +1,941 @@
+package lowkey
+
+import "base:runtime"
+import "core:fmt"
+import "core:log"
+import vmem "core:mem/virtual"
+import "core:os"
+import "core:strings"
+import "core:strconv"
+import "core:unicode/utf8"
+
+when !ODIN_DEBUG { _ :: log } // Avoid unused import error for log
+
+KB :: 1024
+MB :: KB * 1024
+
+////////////////////////////////////////////////////////////////////////////////
+// REPL
+////////////////////////////////////////////////////////////////////////////////
+
+main :: proc() {
+	fmt.println("Welcome to the Lowkey compiler! Starting REPL mode:")
+
+	// program-wide allocations
+	arena: vmem.Arena
+	arena_allocator := vmem.arena_allocator(&arena)
+	state := init_state(arena_allocator)
+
+	input_buffer: [1024]byte
+
+	for {
+		defer free_all(context.temp_allocator)
+
+		fmt.print("> ")
+		n, err := os.read(os.stdin, input_buffer[:])
+		if err != nil {
+			fmt.eprintln("Error reading:", err)
+			return
+		}
+		input_string := string(input_buffer[:n])
+
+		// Handle any commands (not intended to be part of the source text)
+		if input_string == "state\n" {
+			print_interpreter_state(&state)
+			continue
+		}
+
+		// Tokenize input
+		tokens, errors := tokenize(input_string, arena_allocator)
+
+		// Print out any errors
+		if len(errors) > 0 {
+			for error in errors {
+				fmt.eprint(generate_error_message(error, input_string))
+			}
+			continue
+		}
+
+		when ODIN_DEBUG {
+			// Print out tokens
+			for token in tokens {
+				fmt.println(token)
+			}
+		}
+
+		ast_nodes, parsing_errors := parse(tokens, arena_allocator)
+
+		// Print out any errors
+		if len(parsing_errors) > 0 {
+			for error in parsing_errors {
+				fmt.eprint(generate_error_message(error, input_string))
+			}
+			continue
+		}
+
+		// Execute the tokens directly, for now
+		execution_errors := execute(ast_nodes, tokens, input_string, &state, arena_allocator)
+
+		// Print out any execution errors
+		if len(execution_errors) > 0 {
+			for error in execution_errors {
+				fmt.eprint(generate_error_message(error, input_string))
+			}
+			continue
+		}
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Tokenization
+////////////////////////////////////////////////////////////////////////////////
+
+TokenType :: enum {
+	Nil,
+	IdentifierVariable,
+	OperatorBinaryAssignment,
+	ConstantInteger,
+}
+
+TokenFlag :: enum {
+	IsStatementEnd, // If set, then this token is the last token in a statement
+}
+
+Token :: struct {
+	type: TokenType,
+	start_byte: int,
+	length: int,
+	line_number: int,
+	column_number: int,
+	line_start_byte: int,
+	token_index: int,
+	flags: bit_set[TokenFlag],
+}
+
+// The states for the tokenization state machine
+TokenizationState :: enum {
+	Idle,
+	CurrentlyTokenizing, // Currently creating a token
+	CurrentlyError, // We hit an error - skipping to the next token
+	PreviousSlash, // The previous character was a slash - precursor to single-line comment
+	CurrentlyComment, // We are in a single-line comment - skipping to the next line
+}
+
+tokenize :: proc(source_text: string, allocator: runtime.Allocator) -> ([dynamic]Token, [dynamic]Error) {
+	// TODO: Assert that source file length is < INT_MAX
+	// TODO: Assert that source file ends with whitespace
+	when ODIN_DEBUG {
+		log.debug("tokenize() source text:")
+		log.debug("---------------------------------------------------------")
+		log.debug(source_text)
+		log.debug("---------------------------------------------------------")
+	}
+
+	tokens := make([dynamic]Token, allocator)
+	errors := make([dynamic]Error, allocator)
+
+	line_number := 1
+	line_start_byte := 0
+	column_number := 0
+	token_index := 0
+
+	current_position := 0
+	next_position := 0
+	// A simple state machine to indicate if we are currently tokenizing a token
+	// or skipping characters due to error.
+	tokenization_state : TokenizationState
+	current_token : Token
+	// Loop through each byte
+	for next_position < len(source_text) {
+		current_position = next_position
+		next_position += 1
+		column_number += 1
+
+		character := source_text[current_position]
+
+		// Skip all single-line comments
+		if character == '/' && tokenization_state != .CurrentlyComment {
+			// Slash encountered
+			if tokenization_state != .PreviousSlash {
+				if tokenization_state == .CurrentlyTokenizing {
+					// Allow for a comment to come right after a token. E.g. a := 5// Hi
+					current_token.flags += {.IsStatementEnd}
+					complete_and_append_token(&tokens, &current_token, current_position, source_text)
+				} else {
+					// Mark the last previously-completed token on this line as a statement end. E.g. a := 5 // Hi
+					if len(tokens) > 0 && tokens[len(tokens) - 1].line_number == line_number {
+						tokens[len(tokens) - 1].flags += {.IsStatementEnd}
+					}
+				}
+
+				tokenization_state = .PreviousSlash
+			} else {
+				// Single-line comment encountered
+				tokenization_state = .CurrentlyComment
+			}
+			continue
+		}
+
+		if tokenization_state == .PreviousSlash {
+			// After looking at the next character, we realized that the
+			// previous character was a stray single `/`! We only support //
+			error := Error {
+				type = .TokenizationStraySlash,
+				start_byte = current_position,
+				line_start_byte = line_start_byte,
+				line_number = line_number,
+				column_number = column_number - 1, // -1 for previous character column
+			}
+			append(&errors, error)
+			tokenization_state = .CurrentlyError
+			continue
+		}
+
+		// Skip all whitespace
+		if is_whitespace(character) {
+			finish_token := false
+			if tokenization_state == .CurrentlyComment {
+				// Whitespace encountered during comment
+				// Don't do anything until newline is hit
+			} else if tokenization_state == .CurrentlyTokenizing {
+				// If we hit whitespace after an identifier, append token to output!
+				finish_token = true
+				tokenization_state = .Idle
+			} else if tokenization_state == .CurrentlyError {
+				// Reset now that we are going to next token
+				tokenization_state = .Idle
+			}
+
+			// A newline increments line number, resets column number, and marks token as statement end
+			if character == '\n' {
+				line_number += 1
+				column_number = 0
+				line_start_byte = current_position + 1
+				tokenization_state = .Idle // Reset single-line comment
+				// For the last token in a line, add a 'statement end' flag
+				if finish_token {
+					current_token.flags += {.IsStatementEnd}
+				}
+			}
+
+			if finish_token {
+				complete_and_append_token(&tokens, &current_token, current_position, source_text)
+			}
+
+			when ODIN_DEBUG {
+				if character == '\n' {
+					log.debugf("--------------------------(newline)--------------------------")
+				}
+			}
+			continue
+		} else if tokenization_state == .CurrentlyError {
+			continue
+		}
+
+		// Something other than whitespace! Let's figure out what it is
+		if tokenization_state == .Idle {
+			// Append byte position of new word to output
+			current_token = Token {
+				start_byte = current_position,
+				// We will fill in length at end of parsing token
+				line_number = line_number,
+				column_number = column_number,
+				line_start_byte = line_start_byte,
+				token_index = token_index,
+			}
+
+			// Figure out what the type is based on the first character
+			if character == ':' {
+				current_token.type = .OperatorBinaryAssignment
+			} else if character >= '0' && character <= '9' {
+				current_token.type = .ConstantInteger
+			} else {
+				current_token.type = .IdentifierVariable
+			}
+
+			token_index += 1
+			tokenization_state = .CurrentlyTokenizing
+			continue
+		}
+
+		// Check that the next character isn't obviously syntactically incorrect
+		if
+			current_token.type == .ConstantInteger &&
+			((character < '0' || character > '9') && character != '_')
+		{
+			error := Error {
+				type = .TokenizationInvalidNumber,
+				start_byte = current_position,
+				line_start_byte = line_start_byte,
+				line_number = line_number,
+				column_number = column_number,
+			}
+			append(&errors, error)
+			tokenization_state = .CurrentlyError
+			current_token = {}
+			token_index -= 1
+		}
+	}
+
+	// Assume source text ends in whitespace, so final token gets appended
+	return tokens, errors
+}
+
+complete_and_append_token :: proc(tokens: ^[dynamic]Token, current_token: ^Token, current_position: int, source_text: string) {
+	current_token.length = current_position - current_token.start_byte
+	when ODIN_DEBUG {
+		log.debugf(
+			"> Token %v: %v (%v:%v, byte %v) (%v)",
+			current_token.token_index,
+			source_text[current_token.start_byte:(current_token.start_byte + current_token.length)],
+			current_token.line_number,
+			current_token.column_number,
+			current_token.start_byte,
+			current_token.type
+		)
+	}
+	append(tokens, current_token^)
+	current_token^ = {}
+}
+
+token_index_to_string :: proc(token_idx: int, tokens: [dynamic]Token, source_text: string) -> string {
+	return token_to_string(tokens[token_idx], source_text)
+}
+
+token_to_string :: proc(token: Token, source_text: string) -> string {
+	return source_text[token.start_byte:(token.start_byte + token.length)]
+}
+
+is_whitespace :: proc(character: u8) -> bool {
+	return character == ' ' || character == '\t' || character == '\n'
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Errors
+////////////////////////////////////////////////////////////////////////////////
+
+// ErrorType and Error are shared between the tokenizer and the parser
+ErrorType :: enum {
+	NoError,
+	TokenizationInvalidNumber,
+	TokenizationStraySlash,
+	ParsingNilToken,
+	ParsingStrayNumber,
+	ParsingStrayIdentifier,
+	ParsingStrayAssignment,
+	ParsingAssignmentInsufficientTokens,
+	ParsingMultipleAssignment,
+	ParsingAssignmentInvalidDestination,
+	ParsingAssignmentInvalidOperator,
+	ParsingAssignmentInvalidSource,
+	ExecutionUninitializedRead,
+	ExecutionBadNumberParsing,
+	ExecutionInvalidAssignmentSource,
+}
+
+Error :: struct {
+	type: ErrorType,
+	start_byte: int,
+	line_start_byte: int,  // To find the line length, just iterate until next \n
+	line_number: int,
+	column_number: int,
+}
+
+// Generate a nice-looking error message from a tokenization error.
+// Allocates using context's temporary allocator; free using `free_all(context.temp_allocator)`
+//
+// Example output:
+//   Error: Tokenization: Invalid Number (1:12; byte 11)
+//       a := 234234h //extra line context
+//       -----------^
+generate_error_message :: proc(error: Error, source_text: string) -> string {
+	// Use a string builder to generate a string with multiple lines
+	builder := strings.builder_make(context.temp_allocator)
+	strings.write_string(&builder, "Error: ")
+
+	// Print out the error information
+	switch (error.type) {
+	case .NoError:
+		strings.write_string(&builder, "No Error")
+	case .TokenizationInvalidNumber:
+		strings.write_string(&builder, "Tokenization: Invalid Number")
+	case .TokenizationStraySlash:
+		strings.write_string(&builder, "Tokenization: Stray Slash")
+	case .ParsingNilToken:
+		strings.write_string(&builder, "Parsing: Encountered a nil token. This shouldn't happen.")
+	case .ParsingStrayNumber:
+		strings.write_string(&builder, "Parsing: Stray Number")
+	case .ParsingStrayIdentifier:
+		strings.write_string(&builder, "Parsing: Stray Identifier")
+	case .ParsingStrayAssignment:
+		strings.write_string(&builder, "Parsing: Stray Assignment")
+	case .ParsingAssignmentInsufficientTokens:
+		strings.write_string(&builder, "Parsing: Not enough tokens left to complete assignment operation")
+	case .ParsingMultipleAssignment:
+		strings.write_string(&builder, "Parsing: Multiple Assignments on same line")
+	case .ParsingAssignmentInvalidDestination:
+		strings.write_string(&builder, "Parsing: No identifier variable on left side (destination) of assignment")
+	case .ParsingAssignmentInvalidOperator:
+		strings.write_string(&builder, "Parsing: No assignment operator found in assignment statement")
+	case .ParsingAssignmentInvalidSource:
+		strings.write_string(&builder, "Parsing: No variable or number on right side (source) of assignment")
+	case .ExecutionUninitializedRead:
+		strings.write_string(&builder, "Execution: Tried to read from variable before it had a value")
+	case .ExecutionBadNumberParsing:
+		strings.write_string(&builder, "Execution: Failed to parse number")
+	case .ExecutionInvalidAssignmentSource:
+		strings.write_string(&builder, "Execution: Invalid source/righthand value for assignment operator")
+	}
+	strings.write_string(&builder, " (")
+	strings.write_int(&builder, error.line_number)
+	strings.write_rune(&builder, ':')
+	strings.write_int(&builder, error.column_number)
+	strings.write_string(&builder, "; byte ")
+	strings.write_int(&builder, error.start_byte)
+	strings.write_string(&builder, ")\n")
+
+	// Get the byte location for the end of the line
+	line_end_byte := error.line_start_byte
+	for character in source_text[error.line_start_byte:] {
+		if character == '\n' {
+			break
+		} else {
+			line_end_byte += utf8.rune_size(character)
+		}
+		// TODO: Limit line length to a maximum?
+	}
+
+	// Print out the line in the source text
+	strings.write_string(&builder, "    ") // Indentation
+	strings.write_string(&builder, source_text[error.line_start_byte:line_end_byte])
+	strings.write_rune(&builder, '\n')
+
+	// Print an arrow to indicate which column in the source text line has the error
+	strings.write_string(&builder, "    ") // Indentation
+	cursor := 1
+	for cursor < error.column_number {
+		strings.write_rune(&builder, '-')
+		cursor += 1
+	}
+	strings.write_rune(&builder, '^')
+	strings.write_rune(&builder, '\n')
+
+	return strings.to_string(builder)
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Parsing
+////////////////////////////////////////////////////////////////////////////////
+
+AstNodeType :: enum {
+	Nil,
+	Assignment,
+}
+
+AstNode :: struct {
+	type: AstNodeType,  // Source is the right side of the assignment
+	sourceType: ValueType,
+	sourceToken: int,  // The index into the token stream for this value
+	destType: ValueType,  // Dest is the left side of the assignment
+	destToken: int,  // The index into the token stream for this value
+}
+
+ValueType :: enum {
+	Nil,
+	Variable,
+	NumberConstant
+}
+
+parse :: proc(tokens: [dynamic]Token, allocator: runtime.Allocator) -> ([dynamic]AstNode, [dynamic]Error) {
+	nodes := make([dynamic]AstNode, allocator)
+	errors := make([dynamic]Error, allocator)
+
+	// Simple parsing state
+	last_assignment_line : int
+
+	curr_token := 0
+	curr_statement := 0
+	total_tokens := len(tokens)
+	for curr_token < total_tokens {
+		token := tokens[curr_token]
+		switch token.type {
+		case .Nil:
+			if TokenFlag.IsStatementEnd in token.flags {
+				append(&errors, Error {
+					type = .ParsingNilToken,
+					start_byte = token.start_byte,
+					line_start_byte = token.line_start_byte,
+					line_number = token.line_number,
+					column_number = token.column_number,
+				})
+				curr_token = get_token_index_of_next_statement(tokens, curr_token, total_tokens)
+				continue
+			}
+		case .IdentifierVariable:
+			if TokenFlag.IsStatementEnd in token.flags {
+				append(&errors, Error {
+					type = .ParsingStrayIdentifier,
+					start_byte = token.start_byte,
+					line_start_byte = token.line_start_byte,
+					line_number = token.line_number,
+					column_number = token.column_number,
+				})
+				curr_token = get_token_index_of_next_statement(tokens, curr_token, total_tokens)
+				continue
+			}
+
+			if curr_token + 1 >= total_tokens {
+				append(&errors, Error {
+					type = .ParsingAssignmentInsufficientTokens,
+					start_byte = token.start_byte,
+					line_start_byte = token.line_start_byte,
+					line_number = token.line_number,
+					column_number = token.column_number,
+				})
+				continue
+			}
+			next_token := tokens[curr_token + 1]
+
+			if next_token.type == .OperatorBinaryAssignment {
+				if next_token.line_number == last_assignment_line {
+					append(&errors, Error {
+						type = .ParsingMultipleAssignment,
+						start_byte = token.start_byte,
+						line_start_byte = token.line_start_byte,
+						line_number = token.line_number,
+						column_number = token.column_number,
+					})
+
+					curr_token = get_token_index_of_next_statement(tokens, curr_token, total_tokens)
+					continue
+				}
+
+				node, tokens_eaten, error_type := parse_statement_assignment(tokens, curr_token)
+				if error_type != .NoError {
+					append(&errors, Error {
+						type = error_type,
+						start_byte = token.start_byte,
+						line_start_byte = token.line_start_byte,
+						line_number = token.line_number,
+						column_number = token.column_number,
+					})
+
+					curr_token = get_token_index_of_next_statement(tokens, curr_token, total_tokens)
+					continue
+				}
+
+				append_elem(&nodes, node)
+				curr_token += tokens_eaten
+				curr_statement += 1
+				// Make sure multiple assignments are never done on the same line
+				last_assignment_line = next_token.line_number
+			} else {
+				// For now, just emit an error if a variable is not followed by an :=
+				append(&errors, Error {
+					type = .ParsingAssignmentInvalidOperator,
+					start_byte = token.start_byte,
+					line_start_byte = token.line_start_byte,
+					line_number = token.line_number,
+					column_number = token.column_number,
+				})
+
+				// Advance tokens forward until a "end statement" token is found
+				curr_token = get_token_index_of_next_statement(tokens, curr_token, total_tokens)
+				continue
+			}
+		case .OperatorBinaryAssignment:
+			// We can never start with an assignment token
+			append(&errors, Error {
+				type = .ParsingStrayAssignment,
+				start_byte = token.start_byte,
+				line_start_byte = token.line_start_byte,
+				line_number = token.line_number,
+				column_number = token.column_number,
+			})
+			curr_token = get_token_index_of_next_statement(tokens, curr_token, total_tokens)
+			continue
+		case .ConstantInteger:
+			// Can never start with a constant integer
+			append(&errors, Error {
+				type = .ParsingStrayNumber,
+				start_byte = token.start_byte,
+				line_start_byte = token.line_start_byte,
+				line_number = token.line_number,
+				column_number = token.column_number,
+			})
+			curr_token = get_token_index_of_next_statement(tokens, curr_token, total_tokens)
+			continue
+		}
+	}
+
+	return nodes, errors
+}
+
+// Parse an assignment statement and return an AstNode and the number of tokens it consumed
+// The assignment statement expects a left side, an assignment operator, and a right side
+parse_statement_assignment :: proc(tokens: [dynamic]Token, current_token_idx: int) -> (AstNode, int, ErrorType) {
+	next_token_idx := current_token_idx
+	node := AstNode {
+		type = .Assignment
+	}
+
+	left_side := tokens[next_token_idx]
+	if left_side.type != .IdentifierVariable {
+		return {}, 0, .ParsingAssignmentInvalidDestination
+	}
+	node.destType = .Variable
+	node.destToken = next_token_idx
+
+	next_token_idx += 1
+	if next_token_idx >= len(tokens) {
+		return {}, 0, .ParsingAssignmentInsufficientTokens
+	}
+
+	assignment_operator := tokens[next_token_idx]
+	if assignment_operator.type != .OperatorBinaryAssignment {
+		return {}, 0, .ParsingAssignmentInvalidOperator
+	}
+
+	next_token_idx += 1
+	if next_token_idx >= len(tokens) {
+		return {}, 0, .ParsingAssignmentInsufficientTokens
+	}
+
+	right_side := tokens[next_token_idx]
+	if right_side.type == .IdentifierVariable {
+		node.sourceType = .Variable
+	} else if right_side.type == .ConstantInteger {
+		node.sourceType = .NumberConstant
+	} else {
+		return {}, 0, .ParsingAssignmentInvalidSource
+	}
+	node.sourceToken = next_token_idx
+	next_token_idx += 1
+
+	total_tokens := next_token_idx - current_token_idx
+
+	return node, total_tokens, .NoError
+}
+
+// Looks in tokens for the token after the next IsStatementEnd token and returns that token index.
+// If not found, this will return 1 + the length of `tokens`.
+get_token_index_of_next_statement :: proc(tokens: [dynamic]Token, curr_token: int, total_tokens: int) -> int {
+	curr_token := curr_token
+	// Advance tokens forward until a "end statement" token is found (usually the next line)
+	for curr_token < total_tokens {
+		if tokens[curr_token].flags == {.IsStatementEnd} {
+			curr_token += 1
+			return curr_token
+		}
+		curr_token += 1
+	}
+
+	// No further statements were found - let caller deal with it
+	return curr_token
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Execution
+////////////////////////////////////////////////////////////////////////////////
+
+InterpreterState :: struct {
+	// Keep track of variable names, in order of creation
+	var_names: [dynamic]string,
+	// Keep track of variable values
+	var_values: map[string]int,
+}
+
+init_state :: proc(allocator: runtime.Allocator) -> InterpreterState {
+	state := InterpreterState {
+		var_names = make([dynamic]string, allocator),
+		var_values = make(map[string]int, allocator),
+	}
+	return state
+}
+
+// Execute the AST
+execute :: proc(ast_nodes: [dynamic]AstNode, tokens: [dynamic]Token, source_text: string, state: ^InterpreterState, allocator: runtime.Allocator) -> [dynamic]Error {
+	errors := make([dynamic]Error, allocator)
+
+	// For now, just iterate a linear array of ast nodes
+	for ast_node in ast_nodes {
+		switch ast_node.type {
+		case .Nil:
+			continue
+		case .Assignment:
+			// destination := source
+			// Check source first, in case of errors
+			source_token := tokens[ast_node.sourceToken]
+			source_value : int
+			ok : bool
+			bad_source_err_type : ErrorType = .NoError
+			switch source_token.type {
+			case .IdentifierVariable:
+				source_var_name := source_text[source_token.start_byte:][:source_token.length]
+				if source_value, ok = state.var_values[source_var_name]; !ok {
+					bad_source_err_type = .ExecutionUninitializedRead
+				}
+			case .ConstantInteger:
+				source_value_string := source_text[source_token.start_byte:][:source_token.length]
+				if source_value, ok = strconv.parse_int(source_value_string); !ok {
+					bad_source_err_type = .ExecutionBadNumberParsing
+				}
+			case .Nil:
+				fallthrough
+			case .OperatorBinaryAssignment:
+				bad_source_err_type = .ExecutionInvalidAssignmentSource
+			}
+
+			if bad_source_err_type != .NoError {
+				// There was an error with the source, so bail
+				append_elem(&errors, Error {
+					type = bad_source_err_type,
+					start_byte = source_token.start_byte,
+					line_start_byte = source_token.line_start_byte,
+					line_number = source_token.line_number,
+					column_number = source_token.column_number,
+				})
+				continue
+			}
+
+			// Now process the destination, since we know the source is good
+			dest_token := tokens[ast_node.destToken]
+			dest_var_name := strings.clone(source_text[dest_token.line_start_byte:][:dest_token.length], allocator)
+			if !(dest_var_name in state.var_values) {
+				// First time we've seen this variable! Create it
+				append_elem(&state.var_names, dest_var_name)
+			}
+
+			// Do the actual assignment, overwriting anything already there
+			state.var_values[dest_var_name] = source_value
+		}
+	}
+
+	return errors
+}
+
+print_interpreter_state :: proc (state: ^InterpreterState) {
+	builder := strings.builder_make(context.temp_allocator)
+	strings.write_string(&builder, "Interpreter State:\n")
+
+	for variable in state.var_names {
+		strings.write_string(&builder, variable)
+		strings.write_string(&builder, " = ")
+		strings.write_int(&builder, state.var_values[variable])
+		strings.write_rune(&builder, '\n')
+	}
+
+	fmt.print(strings.to_string(builder))
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// Tests
+////////////////////////////////////////////////////////////////////////////////
+// odin test . -debug -define:ODIN_TEST_SHORT_LOGS=true -define:ODIN_TEST_THREADS=1
+import "core:testing"
+
+@(test)
+test_tokenize :: proc(t: ^testing.T) {
+	source_text := "This   is my program\nLine two\n Line  three \n"
+	tokens, _ := tokenize(source_text, context.temp_allocator)
+	testing.expect_value(t, token_to_string(tokens[0], source_text), "This")
+	testing.expect_value(t, tokens[0].line_number, 1)
+	testing.expect_value(t, tokens[0].column_number, 1)
+	testing.expect_value(t, tokens[0].token_index, 0)
+	testing.expect_value(t, token_to_string(tokens[1], source_text), "is")
+	testing.expect_value(t, tokens[1].line_number, 1)
+	testing.expect_value(t, tokens[1].column_number, 8)
+	testing.expect_value(t, tokens[1].token_index, 1)
+	testing.expect_value(t, token_to_string(tokens[2], source_text), "my")
+	testing.expect_value(t, tokens[2].line_number, 1)
+	testing.expect_value(t, tokens[2].column_number, 11)
+	testing.expect_value(t, tokens[2].token_index, 2)
+	testing.expect_value(t, token_to_string(tokens[3], source_text), "program")
+	testing.expect_value(t, tokens[3].line_number, 1)
+	testing.expect_value(t, tokens[3].column_number, 14)
+	testing.expect_value(t, tokens[3].token_index, 3)
+	testing.expect_value(t, token_to_string(tokens[4], source_text), "Line")
+	testing.expect_value(t, tokens[4].line_number, 2)
+	testing.expect_value(t, tokens[4].column_number, 1)
+	testing.expect_value(t, tokens[4].token_index, 4)
+	testing.expect_value(t, token_to_string(tokens[5], source_text), "two")
+	testing.expect_value(t, tokens[5].line_number, 2)
+	testing.expect_value(t, tokens[5].column_number, 6)
+	testing.expect_value(t, tokens[5].token_index, 5)
+	testing.expect_value(t, token_to_string(tokens[6], source_text), "Line")
+	testing.expect_value(t, tokens[6].line_number, 3)
+	testing.expect_value(t, tokens[6].column_number, 2)
+	testing.expect_value(t, tokens[6].token_index, 6)
+	testing.expect_value(t, token_to_string(tokens[7], source_text), "three")
+	testing.expect_value(t, tokens[7].line_number, 3)
+	testing.expect_value(t, tokens[7].column_number, 8)
+	testing.expect_value(t, tokens[7].token_index, 7)
+}
+
+@(test)
+test_tokenize_005 :: proc(t: ^testing.T) {
+	source_text := "my_var_1 := 1_337\nmy_var_2 := 663\n"
+	tokens, _ := tokenize(source_text, context.temp_allocator)
+	testing.expect_value(t, token_to_string(tokens[0], source_text), "my_var_1")
+	testing.expect_value(t, tokens[0].line_number, 1)
+	testing.expect_value(t, tokens[0].column_number, 1)
+	testing.expect_value(t, tokens[0].token_index, 0)
+	testing.expect_value(t, token_to_string(tokens[1], source_text), ":=")
+	testing.expect_value(t, tokens[1].line_number, 1)
+	testing.expect_value(t, tokens[1].column_number, 10)
+	testing.expect_value(t, tokens[1].token_index, 1)
+	testing.expect_value(t, token_to_string(tokens[2], source_text), "1_337")
+	testing.expect_value(t, tokens[2].line_number, 1)
+	testing.expect_value(t, tokens[2].column_number, 13)
+	testing.expect_value(t, tokens[2].token_index, 2)
+	testing.expect_value(t, token_to_string(tokens[3], source_text), "my_var_2")
+	testing.expect_value(t, tokens[3].line_number, 2)
+	testing.expect_value(t, tokens[3].column_number, 1)
+	testing.expect_value(t, tokens[3].token_index, 3)
+	testing.expect_value(t, token_to_string(tokens[4], source_text), ":=")
+	testing.expect_value(t, tokens[4].line_number, 2)
+	testing.expect_value(t, tokens[4].column_number, 10)
+	testing.expect_value(t, tokens[4].token_index, 4)
+	testing.expect_value(t, token_to_string(tokens[5], source_text), "663")
+	testing.expect_value(t, tokens[5].line_number, 2)
+	testing.expect_value(t, tokens[5].column_number, 13)
+	testing.expect_value(t, tokens[5].token_index, 5)
+}
+
+@(test)
+test_tokenize_006 :: proc(t: ^testing.T) {
+	source_text := "1_my_var_ := 1_337\nmy_var_2 := 6^3\n"
+	_, errors := tokenize(source_text, context.temp_allocator)
+	testing.expect_value(t, errors[0].type, ErrorType.TokenizationInvalidNumber)
+	testing.expect_value(t, errors[0].line_number, 1)
+	testing.expect_value(t, errors[0].column_number, 3)
+	testing.expect_value(t, errors[1].type, ErrorType.TokenizationInvalidNumber)
+	testing.expect_value(t, errors[1].line_number, 2)
+	testing.expect_value(t, errors[1].column_number, 14)
+}
+
+@(test)
+test_execute_009 :: proc(t: ^testing.T) {
+	source_text := "a := 1\nb := 3\nc := b\nd := c\n"
+	tokens, errors := tokenize(source_text, context.temp_allocator)
+	testing.expect_value(t, len(errors), 0)
+	ast_nodes, parsing_errors := parse(tokens, context.temp_allocator)
+	testing.expect_value(t, len(parsing_errors), 0)
+	state : InterpreterState = init_state(context.temp_allocator)
+	execute(ast_nodes, tokens, source_text, &state, context.temp_allocator)
+	testing.expect_value(t, state.var_names[0], "a")
+	testing.expect_value(t, state.var_values[state.var_names[0]], 1)
+	testing.expect_value(t, state.var_names[1], "b")
+	testing.expect_value(t, state.var_values[state.var_names[1]], 3)
+	testing.expect_value(t, state.var_names[2], "c")
+	testing.expect_value(t, state.var_values[state.var_names[2]], 3)
+	testing.expect_value(t, state.var_names[3], "d")
+	testing.expect_value(t, state.var_values[state.var_names[3]], 3)
+}
+
+@(test)
+test_parse_011 :: proc(t: ^testing.T) {
+	source_text := "a := 1\nb := 3\nc := b\nd := c\n"
+	tokens, tokenization_errors := tokenize(source_text, context.temp_allocator)
+	testing.expect_value(t, len(tokenization_errors), 0)
+	statements, parsing_errors := parse(tokens, context.temp_allocator)
+	testing.expect_value(t, len(parsing_errors), 0)
+	testing.expect_value(t, len(statements), 4)
+	testing.expect_value(t, statements[0].type, AstNodeType.Assignment)
+	testing.expect_value(t, statements[0].destType, ValueType.Variable)
+	testing.expect_value(t, token_index_to_string(statements[0].destToken, tokens, source_text), "a")
+	testing.expect_value(t, statements[0].sourceType, ValueType.NumberConstant)
+	testing.expect_value(t, token_index_to_string(statements[0].sourceToken, tokens, source_text), "1")
+	testing.expect_value(t, statements[1].type, AstNodeType.Assignment)
+	testing.expect_value(t, statements[1].destType, ValueType.Variable)
+	testing.expect_value(t, token_index_to_string(statements[1].destToken, tokens, source_text), "b")
+	testing.expect_value(t, statements[1].sourceType, ValueType.NumberConstant)
+	testing.expect_value(t, token_index_to_string(statements[1].sourceToken, tokens, source_text), "3")
+	testing.expect_value(t, statements[2].type, AstNodeType.Assignment)
+	testing.expect_value(t, statements[2].destType, ValueType.Variable)
+	testing.expect_value(t, token_index_to_string(statements[2].destToken, tokens, source_text), "c")
+	testing.expect_value(t, statements[2].sourceType, ValueType.Variable)
+	testing.expect_value(t, token_index_to_string(statements[2].sourceToken, tokens, source_text), "b")
+	testing.expect_value(t, statements[3].type, AstNodeType.Assignment)
+	testing.expect_value(t, statements[3].destType, ValueType.Variable)
+	testing.expect_value(t, token_index_to_string(statements[3].destToken, tokens, source_text), "d")
+	testing.expect_value(t, statements[3].sourceType, ValueType.Variable)
+	testing.expect_value(t, token_index_to_string(statements[3].sourceToken, tokens, source_text), "c")
+}
+
+@(test)
+test_tokenize_012 :: proc(t: ^testing.T) {
+	source_text := `
+// Goodbye, world!
+a := 5 // This is a comment
+// This is a comment b := 5
+// // // // Hi
+c := 5//0
+//d := 5
+  // e := 5 // Hi
+/
+`
+	tokens, errors := tokenize(source_text, context.temp_allocator)
+	testing.expect_value(t, token_to_string(tokens[0], source_text), "a")
+	testing.expect_value(t, tokens[0].line_number, 3)
+	testing.expect_value(t, tokens[0].column_number, 1)
+	testing.expect_value(t, token_to_string(tokens[1], source_text), ":=")
+	testing.expect_value(t, tokens[1].line_number, 3)
+	testing.expect_value(t, tokens[1].column_number, 3)
+	testing.expect_value(t, token_to_string(tokens[2], source_text), "5")
+	testing.expect_value(t, tokens[2].line_number, 3)
+	testing.expect_value(t, tokens[2].column_number, 6)
+	testing.expect_value(t, token_to_string(tokens[3], source_text), "c")
+	testing.expect_value(t, tokens[3].line_number, 6)
+	testing.expect_value(t, tokens[3].column_number, 1)
+	testing.expect_value(t, token_to_string(tokens[4], source_text), ":=")
+	testing.expect_value(t, tokens[4].line_number, 6)
+	testing.expect_value(t, tokens[4].column_number, 3)
+	testing.expect_value(t, token_to_string(tokens[5], source_text), "5")
+	testing.expect_value(t, tokens[5].line_number, 6)
+	testing.expect_value(t, tokens[5].column_number, 6)
+	testing.expect_value(t, errors[0].type, ErrorType.TokenizationStraySlash)
+	testing.expect_value(t, errors[0].line_number, 9)
+	testing.expect_value(t, errors[0].column_number, 1)
+}
+
+@(test)
+test_parse_013 :: proc(t: ^testing.T) {
+	source_text :=
+`a := 5 // This is valid
+1 // Can't have a constant number by itself
+:= // Can't have an assignment by itself
+a // Can't have a variable by itself
+a := b c := d // Can't have multiple assignments on the same line
+e := f := g // Can't have an assignment that starts with nothing
+`
+	tokens, tokenization_errors := tokenize(source_text, context.temp_allocator)
+	testing.expect_value(t, len(tokenization_errors), 0)
+	statements, parsing_errors := parse(tokens, context.temp_allocator)
+	testing.expect_value(t, len(statements), 3)
+	testing.expect_value(t, statements[0].type, AstNodeType.Assignment)
+	testing.expect_value(t, statements[0].destType, ValueType.Variable)
+	testing.expect_value(t, token_index_to_string(statements[0].destToken, tokens, source_text), "a")
+	testing.expect_value(t, statements[0].sourceType, ValueType.NumberConstant)
+	testing.expect_value(t, token_index_to_string(statements[0].sourceToken, tokens, source_text), "5")
+	testing.expect_value(t, parsing_errors[0].type, ErrorType.ParsingStrayNumber)
+	testing.expect_value(t, parsing_errors[1].type, ErrorType.ParsingStrayAssignment)
+	testing.expect_value(t, parsing_errors[2].type, ErrorType.ParsingStrayIdentifier)
+	testing.expect_value(t, parsing_errors[3].type, ErrorType.ParsingMultipleAssignment)
+	testing.expect_value(t, parsing_errors[4].type, ErrorType.ParsingStrayAssignment)
+}
+
+@(test)
+test_parse_017 :: proc(t: ^testing.T) {
+	source_text :=
+`a 5 // No assignment operator found
+a := // Not enough tokens left for assignment
+`
+	tokens, tokenization_errors := tokenize(source_text, context.temp_allocator)
+	testing.expect_value(t, len(tokenization_errors), 0)
+	statements, parsing_errors := parse(tokens, context.temp_allocator)
+	testing.expect_value(t, len(statements), 0)
+	testing.expect_value(t, parsing_errors[0].type, ErrorType.ParsingAssignmentInvalidOperator)
+	testing.expect_value(t, parsing_errors[1].type, ErrorType.ParsingAssignmentInsufficientTokens)
+}
